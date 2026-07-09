@@ -1,7 +1,18 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_BUSINESS_API_URL,
+});
+
+// Configure axios-retry to handle transient network errors and server latency
+axiosRetry(apiClient, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Retry on network errors or 5xx server errors
+    return axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error);
+  }
 });
 
 export const registerClient = async (params: {

@@ -36,15 +36,18 @@ const WelcomeScreen = () => {
             isAuthenticated: true,
           });
         } else {
-          alert(response?.message || 'Error al registrar empresa');
+          // Handle detailed validation errors from the API
+          const errorMessage = response?.errors?.[0]?.message || response?.message || 'Error al registrar empresa';
+          alert(errorMessage);
         }
       } else {
         alert('El login requiere un endpoint /login. Por favor, use el registro para acceder al sistema.');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Auth error:', error);
-      const message = error instanceof Error ? error.message : 'Error de autenticación';
-      alert(message);
+      // Handle errors thrown by axios-retry or API client
+      const errorMessage = error?.errors?.[0]?.message || error?.message || 'Error de autenticación';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
