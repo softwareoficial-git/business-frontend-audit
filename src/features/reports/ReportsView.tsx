@@ -18,22 +18,22 @@ const ReportsView = () => {
     try {
       const reportRes = await executeCmd('staff.report', {}, session.tenantId || '');
       const stockRes = await executeCmd('products.list', {}, session.tenantId || '');
-      
+
       const stock: Product[] = stockRes?.data?.results || [];
-                               
+
       const invValue = stock.reduce((sum: number, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
       setStats({
         totalRevenue: reportRes.data?.total_revenue || 0,
         totalSales: reportRes.data?.total_sales || 0,
         inventoryValue: invValue,
       });
-    } catch (e) { 
-      console.error('Report error:', e); 
+    } catch (e) {
+      console.error('Report error:', e);
     }
     finally { setLoading(false); }
   }, [session.tenantId]);
 
-  useEffect(() => { 
+  useEffect(() => {
     (async () => {
       await fetchReports();
     })();

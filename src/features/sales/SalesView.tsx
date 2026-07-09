@@ -23,7 +23,7 @@ const SalesView = () => {
     } catch (e) { console.error('Sales stock error:', e); setProducts([]); }
   }, [session.tenantId]);
 
-  useEffect(() => { 
+  useEffect(() => {
     (async () => {
       await fetchStock();
     })();
@@ -95,7 +95,7 @@ const SalesView = () => {
           <h2 className="text-xl font-bold">Carrito</h2>
         </div>
         <div className="p-6 space-y-4 max-h-[40vh] overflow-y-auto">
-          {cart.length === 0 ? <p className="text-center py-8 text-slate-400">Vacío</p> : 
+          {cart.length === 0 ? <p className="text-center py-8 text-slate-400">Vacío</p> :
             cart.map(i => (
               <div key={i.code} className="flex items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl">
                 <div className="flex-1 min-w-0"><h4 className="text-sm font-semibold truncate">{i.name}</h4><p className="text-xs text-slate-500">${i.price} x {i.cartQuantity}</p></div>

@@ -18,14 +18,14 @@ const StaffView = () => {
       const res = await executeCmd('system.users.list', {}, session.tenantId || '');
       const employeesData = res?.data?.results || [];
       setEmployees(employeesData);
-    } catch (err) { 
-      console.error('Staff error:', err); 
-      setEmployees([]); 
+    } catch (err) {
+      console.error('Staff error:', err);
+      setEmployees([]);
     }
     finally { setLoading(false); }
   }, [session.tenantId]);
 
-  useEffect(() => { 
+  useEffect(() => {
     (async () => {
       await fetchEmployees();
     })();
@@ -39,14 +39,14 @@ const StaffView = () => {
         password: formData.password,
         role: formData.role_id === 1 ? 'admin' : 'employee',
       }, session.tenantId || '');
-      
+
       if (res && res.success) {
         setEmployees(prev => {
           const current = Array.isArray(prev) ? prev : [];
-          return [...current, { 
-            id: Date.now(), 
-            username: formData.username, 
-            role_id: formData.role_id 
+          return [...current, {
+            id: Date.now(),
+            username: formData.username,
+            role_id: formData.role_id
           }];
         });
         setIsModalOpen(false);

@@ -34,8 +34,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView }
               data-testid={`nav-${item.id}`}
               onClick={() => setCurrentView(item.id as View)}
               className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all duration-300 ${
-                currentView === item.id 
-                  ? 'bg-mac-accent text-white shadow-lg shadow-blue-200 scale-110' 
+                currentView === item.id
+                  ? 'bg-mac-accent text-white shadow-lg shadow-blue-200 scale-110'
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
@@ -44,7 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView }
             </button>
           ))}
           <div className="w-px h-8 bg-slate-200 mx-1" />
-          <button 
+          <button
             data-testid="nav-logout"
             onClick={clearSession}
             className="flex flex-col items-center justify-center p-2 rounded-2xl text-slate-400 hover:text-red-500 transition-all"

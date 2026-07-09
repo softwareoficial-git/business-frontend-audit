@@ -26,7 +26,7 @@ const WelcomeScreen = () => {
           password: formData.password,
           nombreCliente: formData.nombreCliente || 'Default Store',
         });
-        
+
         if (response && response.success) {
           setSession({
             token: response.data?.user?.token || response.token,

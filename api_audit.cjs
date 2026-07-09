@@ -4,7 +4,7 @@ const API_URL = process.env.VITE_BUSINESS_API_URL || 'http://localhost:3000';
 
 async function audit() {
   console.log('🚀 Starting API Audit...');
-  
+
   try {
     console.log('--- Testing Registration ---');
     const regId = Math.random().toString(36).substring(7);
@@ -16,9 +16,9 @@ async function audit() {
       nombreCliente: 'AuditCorp_' + regId
     });
     console.log('Registration Response:', JSON.stringify(regRes.data, null, 2));
-    
+
     let tenantId = regRes.data.data ? regRes.data.data.cliente.id : regRes.data.clienteId;
-    
+
     if (!tenantId) throw new Error('No tenantId returned from registration');
     // ENSURE tenantId is a string to avoid validation errors
     tenantId = String(tenantId);

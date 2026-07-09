@@ -32,7 +32,7 @@ const StockView = () => {
     finally { setLoading(false); }
   }, [session.tenantId]);
 
-  useEffect(() => { 
+  useEffect(() => {
     (async () => {
       await fetchStock();
     })();
@@ -50,7 +50,7 @@ const StockView = () => {
         category: formData.category,
         is_weight: false,
       }, session.tenantId || '');
-      
+
       console.log('stock.add response:', JSON.stringify(res, null, 2));
       if (res && res.success) {
         setIsModalOpen(false);
@@ -60,9 +60,9 @@ const StockView = () => {
         console.error('stock.add failed:', res?.message);
         alert(res?.message || 'Error al guardar');
       }
-    } catch (err) { 
+    } catch (err) {
       console.error('stock.add catch error:', err);
-      alert('Error al guardar'); 
+      alert('Error al guardar');
     }
   };
 

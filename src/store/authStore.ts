@@ -26,8 +26,8 @@ export const useAuthStore = create<AuthStore>()(
         isAuthenticated: false,
       },
       setSession: (session) => set({ session }),
-      clearSession: () => set({ 
-        session: { token: null, tenantId: null, username: null, role: null, isAuthenticated: false } 
+      clearSession: () => set({
+        session: { token: null, tenantId: null, username: null, role: null, isAuthenticated: false }
       }),
     }),
     { name: 'business-auth-storage' }

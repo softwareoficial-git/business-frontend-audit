@@ -4,12 +4,12 @@ export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_BUSINESS_API_URL,
 });
 
-export const registerClient = async (params: { 
-  client_name: string; 
-  owner_email: string; 
-  username: string; 
-  password: string; 
-  nombreCliente: string 
+export const registerClient = async (params: {
+  client_name: string;
+  owner_email: string;
+  username: string;
+  password: string;
+  nombreCliente: string
 }) => {
   try {
     const response = await apiClient.post('/register', params);
