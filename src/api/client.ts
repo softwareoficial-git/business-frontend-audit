@@ -58,7 +58,10 @@ axiosRetry(apiClient, {
 });
 
 export const loginUser = async (params: { username: string; password: string }) => {
-  const response = await apiClient.post('/login', params);
+  const response = await apiClient.post('/execute', {
+    cmd: 'USER:login',
+    params: params,
+  });
   return response.data;
 };
 
