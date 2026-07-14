@@ -37,11 +37,20 @@ const AppPanels = () => {
 
 function App() {
   const { session } = useAuthStore();
-  const { checkConnection } = useConnectionStore();
+  const { checkConnection, syncOfflineQueue } = useConnectionStore();
 
   useEffect(() => {
+    // Check inicial
     checkConnection();
-  }, [checkConnection]);
+
+    // Intervalo de monitoreo: verifica conexión y sincroniza cada 10 segundos
+    const interval = setInterval(async () => {
+      await checkConnection();
+      await syncOfflineQueue();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [checkConnection, syncOfflineQueue]);
 
   return (
     <div className="w-full min-h-screen">

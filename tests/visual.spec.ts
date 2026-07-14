@@ -10,7 +10,7 @@ test.describe('Visual Audit - Motor de UI', () => {
   test('El Dock debe ser visible y centrado en Mobile', async ({ page }) => {
     const dock = page.locator('div.fixed.bottom-6');
     await expect(dock).toBeVisible();
-    
+
     const box = await dock.boundingBox();
     if (box) {
       // El dock debe estar centrado horizontalmente (aprox)
@@ -25,7 +25,7 @@ test.describe('Visual Audit - Motor de UI', () => {
     // Como el texto solo aparece al estar activo, buscamos por el icono o la posición
     const buttons = page.locator('button');
     await buttons.nth(1).click(); // Clic en Stock
-    
+
     // Verificar que el botón tiene el estilo de activo (bg-blue-500)
     await expect(buttons.nth(1)).toHaveClass(/bg-blue-500/);
   });

@@ -20,9 +20,9 @@ const AUDIT_SUITE = {
     name: 'UI Global (Dock & Toasts)',
     tests: [
       { id: 'ui_01', name: 'Presencia del Dock', action: async (page) => { await expect(page.locator('[data-testid="main-dock"]')).toBeVisible(); } },
-      { id: 'ui_02', name: 'Botones del Dock completos', action: async (page) => { 
-          const buttons = page.locator('[data-testid^="nav-"]'); 
-          await expect(buttons).toHaveCount(5); 
+      { id: 'ui_02', name: 'Botones del Dock completos', action: async (page) => {
+          const buttons = page.locator('[data-testid^="nav-"]');
+          await expect(buttons).toHaveCount(5);
       } },
       { id: 'ui_03', name: 'Contenedor de Toasts presente', action: async (page) => { await expect(page.locator('[data-testid="toast-container"]')).toBeAttached(); } },
     ]
@@ -34,10 +34,10 @@ const AUDIT_SUITE = {
       { id: 'stk_02', name: 'Carga de Lista de Productos', action: async (page) => { await expect(page.locator('text=Total productos').or(page.locator('div.text-sm.text-gray-500'))).toBeVisible({ timeout: 10000 }); } },
       { id: 'stk_03', name: 'Búsqueda de Producto Existente', action: async (page) => { await page.locator('input[type="text"]').fill('Coca'); await expect(page.locator('text=Coca Cola')).toBeVisible(); } },
       { id: 'stk_04', name: 'Apertura de Modal Añadir', action: async (page) => { await page.locator('[data-testid="btn-add-product"]').click(); await expect(page.locator('h2').first()).toBeVisible(); } },
-      { id: 'stk_05', name: 'Guardado de Producto y Toast', action: async (page) => { 
-          await page.locator('input').nth(0).fill('T' + Date.now()); 
-          await page.locator('input').nth(1).fill('Categoria'); 
-          await page.locator('input').nth(2).fill('Test Product ' + Date.now()); 
+      { id: 'stk_05', name: 'Guardado de Producto y Toast', action: async (page) => {
+          await page.locator('input').nth(0).fill('T' + Date.now());
+          await page.locator('input').nth(1).fill('Categoria');
+          await page.locator('input').nth(2).fill('Test Product ' + Date.now());
           await page.locator('button[data-testid="btn-save-product"]').click();
           await expect(page.locator('[data-testid="toast-item"]')).toBeVisible({ timeout: 5000 });
           await expect(page.locator('div.fixed.inset-0')).not.toBeVisible({ timeout: 10000 });
@@ -51,9 +51,9 @@ const AUDIT_SUITE = {
       { id: 'sls_02', name: 'Carga de Carrito Vacío', action: async (page) => { await expect(page.locator('text=Vacío')).toBeVisible({ timeout: 10000 }); } },
       { id: 'sls_03', name: 'Adición de Producto al Carrito', action: async (page) => { await page.locator('button').filter({ hasText: 'Coca Cola' }).first().click(); await expect(page.locator('text=Coca Cola')).toBeVisible(); } },
       { id: 'sls_04', name: 'Actualización de Cantidad (+)', action: async (page) => { await page.locator('button').filter({ hasText: 'Plus' }).or(page.locator('button').filter({ hasText: '+' })).first().click(); } },
-      { id: 'sls_05', name: 'Cobro de Venta y Toast', action: async (page) => { 
-          await page.locator('input[placeholder*="Teléfono"]').fill('123'); 
-          await page.locator('input[placeholder*="Monto"]').fill('10'); 
+      { id: 'sls_05', name: 'Cobro de Venta y Toast', action: async (page) => {
+          await page.locator('input[placeholder*="Teléfono"]').fill('123');
+          await page.locator('input[placeholder*="Monto"]').fill('10');
           await page.locator('button').filter({ hasText: 'Confirmar' }).or(page.locator('button').filter({ hasText: 'Cobrar' })).click();
           await expect(page.locator('[data-testid="toast-item"]')).toBeVisible({ timeout: 5000 });
           await expect(page.locator('text=Venta procesada').or(page.locator('text=Vacío'))).toBeVisible();
@@ -66,11 +66,11 @@ const AUDIT_SUITE = {
       { id: 'stf_01', name: 'Navegación al Panel', action: async (page) => { await page.locator('[data-testid="nav-staff"]').click(); await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 15000 }); } },
       { id: 'stf_02', name: 'Carga de Lista de Staff', action: async (page) => { await expect(page.locator('div.bg-white').first()).toBeVisible(); } },
       { id: 'stf_03', name: 'Apertura de Modal Crear Staff', action: async (page) => { await page.locator('[data-testid="btn-add-staff"]').click(); await expect(page.locator('text=Nuevo Empleado')).toBeVisible(); } },
-      { id: 'stf_04', name: 'Creación de Staff y Cierre', action: async (page) => { 
-          await page.locator('[data-testid="modal-staff-user"]').fill('user_' + Date.now()); 
-          await page.locator('[data-testid="modal-staff-pass"]').fill('Pass123'); 
+      { id: 'stf_04', name: 'Creación de Staff y Cierre', action: async (page) => {
+          await page.locator('[data-testid="modal-staff-user"]').fill('user_' + Date.now());
+          await page.locator('[data-testid="modal-staff-pass"]').fill('Pass123');
           await page.locator('button').filter({ hasText: 'Crear' }).click();
-          await expect(page.locator('[data-testid="btn-add-staff"]')).toBeVisible({ timeout: 10000 }); 
+          await expect(page.locator('[data-testid="btn-add-staff"]')).toBeVisible({ timeout: 10000 });
       } },
     ]
   },
@@ -90,11 +90,11 @@ test('EJECUCIÓN DE AUDITORÍA MASIVA', async ({ page }) => {
   let passedTests = 0;
 
   console.log('\n🚀 INICIANDO CICLO DE AUDITORÍA INTEGRAL');
-  
+
   for (const moduleName in AUDIT_SUITE) {
     const module = AUDIT_SUITE[moduleName];
     console.log(`\n--- 🔍 AUDITANDO MÓDULO: ${module.name} ---`);
-    
+
     let modulePassed = 0;
     let moduleTotal = module.tests.length;
 
@@ -112,7 +112,7 @@ test('EJECUCIÓN DE AUDITORÍA MASIVA', async ({ page }) => {
     console.log(`--- 📊 REPORTE ${module.name}: ${modulePassed}/${moduleTotal} EXITOSOS ---`);
     console.log(`--- 🔒 CIERRE DE MÓDULO: ${module.name} ---\n`);
   }
-  
+
   console.log('\n' + '='.repeat(40));
   console.log('RESUMEN FINAL DE AUDITORÍA:');
   console.log(`Total funciones testeadas: ${totalTests}`);

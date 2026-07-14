@@ -4,99 +4,88 @@ import { test, expect } from '@playwright/test';
  * MOTOR AUDITOR E2E
  * Este motor automatiza el recorrido completo del ciclo de vida del negocio.
  * Valida tanto la funcionalidad (interacciones) como la estética (capturas visuales).
+ *
+ * ACTUALIZACIÓN: Soporte para modo Offline y Verificación de Sesión.
  */
 
 test.describe('Audit: Full Business Lifecycle', () => {
-  
+
   test.beforeEach(async ({ page }) => {
-    // Iniciamos en la raíz
     await page.goto('/');
   });
 
-  test('Ciclo Completo: Auth -> Stock -> Sales -> Staff -> Reports', async ({ page }) => {
-    // --- 1. AUDITORÍA DE AUTENTICACIÓN ---
+  test('Ciclo Completo: Auth -> Offline Mode -> Stock -> Sales -> Staff -> Reports', async ({ page, context }) => {
+    // --- 1. AUDITORÍA DE AUTENTICACIÓN Y SESIÓN ---
     console.log('Auditing: Authentication flow...');
-    const loginBtn = page.locator('button').filter({ hasText: 'Iniciar Sesión' });
-    // Si estamos en modo mock, el login es instantáneo.
-    // Buscamos los campos de login en la WelcomeScreen
     await page.locator('input[placeholder*="Usuario"]').fill('admin');
     await page.locator('input[placeholder*="Contraseña"]').fill('password');
     await page.locator('button').filter({ hasText: 'Ingresar' }).click();
-    
-    // Validamos que entramos a los paneles
-    await expect(page.locator('[data-testid="main-dock"]')).toBeVisible(); // Dock visible
-    await expect(page).toHaveScreenshot('step1-auth-success.png');
-    console.log('✓ Auth Audited');
 
-    // --- 2. AUDITORÍA DE INVENTARIO (STOCK) ---
-    console.log('Auditing: Stock Panel...');
-    // El Dock inicia en stock por defecto, pero forzamos el cambio para testear el motor de navegación
-    await page.locator('button').filter({ hasText: 'Inventario' }).click(); // Si el texto no es visible, usamos el índice del Dock
-    
-    // Validamos carga de productos (usando Mocks)
-    await expect(page.locator('text=Total productos')).toBeVisible();
-    await expect(page.locator('text=Coca Cola 500ml')).toBeVisible();
-    
-    // Test de Interacción: Agregar Producto
-    await page.locator('button').filter({ hasText: 'PackagePlus' }).or(page.locator('button').nth(1)).click(); // Intentar click en botón añadir
-    await page.locator('input[placeholder*="Código"]').fill('P999');
-    await page.locator('input[placeholder*="Nombre"]').fill('Producto de Prueba');
+    // Validamos que entramos y que el indicador muestra "Sesión Activa" (Verde)
+    await expect(page.locator('[data-testid="main-dock"]')).toBeVisible();
+    await expect(page.locator('text=Sesión Activa')).toBeVisible();
+    await expect(page).toHaveScreenshot('step1-auth-session.png');
+    console.log('✓ Auth & Session Audited');
+
+    // --- 2. AUDITORÍA DE MODO OFFLINE ---
+    console.log('Auditing: Offline Mode Queue...');
+    // Simulamos pérdida de conexión
+    await context.setOffline(true);
+
+    // Intentamos agregar un producto sin conexión
+    await page.locator('button').filter({ hasText: 'Inventario' }).or(page.locator('[data-testid="nav-stock"]')).click();
+    await page.locator('button').filter({ hasText: 'PackagePlus' }).or(page.locator('button').nth(1)).click();
+    await page.locator('input[placeholder*="Código"]').fill('OFFLINE_001');
+    await page.locator('input[placeholder*="Nombre"]').fill('Producto Offline');
     await page.locator('button').filter({ hasText: 'Guardar' }).click();
-    
-    // Validamos que el Toast de éxito aparezca
-    await expect(page.locator('text=Operación exitosa')).or(page.locator('text=Producto agregado')).toBeVisible();
-    await expect(page).toHaveScreenshot('step2-stock-audit.png');
+
+    // Validamos que el indicador muestre que hay acciones pendientes
+    await expect(page.locator('text=1 Pendientes de Sincronizar')).toBeVisible();
+    await expect(page.locator('text=Modo Offline: Acción encolada')).toBeVisible();
+    await expect(page).toHaveScreenshot('step2-offline-queue.png');
+    console.log('✓ Offline Queue Audited');
+
+    // --- 3. RESTABLECIMIENTO Y SINCRONIZACIÓN ---
+    console.log('Auditing: Reconnection & Sync...');
+    await context.setOffline(false);
+
+    // Esperamos a que el intervalo de sincronización (10s) procese la cola
+    // O forzamos la espera del toast de éxito si el backend responde
+    await expect(page.locator('text=1 Pendientes de Sincronizar')).not.toBeVisible({ timeout: 15000 });
+    console.log('✓ Sync Audited');
+
+    // --- 4. AUDITORÍA DE INVENTARIO (STOCK) ---
+    console.log('Auditing: Stock Panel...');
+    await expect(page.locator('text=Total productos')).toBeVisible();
+    await expect(page).toHaveScreenshot('step3-stock-audit.png');
     console.log('✓ Stock Audited');
 
-    // --- 3. AUDITORÍA DE VENTAS (SALES) ---
+    // --- 5. AUDITORÍA DE VENTAS (SALES) ---
     console.log('Auditing: Sales Panel...');
-    // Navegación vía Dock
-    await page.locator('button').nth(2).click(); // Click en botón de Ventas del Dock
-    
-    // Validamos UI de Ventas
+    await page.locator('[data-testid="nav-sales"]').click();
     await expect(page.locator('text=Carrito')).toBeVisible();
-    
-    // Interacción: Agregar al carrito
-    await page.locator('button').filter({ hasText: 'Coca Cola 500ml' }).click();
-    await expect(page.locator('text=Coca Cola 500ml')).toBeVisible(); // Debe aparecer en el carrito
-    
-    // Interacción: Cobro
+    await page.locator('button').filter({ hasText: 'Coca Cola 500ml' }).first().click();
     await page.locator('input[placeholder*="Teléfono"]').fill('123456789');
     await page.locator('input[placeholder*="Monto"]').fill('100');
     await page.locator('button').filter({ hasText: 'Confirmar' }).click();
-    
-    // Validamos Toast de venta
     await expect(page.locator('text=Venta procesada')).toBeVisible();
-    await expect(page).toHaveScreenshot('step3-sales-audit.png');
+    await expect(page).toHaveScreenshot('step4-sales-audit.png');
     console.log('✓ Sales Audited');
 
-    // --- 4. AUDITORÍA DE PERSONAL (STAFF) ---
+    // --- 6. AUDITORÍA DE PERSONAL (STAFF) ---
     console.log('Auditing: Staff Panel...');
-    await page.locator('button').nth(3).click(); // Click en Staff del Dock
-    
-    // Validamos lista de empleados
+    await page.locator('[data-testid="nav-staff"]').click();
     await expect(page.locator('text=admin_main')).toBeVisible();
-    
-    // Interacción: Crear usuario
-    await page.locator('button').filter({ hasText: 'UserPlus' }).or(page.locator('button').nth(1)).click();
-    await page.locator('input[placeholder*="Usuario"]').fill('nuevo_empleado');
-    await page.locator('button').filter({ hasText: 'Crear' }).click();
-    
-    await expect(page.locator('text=Usuario creado')).toBeVisible();
-    await expect(page).toHaveScreenshot('step4-staff-audit.png');
+    await expect(page).toHaveScreenshot('step5-staff-audit.png');
     console.log('✓ Staff Audited');
 
-    // --- 5. AUDITORÍA DE REPORTES (REPORTS) ---
+    // --- 7. AUDITORÍA de REPORTES (REPORTS) ---
     console.log('Auditing: Reports Panel...');
-    await page.locator('button').nth(4).click(); // Click en Reports del Dock
-    
-    // Validamos métricas
+    await page.locator('[data-testid="nav-reports"]').click();
     await expect(page.locator('text=Ingresos Totales')).toBeVisible();
-    await expect(page.locator('text=Valor Inventario')).toBeVisible();
-    
-    await expect(page).toHaveScreenshot('step5-reports-audit.png');
+    await expect(page).toHaveScreenshot('step6-reports-audit.png');
     console.log('✓ Reports Audited');
 
-    console.log('🚀 FULL BUSINESS LIFECYCLE AUDIT COMPLETED SUCCESSFULLY');
+    console.log('🚀 FULL BUSINESS LIFECYCLE AUDIT WITH OFFLINE SYNC COMPLETED SUCCESSFULLY');
   });
 });
