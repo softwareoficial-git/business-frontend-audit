@@ -1,0 +1,37 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful"
+  },
+  "stock": {
+    "title": "Inventory",
+    "search": "Search product...",
+    "addProduct": "Add Product",
+    "total": "Total products",
+    "price": "Price",
+    "quantity": "Quantity",
+    "category": "Category",
+    "code": "Code",
+    "name": "Name",
+    "save": "Save"
+  },
+  "sales": {
+    "title": "Sales",
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "total": "Total"
+  },
+  "staff": {
+    "title": "Staff",
+    "create": "Create User",
+    "role": "Role"
+  },
+  "reports": {
+    "title": "Reports",
+    "revenue": "Revenue",
+    "stockValue": "Inventory Value"
+  }
+}

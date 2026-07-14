@@ -1,39 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import WelcomeScreen from './features/auth/WelcomeScreen';
-import Layout from './components/Layout';
-import StockView from './features/stock/StockView';
-import SalesView from './features/sales/SalesView';
-import StaffView from './features/staff/StaffView';
-import ReportsView from './features/reports/ReportsView';
-
-type View = 'stock' | 'sales' | 'staff' | 'reports';
+import { Dock } from './engine/dock/Dock';
+import { ToastContainer } from './engine/toast/ToastContainer';
+import { ConnectionIndicator } from './engine/theme/ConnectionIndicator';
+import { useConnectionStore } from './engine/theme/connectionStore';
+import StockPanel from './ui/panels/StockPanel';
+import SalesPanel from './ui/panels/SalesPanel';
+import StaffPanel from './ui/panels/StaffPanel';
+import ReportsPanel from './ui/panels/ReportsPanel';
 
 const AppPanels = () => {
-  const [currentView, setCurrentView] = useState<View>('stock');
+  const [activePanel, setActivePanel] = useState('stock');
 
   const renderView = () => {
-    switch (currentView) {
-      case 'stock': return <StockView />;
-      case 'sales': return <SalesView />;
-      case 'staff': return <StaffView />;
-      case 'reports': return <ReportsView />;
-      default: return <StockView />;
+    switch (activePanel) {
+      case 'stock': return <StockPanel />;
+      case 'sales': return <SalesPanel />;
+      case 'staff': return <StaffPanel />;
+      case 'reports': return <ReportsPanel />;
+      default: return <StockPanel />;
     }
   };
 
   return (
-    <Layout currentView={currentView} setCurrentView={setCurrentView}>
-      {renderView()}
-    </Layout>
+    <div className="relative min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
+      <ConnectionIndicator />
+      <ToastContainer />
+      <div className="w-full h-full">
+        {renderView()}
+      </div>
+      <Dock activePanel={activePanel} onPanelChange={setActivePanel} />
+    </div>
   );
 };
 
 function App() {
   const { session } = useAuthStore();
+  const { checkConnection } = useConnectionStore();
+
+  useEffect(() => {
+    checkConnection();
+  }, [checkConnection]);
 
   return (
-    <div className="App">
+    <div className="w-full min-h-screen">
       {!session.isAuthenticated ? <WelcomeScreen /> : <AppPanels />}
     </div>
   );

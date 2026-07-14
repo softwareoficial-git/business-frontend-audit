@@ -81,7 +81,8 @@ const StaffView = () => {
       )}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 relative">
+          <div className="bg-white w-full rounded-3xl shadow-2xl p-6 relative">
+
             <button onClick={() => setIsModalOpen(false)} className="absolute right-4 top-4 text-slate-400"><X className="w-6 h-6" /></button>
             <h2 className="text-xl font-bold mb-6">Nuevo Empleado</h2>
             <form onSubmit={handleCreate} className="space-y-4">

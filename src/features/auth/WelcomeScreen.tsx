@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerClient } from '../../api/client';
+import { registerClient, loginUser } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { Building2, User, Lock, ArrowRight, Loader2 } from 'lucide-react';
 
@@ -19,7 +19,15 @@ const WelcomeScreen = () => {
     setLoading(true);
     try {
       if (!isLogin) {
-        const response = await registerClient({
+        // Password validation for registration
+        if (formData.password.length < 6) {
+          alert('La contraseña debe tener al menos 6 caracteres');
+          setLoading(false);
+          return;
+        }
+
+        // STEP 1: Register the client
+        const regResponse = await registerClient({
           client_name: formData.nombreCliente || 'Default Store',
           owner_email: `${formData.username}@example.com`,
           username: formData.username,
@@ -27,26 +35,49 @@ const WelcomeScreen = () => {
           nombreCliente: formData.nombreCliente || 'Default Store',
         });
 
-        if (response && response.success) {
-          setSession({
-            token: response.data?.user?.token || response.token,
-            tenantId: String(response.data?.cliente?.id || response.clienteId),
-            username: formData.username,
-            role: 'admin',
-            isAuthenticated: true,
-          });
+        if (regResponse && regResponse.success) {
+          // The /register endpoint returns the token directly in regResponse.data.user.token
+          const userData = regResponse.data?.user;
+          const clienteData = regResponse.data?.cliente;
+
+          if (userData && userData.token) {
+            setSession({
+              token: userData.token,
+              tenantId: String(clienteData?.id || userData.cliente_id),
+              username: userData.username,
+              role: 'admin', // Default role for owner
+              isAuthenticated: true,
+            });
+          } else {
+            throw new Error('El servidor no devolvió un token de sesión tras el registro.');
+          }
         } else {
-          // Handle detailed validation errors from the API
-          const errorMessage = response?.errors?.[0]?.message || response?.message || 'Error al registrar empresa';
+          const errorMessage = regResponse?.message || 'Error al registrar empresa';
           alert(errorMessage);
         }
       } else {
-        alert('El login requiere un endpoint /login. Por favor, use el registro para acceder al sistema.');
+        // LOGIN FLOW
+        const loginResponse = await loginUser({
+          username: formData.username,
+          password: formData.password,
+        });
+
+        if (loginResponse && loginResponse.success) {
+          setSession({
+            token: loginResponse.data?.user?.token || '',
+            tenantId: String(loginResponse.data?.user?.clienteId),
+            username: formData.username,
+            role: loginResponse.data?.user?.role || 'admin',
+            isAuthenticated: true,
+          });
+        } else {
+          const errorMessage = loginResponse?.message || 'Credenciales incorrectas';
+          alert(errorMessage);
+        }
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      // Handle errors thrown by axios-retry or API client
-      const errorMessage = error?.errors?.[0]?.message || error?.message || 'Error de autenticación';
+      const errorMessage = error?.response?.data?.message || error?.message || 'Error de autenticación';
       alert(errorMessage);
     } finally {
       setLoading(false);
@@ -55,72 +86,99 @@ const WelcomeScreen = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white p-8">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-mac-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-            <Building2 className="text-white w-8 h-8" />
+      <div className="w-full grid md:grid-cols-2 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white overflow-hidden mx-auto">
+        {/* Sección de Branding / Info (Solo visible en MD) */}
+        <div className="hidden md:flex flex-col justify-center p-12 bg-mac-accent text-white">
+          <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center mb-8 shadow-xl">
+            <Building2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-mac-text tracking-tight">
-            {isLogin ? 'Bienvenido' : 'Crea tu Empresa'}
-          </h1>
+          <h2 className="text-4xl font-bold mb-4 tracking-tight">Gestión Inteligente de tu Negocio</h2>
+          <p className="text-blue-100 text-lg mb-8 leading-relaxed">
+            Controla tu inventario, procesa ventas en segundos y analiza tus reportes en tiempo real con nuestra interfaz optimizada.
+          </p>
+          <div className="space-y-4">
+            {[
+              'Control de Stock en tiempo real',
+              'Procesamiento de ventas rápido',
+              'Análisis de métricas avanzado'
+            ].map((text, i) => (
+              <div key={i} className="flex items-center gap-3 text-blue-50">
+                <div className="w-2 h-2 bg-white rounded-full" />
+                <span className="font-medium">{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
+        {/* Sección del Formulario */}
+        <div className="p-6 lg:p-8 flex flex-col justify-center">
+          <div className="text-center mb-6 lg:text-left">
+            <div className="w-14 h-14 bg-mac-accent rounded-2xl flex items-center justify-center mx-auto lg:mx-0 mb-3 shadow-lg shadow-blue-200">
+              <Building2 className="text-white w-7 h-7" />
+            </div>
+            <h1 data-testid="welcome-title" className="text-2xl font-bold text-mac-text tracking-tight">
+              {isLogin ? 'Bienvenido' : 'Crea tu Empresa'}
+            </h1>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+
+            {!isLogin && (
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  data-testid="input-company"
+                  name="nombreCliente"
+                  placeholder="Nombre de la Empresa"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
+                  onChange={(e) => setFormData({ ...formData, nombreCliente: e.target.value })}
+                  required
+                />
+              </div>
+            )}
             <div className="relative">
-              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
-                data-testid="input-company"
-                name="nombreCliente"
-                placeholder="Nombre de la Empresa"
+                data-testid="input-username"
+                name="username"
+                placeholder="Usuario"
                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
-                onChange={(e) => setFormData({ ...formData, nombreCliente: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
               />
             </div>
-          )}
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input
-              data-testid="input-username"
-              name="username"
-              placeholder="Usuario"
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              required
-            />
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <input
+                data-testid="input-password"
+                name="password"
+                type="password"
+                placeholder="Contraseña"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+              />
+            </div>
+            <button
+              data-testid="btn-submit"
+              type="submit"
+              disabled={loading}
+              className="w-full bg-mac-accent text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-600 transition-all disabled:opacity-70"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                <> {isLogin ? 'Ingresar' : 'Registrar Empresa'} <ArrowRight className="w-5 h-5" /> </>
+              )}
+            </button>
+          </form>
+          <div className="mt-6 text-center lg:text-left">
+            <button
+              data-testid="btn-toggle-auth"
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm text-mac-accent font-medium hover:underline"
+            >
+              {isLogin ? '¿No tienes cuenta? Crea tu empresa aquí' : '¿Ya tienes cuenta? Inicia sesión'}
+            </button>
           </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input
-              data-testid="input-password"
-              name="password"
-              type="password"
-              placeholder="Contraseña"
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-            />
-          </div>
-          <button
-            data-testid="btn-submit"
-            type="submit"
-            disabled={loading}
-            className="w-full bg-mac-accent text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-600 transition-all disabled:opacity-70"
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-              <> {isLogin ? 'Ingresar' : 'Registrar Empresa'} <ArrowRight className="w-5 h-5" /> </>
-            )}
-          </button>
-        </form>
-        <div className="mt-6 text-center">
-          <button
-            data-testid="btn-toggle-auth"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-mac-accent font-medium hover:underline"
-          >
-            {isLogin ? '¿No tienes cuenta? Crea tu empresa aquí' : '¿Ya tienes cuenta? Inicia sesión'}
-          </button>
         </div>
       </div>
     </div>

@@ -22,11 +22,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView }
 
   return (
     <div className="min-h-screen bg-mac-bg text-mac-text pb-24 font-sans">
-      <main className="p-4 max-w-5xl mx-auto" data-testid="main-content">
+      <main className="p-4 w-full" data-testid="main-content">
         {children}
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50" data-testid="mac-dock">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full" data-testid="mac-dock">
         <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl px-4 py-3 flex items-center justify-between">
           {navItems.map((item) => (
             <button
