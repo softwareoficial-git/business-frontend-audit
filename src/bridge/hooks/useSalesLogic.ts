@@ -33,7 +33,7 @@ export const useSalesLogic = () => {
     setCart(prev => prev.map(i => i.code === code ? { ...i, cartQuantity: Math.max(0, i.cartQuantity + delta) } : i).filter(i => i.cartQuantity > 0));
   };
 
-  const checkout = async (customerPhone: string, paymentAmount: number) => {
+  const checkout = async (customerPhone: string) => {
     setProcessing(true);
     try {
       const res = await executeCmd('sales.create', {
