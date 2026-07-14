@@ -1,4 +1,3 @@
-import React from 'react';
 import { DOCK_CONFIG } from './config';
 import { Icon } from '../icons/registry';
 
