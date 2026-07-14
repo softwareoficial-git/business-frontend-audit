@@ -1,89 +1,117 @@
 const axios = require('axios');
 
-const API_URL = process.env.VITE_BUSINESS_API_URL || 'http://localhost:3000';
+const API_URL = 'https://business-logic-engine-node-production.up.railway.app';
 
-async function audit() {
-  console.log('🚀 Starting API Audit...');
+async function runFullAudit() {
+  const runId = Date.now();
+  const companyName = `Audit_Real_Node_${runId}`;
+  const username = `admin_${runId}`;
+  const password = 'Password123!';
+  const prodCode = `PROD_${runId}`;
+
+  console.log(`🚀 INICIANDO AUDITORÍA E2E REAL - ID: ${runId}`);
+  console.log(`URL: ${API_URL}`);
+  console.log('--------------------------------------------------');
 
   try {
-    console.log('--- Testing Registration ---');
-    const regId = Math.random().toString(36).substring(7);
-    const regRes = await axios.post(API_URL + '/register', {
-      client_name: 'AuditCorp_' + regId,
-      owner_email: 'audit_' + regId + '@example.com',
-      username: 'user_' + regId,
-      password: 'Pass123!',
-      nombreCliente: 'AuditCorp_' + regId
+    // 1. REGISTRO
+    console.log('1. Registrando Empresa y Usuario...');
+    const regRes = await axios.post(`${API_URL}/register`, {
+      client_name: companyName,
+      owner_email: `audit_${runId}@example.com`,
+      username: username,
+      password: password,
+      nombreCliente: companyName
     });
-    console.log('Registration Response:', JSON.stringify(regRes.data, null, 2));
 
-    let tenantId = regRes.data.data ? regRes.data.data.cliente.id : regRes.data.clienteId;
+    const token = regRes.data.data?.user?.token || regRes.data.user?.token;
+    const tenantId = regRes.data.data?.cliente?.id || regRes.data.clienteId;
 
-    if (!tenantId) throw new Error('No tenantId returned from registration');
-    // ENSURE tenantId is a string to avoid validation errors
-    tenantId = String(tenantId);
-    console.log('✅ Registered. TenantID (as string): ' + tenantId);
+    if (!token) throw new Error('No se recibió token de sesión');
+    console.log(`✅ Registrado. Token: ${token.substring(0, 8)}... TenantID: ${tenantId}`);
 
-    console.log('--- Testing stock.add ---');
-    const stockAddRes = await axios.post(API_URL + '/execute', {
+    const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
+    // 2. CARGA DE STOCK
+    console.log(`
+2. Cargando Stock Real...`);
+    await axios.post(`${API_URL}/execute`, {
       cmd: 'stock.add',
       params: {
-        code: 'AUDIT001',
-        name: 'Audit Product',
+        code: prodCode,
+        name: `Producto Real ${runId}`,
         price: 100,
-        quantity: 10,
-        category: 'Test',
-        is_weight: false
-      },
-      tenantId: tenantId
-    });
-    console.log('stock.add Response:', JSON.stringify(stockAddRes.data, null, 2));
+        qty: 50
+      }
+    }, authHeader);
+    console.log(`✅ Producto ${prodCode} agregado.`);
 
-    console.log('--- Testing products.list ---');
-    const stockListRes = await axios.post(API_URL + '/execute', {
-      cmd: 'products.list',
-      params: {},
-      tenantId: tenantId
-    });
-    console.log('products.list Response:', JSON.stringify(stockListRes.data, null, 2));
-
-    const products = stockListRes.data.data ? stockListRes.data.data.results : [];
-    const found = products.find(p => p.code === 'AUDIT001');
-    if (found) {
-      console.log('✅ SUCCESS: Product persisted and found in list!');
-    } else {
-      console.log('❌ FAILURE: Product not found in list despite success response.');
-    }
-
-    console.log('--- Testing system.users.create ---');
-    const userCreateRes = await axios.post(API_URL + '/execute', {
-      cmd: 'system.users.create',
+    // 3. CREACIÓN DE STAFF
+    console.log(`
+3. Creando Empleado Real...`);
+    await axios.post(`${API_URL}/execute`, {
+      cmd: 'staff.create',
       params: {
-        username: 'emp_' + regId,
-        password: 'EmpPass123!',
-        role: 'employee'
-      },
-      tenantId: tenantId
-    });
-    console.log('system.users.create Response:', JSON.stringify(userCreateRes.data, null, 2));
+        username: `emp_${runId}`,
+        password: 'EmployeePass123!',
+        nombre: `Empleado ${runId}`,
+        role: 'EMPLEADO'
+      }
+    }, authHeader);
+    console.log(`✅ Empleado creado.`);
 
-    console.log('--- Testing system.users.list ---');
-    const userListRes = await axios.post(API_URL + '/execute', {
-      cmd: 'system.users.list',
-      params: {},
-      tenantId: tenantId
-    });
-    console.log('system.users.list Response:', JSON.stringify(userListRes.data, null, 2));
+    // 4. PROCESAMIENTO DE VENTA
+    console.log(`
+4. Procesando Venta Real...`);
+    await axios.post(`${API_URL}/execute`, {
+      cmd: 'sales.create',
+      params: {
+        customer: `Cliente Test ${runId}`,
+        items: [{ code: prodCode, qty: 1 }],
+        client_request_id: `REQ_${runId}`
+      }
+    }, authHeader);
+    console.log(`✅ Venta procesada.`);
+
+    // 5. VERIFICACIÓN FINAL (LA PRUEBA DE FUEGO)
+    console.log(`
+==================================================`);
+    console.log('🔍 VERIFICACIÓN DE PERSISTENCIA EN BASE DE DATOS');
+    console.log('==================================================');
+
+    const stockList = await axios.post(`${API_URL}/execute`, { cmd: 'stock.list', params: {} }, authHeader);
+    const hasStock = stockList.data.data?.some(p => p.code === prodCode) || stockList.data.some(p => p.code === prodCode);
+    console.log(`Stock ${prodCode} existe: ${hasStock ? '✅ SÍ' : '❌ NO'}`);
+
+    const staffList = await axios.post(`${API_URL}/execute`, { cmd: 'staff.list', params: {} }, authHeader);
+    const hasStaff = staffList.data.data?.usuarios?.some(u => u.username === `emp_${runId}`) || staffList.data.some(u => u.username === `emp_${runId}`);
+    console.log(`Empleado emp_${runId} existe: ${hasStaff ? '✅ SÍ' : '❌ NO'}`);
+
+    const salesHist = await axios.post(`${API_URL}/execute`, { cmd: 'sales.history', params: {} }, authHeader);
+    const hasSale = salesHist.data.data?.length > 0 || salesHist.data.length > 0;
+    console.log(`Historial de ventas contiene datos: ${hasSale ? '✅ SÍ' : '❌ NO'}`);
+
+    if (hasStock && hasStaff && hasSale) {
+      console.log(`
+🌟 AUDITORÍA COMPLETADA CON ÉXITO: DATOS REALES PERSISTIDOS 🌟`);
+      process.exit(0);
+    } else {
+      console.log(`
+❌ AUDITORÍA FALLIDA: Algunos datos no persistieron.`);
+      process.exit(1);
+    }
 
   } catch (error) {
-    console.log('❌ Audit Failed:');
+    console.error(`
+🚨 ERROR CRÍTICO EN AUDITORÍA:`);
     if (error.response) {
-      console.log('Status: ' + error.response.status);
-      console.log('Data: ' + JSON.stringify(error.response.data, null, 2));
+      console.error(`Status: ${error.response.status}`);
+      console.error(`Data: ${JSON.stringify(error.response.data, null, 2)}`);
     } else {
-      console.log(error);
+      console.error(error.message);
     }
+    process.exit(1);
   }
 }
 
-audit();
+runFullAudit();

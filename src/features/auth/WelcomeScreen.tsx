@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { registerClient, loginUser } from '../../api/client';
+import React, { useState, useEffect } from 'react';
+import { registerClient, loginUser, checkUsernameExists } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
-import { Building2, User, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Building2, User, Lock, ArrowRight, Loader2, CheckCircle, XCircle } from 'lucide-react';
 
 const WelcomeScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,19 +14,39 @@ const WelcomeScreen = () => {
     password: '',
   });
 
+  const [passwordValid, setPasswordValid] = useState(false);
+  const [userExists, setUserExists] = useState<boolean | null>(null);
+  const [checkingUser, setCheckingUser] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!isLogin && formData.username.length >= 3) {
+        setCheckingUser(true);
+        const res = await checkUsernameExists(formData.username);
+        setUserExists(res?.exists);
+        setCheckingUser(false);
+      } else {
+        setUserExists(null);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [formData.username, isLogin]);
+
+  useEffect(() => {
+    setPasswordValid(formData.password.length >= 6);
+  }, [formData.password]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       if (!isLogin) {
-        // Password validation for registration
         if (formData.password.length < 6) {
           alert('La contraseña debe tener al menos 6 caracteres');
           setLoading(false);
           return;
         }
 
-        // STEP 1: Register the client
         const regResponse = await registerClient({
           client_name: formData.nombreCliente || 'Default Store',
           owner_email: `${formData.username}@example.com`,
@@ -36,7 +56,6 @@ const WelcomeScreen = () => {
         });
 
         if (regResponse && regResponse.success) {
-          // The /register endpoint returns the token directly in regResponse.data.user.token
           const userData = regResponse.data?.user;
           const clienteData = regResponse.data?.cliente;
 
@@ -45,7 +64,7 @@ const WelcomeScreen = () => {
               token: userData.token,
               tenantId: String(clienteData?.id || userData.cliente_id),
               username: userData.username,
-              role: 'admin', // Default role for owner
+              role: 'admin',
               isAuthenticated: true,
             });
           } else {
@@ -56,7 +75,6 @@ const WelcomeScreen = () => {
           alert(errorMessage);
         }
       } else {
-        // LOGIN FLOW
         const loginResponse = await loginUser({
           username: formData.username,
           password: formData.password,
@@ -121,7 +139,7 @@ const WelcomeScreen = () => {
             </h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             {!isLogin && (
               <div className="relative">
@@ -142,10 +160,21 @@ const WelcomeScreen = () => {
                 data-testid="input-username"
                 name="username"
                 placeholder="Usuario"
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
+                className={`w-full pl-11 pr-11 py-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 transition-colors ${
+                  userExists === true ? 'border-red-500 focus:ring-red-200' :
+                  userExists === false ? 'border-green-500 focus:ring-green-200' :
+                  'border-slate-200 focus:ring-mac-accent'
+                }`}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
               />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                {checkingUser ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> :
+                 userExists === true ? <XCircle className="w-4 h-4 text-red-500" /> :
+                 userExists === false ? <CheckCircle className="w-4 h-4 text-green-500" /> : null}
+              </div>
+              {userExists === true && <p className="text-[10px] text-red-500 mt-1 ml-1">Este usuario ya existe</p>}
+              {userExists === false && formData.username.length >= 3 && <p className="text-[10px] text-green-500 mt-1 ml-1">Usuario disponible</p>}
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -154,15 +183,22 @@ const WelcomeScreen = () => {
                 name="password"
                 type="password"
                 placeholder="Contraseña"
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-mac-accent"
+                className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 transition-colors ${
+                  formData.password.length > 0 && !passwordValid ? 'border-red-500 focus:ring-red-200' :
+                  passwordValid ? 'border-green-500 focus:ring-green-200' :
+                  'border-slate-200 focus:ring-mac-accent'
+                }`}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
               />
+              {!passwordValid && formData.password.length > 0 && (
+                <p className="text-[10px] text-red-500 mt-1 ml-1">La contraseña debe tener al menos 6 caracteres</p>
+              )}
             </div>
             <button
               data-testid="btn-submit"
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isLogin && (userExists === true || !passwordValid))}
               className="w-full bg-mac-accent text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-600 transition-all disabled:opacity-70"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (

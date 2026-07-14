@@ -91,7 +91,7 @@ const SalesPanel = () => {
               <span className="text-blue-600">${total.toFixed(2)}</span>
             </div>
             <form onSubmit={handleCheckout} className="space-y-3">
-              <input type="text" data-testid="input-phone" placeholder="Teléfono Cliente" className="w-full p-2 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} required />
+              <input type="text" data-testid="input-phone" placeholder="Teléfono Cliente (Opcional)" className="w-full p-2 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
               <input type="number" step="0.01" data-testid="input-payment" placeholder="Monto Recibido" className="w-full p-2 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} required />
               <button type="submit" data-testid="btn-confirm-sale" disabled={processing || cart.length === 0} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
                 <CheckCircle2 className="w-5 h-5" /> {t('sales.checkout')}

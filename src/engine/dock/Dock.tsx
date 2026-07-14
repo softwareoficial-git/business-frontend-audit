@@ -1,14 +1,25 @@
 import { DOCK_CONFIG } from './config';
 import { Icon } from '../icons/registry';
+import { useAuthStore } from '../../store/authStore';
 
 export const Dock = ({ activePanel, onPanelChange }: { activePanel: string, onPanelChange: (id: string) => void }) => {
+  const clearSession = useAuthStore((state) => state.clearSession);
+
+  const handleDockClick = (id: string) => {
+    if (id === 'logout') {
+      clearSession();
+      return;
+    }
+    onPanelChange(id);
+  };
+
   return (
     <div data-testid="main-dock" className="fixed bottom-2 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-full h-14 sm:h-16 bg-white/70 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl flex items-center justify-around px-2 sm:px-4 transition-all duration-300">
       {DOCK_CONFIG.map((item) => (
         <button
           key={item.id}
           data-testid={`nav-${item.id}`}
-          onClick={() => onPanelChange(item.id)}
+          onClick={() => handleDockClick(item.id)}
           className={`relative flex flex-col items-center justify-center transition-all duration-200 group ${
             activePanel === item.id ? 'scale-110' : 'scale-100 opacity-60 hover:opacity-100'
           }`}

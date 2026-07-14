@@ -33,6 +33,16 @@ export const registerClient = async (params: any) => {
   return response.data;
 };
 
+export const checkUsernameExists = async (username: string) => {
+  try {
+    const response = await apiClient.get(`/check-username?username=${username}`);
+    return response.data; // Esperamos { exists: boolean }
+  } catch (error) {
+    console.error('Error checking username:', error);
+    return { exists: false, error: true };
+  }
+};
+
 export const executeCmd = async (cmd: string, params: Record<string, unknown> = {}, tenantId?: string) => {
   const payload: any = { cmd, params };
   if (tenantId) payload.tenantId = String(tenantId);

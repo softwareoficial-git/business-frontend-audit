@@ -1,23 +1,38 @@
 import { useToastStore } from './store';
+import { X } from 'lucide-react';
 
 export const ToastContainer = () => {
   const { toasts, removeToast } = useToastStore();
 
   return (
-    <div data-testid="toast-container" className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full px-4">
+    <div
+      data-testid="toast-container"
+      className="fixed top-4 right-4 z-50 flex flex-col gap-3 w-full max-w-xs"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
           data-testid="toast-item"
-          className={`p-3 rounded-2xl shadow-lg backdrop-blur-md border text-white text-sm font-medium animate-in slide-in-from-top-full duration-300 ${
-            toast.type === 'success' ? 'bg-green-500/80 border-green-600' :
-            toast.type === 'error' ? 'bg-red-500/80 border-red-600' :
-            toast.type === 'warning' ? 'bg-yellow-500/80 border-yellow-600' :
-            'bg-blue-500/80 border-blue-600'
+          className={`p-4 rounded-2xl shadow-2xl backdrop-blur-xl text-white text-sm font-semibold animate-in slide-in-from-right duration-300 flex items-start gap-3 transition-all ${
+            toast.type === 'success' ? 'bg-green-600/50 shadow-green-500/20' :
+            toast.type === 'error' ? 'bg-red-600/50 shadow-red-500/20' :
+            toast.type === 'warning' ? 'bg-yellow-600/50 shadow-yellow-500/20' :
+            'bg-blue-600/50 shadow-blue-500/20'
           }`}
-          onClick={() => removeToast(toast.id)}
         >
-          {toast.message}
+          <div className="flex-1 truncate pr-2 drop-shadow-md" title={toast.message}>
+            {toast.message}
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              removeToast(toast.id);
+            }}
+            className="shrink-0 p-1 hover:bg-white/20 rounded-lg transition-colors"
+          >
+            <X size={14} />
+          </button>
         </div>
       ))}
     </div>
