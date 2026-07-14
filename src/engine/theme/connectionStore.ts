@@ -12,7 +12,7 @@ interface ConnectionState {
   syncOfflineQueue: () => Promise<void>;
 }
 
-export const useConnectionStore = create<ConnectionState>((set, get) => ({
+export const useConnectionStore = create<ConnectionState>((set) => ({
   status: 'unconfigured',
   setStatus: (status) => set({ status }),
   checkConnection: async () => {
