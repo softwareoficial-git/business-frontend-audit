@@ -26,7 +26,7 @@ export const trackUserTraffic = async () => {
         language: navigator.language,
         type: 'web_visit'
       }
-    });
+    }, undefined, true);
 
     // Update last visit timestamp upon successful tracking
     localStorage.setItem(COOLDOWN_KEY, now.toString());

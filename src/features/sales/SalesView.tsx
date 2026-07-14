@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { executeCmd } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../engine/toast/store';
 import { Search, ShoppingCart, Plus, Minus, CheckCircle2 } from 'lucide-react';
 
 interface Product { code: string; name: string; price: number; quantity: number; category: string; }
@@ -8,6 +9,7 @@ interface CartItem extends Product { cartQuantity: number; }
 
 const SalesView = () => {
   const { session } = useAuthStore();
+  const addToast = useToastStore((state) => state.addToast);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -54,13 +56,15 @@ const SalesView = () => {
       }, session.tenantId || '');
 
       if (res && res.success) {
-        alert('✅ Venta procesada');
+        addToast({ message: '✅ Venta procesada con éxito', type: 'success' });
         setCart([]); setCustomerPhone(''); setPaymentAmount('');
         await fetchStock();
       } else {
-        alert(res?.message || 'Error en venta');
+        addToast({ message: res?.message || 'Error en venta', type: 'error' });
       }
-    } catch (e) { alert('Error en venta'); }
+    } catch (e: any) {
+      addToast({ message: e?.response?.data?.message || 'Error en venta', type: 'error' });
+    }
     finally { setProcessing(false); }
   };
 

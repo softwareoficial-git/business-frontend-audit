@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { registerClient, loginUser, checkUsernameExists } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../engine/toast/store';
 import { Building2, User, Lock, ArrowRight, Loader2, CheckCircle, XCircle } from 'lucide-react';
 
 const WelcomeScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const setSession = useAuthStore((state) => state.setSession);
+  const addToast = useToastStore((state) => state.addToast);
 
   const [formData, setFormData] = useState({
     nombreCliente: '',
@@ -42,7 +44,7 @@ const WelcomeScreen = () => {
     try {
       if (!isLogin) {
         if (formData.password.length < 6) {
-          alert('La contraseña debe tener al menos 6 caracteres');
+          addToast({ message: 'La contraseña debe tener al menos 6 caracteres', type: 'error' });
           setLoading(false);
           return;
         }
@@ -67,12 +69,13 @@ const WelcomeScreen = () => {
               role: 'admin',
               isAuthenticated: true,
             });
+            addToast({ message: 'Empresa registrada con éxito', type: 'success' });
           } else {
             throw new Error('El servidor no devolvió un token de sesión tras el registro.');
           }
         } else {
           const errorMessage = regResponse?.message || 'Error al registrar empresa';
-          alert(errorMessage);
+          addToast({ message: errorMessage, type: 'error' });
         }
       } else {
         const loginResponse = await loginUser({
@@ -88,15 +91,16 @@ const WelcomeScreen = () => {
             role: loginResponse.data?.user?.role || 'admin',
             isAuthenticated: true,
           });
+          addToast({ message: 'Bienvenido de nuevo', type: 'success' });
         } else {
           const errorMessage = loginResponse?.message || 'Credenciales incorrectas';
-          alert(errorMessage);
+          addToast({ message: errorMessage, type: 'error' });
         }
       }
     } catch (error: any) {
       console.error('Auth error:', error);
       const errorMessage = error?.response?.data?.message || error?.message || 'Error de autenticación';
-      alert(errorMessage);
+      addToast({ message: errorMessage, type: 'error' });
     } finally {
       setLoading(false);
     }

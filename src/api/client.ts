@@ -7,11 +7,15 @@ const API_BASE_URL = import.meta.env.VITE_BUSINESS_API_URL || 'https://business-
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: false,
   timeout: 15000, // Aumentado a 15s para evitar timeouts en conexiones lentas
 });
 
 apiClient.interceptors.request.use((config) => {
+  if (config.headers?.['X-Public-Request']) {
+    delete config.headers['X-Public-Request'];
+    return config;
+  }
   const token = useAuthStore.getState().session.token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -22,8 +26,13 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Solo encolamos peticiones de tipo 'execute' que sean POST y hayan fallado por red
-    if (error.config?.url?.includes('/execute') && error.config?.method === 'post') {
+    // Manejo de sesión expirada
+    if (error.response?.status === 401) {
+      useAuthStore.getState().clearSession();
+    }
+
+    // Solo encolamos peticiones de tipo 'execute' que sean POST y hayan fallado por red (sin respuesta del servidor)
+    if (!error.response && error.config?.url?.includes('/execute') && error.config?.method === 'post') {
       const { data } = error.config;
       const { cmd, params, tenantId } = data || {};
 
@@ -84,9 +93,12 @@ export const checkUsernameExists = async (username: string) => {
   }
 };
 
-export const executeCmd = async (cmd: string, params: Record<string, unknown> = {}, tenantId?: string) => {
+export const executeCmd = async (cmd: string, params: Record<string, unknown> = {}, tenantId?: string, isPublic = false) => {
   const payload: any = { cmd, params };
   if (tenantId) payload.tenantId = String(tenantId);
-  const response = await apiClient.post('/execute', payload);
+
+  const response = await apiClient.post('/execute', payload, {
+    headers: isPublic ? { 'X-Public-Request': 'true' } : {}
+  });
   return response.data;
 };
