@@ -19,7 +19,7 @@ const SalesPanel = () => {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await checkout(customerPhone, parseFloat(paymentAmount));
+    const res = await checkout(customerPhone);
     if (res?.success) {
       setCustomerPhone('');
       setPaymentAmount('');
@@ -34,20 +34,20 @@ const SalesPanel = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-            <input 
-              type="text" 
-              placeholder={t('stock.search')} 
-              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)} 
+            <input
+              type="text"
+              placeholder={t('stock.search')}
+              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {filtered?.map(p => (
-              <button 
-                key={`prod-${p.code}`} 
-                onClick={() => addToCart(p)} 
-                disabled={p.quantity <= 0} 
+              <button
+                key={`prod-${p.code}`}
+                onClick={() => addToCart(p)}
+                disabled={p.quantity <= 0}
                 className={`p-4 rounded-2xl border transition-all text-left h-32 ${p.quantity <= 0 ? 'bg-slate-100 opacity-50' : 'bg-white hover:border-blue-500'}`}
               >
                 <h3 className="font-semibold truncate">{p.name}</h3>

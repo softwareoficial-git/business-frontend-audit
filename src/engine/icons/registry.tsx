@@ -1,9 +1,9 @@
-import { 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  BarChart3, 
-  Home 
+import {
+  Package,
+  ShoppingCart,
+  Users,
+  BarChart3,
+  Home
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 

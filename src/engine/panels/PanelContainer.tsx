@@ -10,7 +10,7 @@ export const PanelContainer = ({ children, title, isLoading = false }: { childre
         </header>
       )}
 
-      
+
       <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
         {isLoading ? (
           <div className="flex items-center justify-center h-64">

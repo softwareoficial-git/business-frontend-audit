@@ -28,4 +28,3 @@ export const Dock = ({ activePanel, onPanelChange }: { activePanel: string, onPa
     </div>
   );
 };
-

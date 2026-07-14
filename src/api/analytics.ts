@@ -27,7 +27,7 @@ export const trackUserTraffic = async () => {
         type: 'web_visit'
       }
     });
-    
+
     // Update last visit timestamp upon successful tracking
     localStorage.setItem(COOLDOWN_KEY, now.toString());
     console.log('🚀 Traffic analytics captured.');

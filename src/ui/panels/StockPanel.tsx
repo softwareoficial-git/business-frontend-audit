@@ -24,8 +24,8 @@ const StockPanel = () => {
     }
   };
 
-  const filtered = (products || []).filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filtered = (products || []).filter(p =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -34,9 +34,9 @@ const StockPanel = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-500">{t('stock.total')}: {filtered.length}</div>
-          <button 
+          <button
             data-testid="btn-add-product"
-            onClick={() => setIsModalOpen(true)} 
+            onClick={() => setIsModalOpen(true)}
             className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all"
           >
             <PackagePlus className="w-6 h-6" />

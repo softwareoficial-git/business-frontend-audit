@@ -3,7 +3,6 @@ import es from './locales/es.json';
 import en from './locales/en.json';
 
 type Language = 'es' | 'en';
-type Translations = typeof es;
 
 interface I18nState {
   lang: Language;
@@ -19,7 +18,7 @@ export const useI18nStore = create<I18nState>((set, get) => ({
     const dict = lang === 'en' ? en : es;
     const keys = path.split('.');
     let result: any = dict;
-    
+
     for (const key of keys) {
       if (result[key]) {
         result = result[key];
