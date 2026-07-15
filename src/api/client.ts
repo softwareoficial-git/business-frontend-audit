@@ -74,24 +74,28 @@ export const loginUser = async (params: { username: string; password: string }) 
   return response.data;
 };
 
-export const registerClient = async (params: any) => {
-  const response = await apiClient.post('/register', params);
+export const registerClient = async (params: { username: string; password: string; nombreCliente: string }) => {
+  const response = await apiClient.post('/register', {
+    username: params.username,
+    password: params.password,
+    nombreCliente: params.nombreCliente,
+  });
   return response.data;
 };
 
-export const checkUsernameExists = async (username: string) => {
-  try {
-    const response = await apiClient.get(`/check-username?username=${encodeURIComponent(username)}`);
-    return response.data; // Esperamos { exists: boolean }
-  } catch (error: any) {
-    // Si el servidor responde 404, técnicamente el usuario no existe (está disponible)
-    if (error.response?.status === 404) {
-      return { exists: false, error: false };
-    }
-    console.error('Error checking username:', error);
-    return { exists: false, error: true };
-  }
-};
+// NOTE: /check-username endpoint does not exist on the backend yet.
+// export const checkUsernameExists = async (username: string) => {
+//   try {
+//     const response = await apiClient.get(`/check-username?username=${encodeURIComponent(username)}`);
+//     return response.data; // Esperamos { exists: boolean }
+//   } catch (error: any) {
+//     if (error.response?.status === 404) {
+//       return { exists: false, error: false };
+//     }
+//     console.error('Error checking username:', error);
+//     return { exists: false, error: true };
+//   }
+// };
 
 export const executeCmd = async (cmd: string, params: Record<string, unknown> = {}, tenantId?: string, isPublic = false) => {
   const payload: any = { cmd, params };
