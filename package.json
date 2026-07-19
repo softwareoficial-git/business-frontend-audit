@@ -39,5 +39,11 @@
     "playwright": "1.50.1",
     "prettier": "3.4.2",
     "typescript": "^5.5.4"
-  }
+  },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead",
+    "Android >= 8"
+  ]
 }
