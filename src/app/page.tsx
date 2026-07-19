@@ -11,7 +11,9 @@ import StockPanel from '../components/stock/StockPanel';
 export default function WelcomePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+  const [authView, setAuthView] = useState<'home' | 'login' | 'register'>(
+    'login'
+  );
   const [currentView, setCurrentView] = useState<
     'home' | 'stock' | 'sales' | 'control'
   >('home');

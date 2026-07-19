@@ -21,11 +21,13 @@ export default [
       "@next/next": nextPlugin,
       "prettier": prettierPlugin,
       "@typescript-eslint": tseslint,
+      "next": nextPlugin,
     },
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
       "prettier/prettier": "error",
+      "next/no-html-link-for-pages": "error",
     },
   },
 ];
