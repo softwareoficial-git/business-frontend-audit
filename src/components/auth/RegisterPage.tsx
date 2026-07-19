@@ -49,11 +49,7 @@ export default function RegisterPage({
     if (result.success) {
       onNavigate('login');
     } else {
-      let globalError = 'Error en registro. Intenta de nuevo.';
-      if (result.message === 'USER_EXISTS')
-        globalError = 'El usuario ya existe.';
-      else if (result.message === 'INVALID_PAYLOAD')
-        globalError = 'La contraseña es demasiado corta.';
+      const globalError = 'Error en el registro. Intenta de nuevo.';
       setErrors({ global: globalError });
       auditLog(`Error en registro: ${globalError}`, 'error');
     }

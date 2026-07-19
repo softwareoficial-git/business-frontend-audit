@@ -49,10 +49,7 @@ export default function LoginPage({
       auditLog('Login exitoso', 'info');
       onLoginSuccess();
     } else {
-      const errorMsg =
-        result.message === 'INVALID_CREDENTIALS'
-          ? 'Usuario o contraseña incorrectos.'
-          : 'Ha ocurrido un error. Intenta más tarde.';
+      const errorMsg = 'Error en el login, intenta de nuevo.';
       setErrors({ global: errorMsg });
       auditLog(`Error en login: ${errorMsg}`, 'error');
     }
