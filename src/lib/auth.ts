@@ -1,6 +1,6 @@
 import { setCookie, getCookie } from './cookies';
 
-const API_URL = 'http://localhost:9002';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9002';
 
 // Helper para peticiones autenticadas
 const authenticatedFetch = async (cmd, params = {}) => {
