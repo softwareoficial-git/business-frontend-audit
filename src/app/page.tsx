@@ -2,16 +2,20 @@
 import { useState, useEffect } from 'react';
 import Dock from '../components/Dock';
 import StockPanel from '../components/stock/StockPanel';
+import SalesPanel from '../components/sales/SalesPanel';
+import EmployeesPanel from '../components/employees/EmployeesPanel';
 import LoginPage from '../components/auth/LoginPage';
 import RegisterPage from '../components/auth/RegisterPage';
+import ProfilePanel from '../components/auth/ProfilePanel';
 import { getProfile, logoutUser } from '../lib/auth';
 
-type View = 'home' | 'stock' | 'sales' | 'control' | 'login' | 'register';
+type View = 'home' | 'stock' | 'sales' | 'control' | 'employees' | 'login' | 'register';
 
 export default function WelcomePage() {
   const [currentView, setCurrentView] = useState<View>('home');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -35,12 +39,21 @@ export default function WelcomePage() {
     setCurrentView('login');
   };
 
-  const handleNavigate = (view: 'home' | 'stock' | 'sales' | 'control') => {
+  const handleNavigate = (view: View) => {
+    // Protección de rutas: solo el DUEÑO puede acceder a control y employees
+    if (user?.role_name !== 'DUEÑO' && (view === 'control' || view === 'employees')) {
+      return;
+    }
     setCurrentView(view);
   };
 
-  // Si sigue cargando, retornamos un elemento vacío o null para evitar renderizar el main
-  if (loading) return null;
+  if (loading) {
+    return (
+      <main style={{ minHeight: '100vh', backgroundColor: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#666', fontFamily: 'sans-serif' }}>Cargando aplicación...</p>
+      </main>
+    );
+  }
 
   if (!user) {
     if (currentView === 'register') {
@@ -54,9 +67,11 @@ export default function WelcomePage() {
       case 'stock':
         return <StockPanel />;
       case 'sales':
-        return <div style={{ padding: '2rem' }}>Panel de Ventas</div>;
+        return <SalesPanel />;
       case 'control':
-        return <div style={{ padding: '2rem' }}>Panel de Control</div>;
+        return user.role_name === 'DUEÑO' ? <div style={{ padding: '2rem' }}>Panel de Control</div> : null;
+      case 'employees':
+        return user.role_name === 'DUEÑO' ? <EmployeesPanel /> : null;
       default:
         return (
           <div style={{ padding: '2rem' }}>
@@ -68,16 +83,10 @@ export default function WelcomePage() {
   };
 
   return (
-    <main
-      style={{
-        padding: '2rem',
-        textAlign: 'center',
-        minHeight: '100vh',
-        background: 'transparent',
-      }}
-    >
+    <main style={{ padding: '2rem', textAlign: 'center', minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
       {renderContent()}
-      <Dock onLogout={handleLogout} onNavigate={handleNavigate} />
+      {isProfileOpen && user && <ProfilePanel user={user} onClose={() => setIsProfileOpen(false)} />}
+      <Dock onLogout={handleLogout} onNavigate={handleNavigate} onOpenProfile={() => setIsProfileOpen(true)} role={user?.role_name || ''} />
     </main>
   );
 }

@@ -1,16 +1,17 @@
 'use client';
 
 import Icon from './Icon';
-import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import ThemeSwitcher from './ThemeSwitcher';
 
 interface DockProps {
   onLogout: () => void;
-  onNavigate: (view: 'home' | 'stock' | 'sales' | 'control') => void;
+  onNavigate: (view: 'home' | 'stock' | 'sales' | 'control' | 'employees') => void;
+  onOpenProfile: () => void;
+  role: string;
 }
 
-export default function Dock({ onLogout, onNavigate }: DockProps) {
+export default function Dock({ onLogout, onNavigate, onOpenProfile, role }: DockProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +31,17 @@ export default function Dock({ onLogout, onNavigate }: DockProps) {
     width: '26px',
     height: '26px',
     color: 'var(--color-primary)',
+  };
+
+  const menuButtonStyle = {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    padding: '0.5rem',
   };
 
   return (
@@ -75,13 +87,24 @@ export default function Dock({ onLogout, onNavigate }: DockProps) {
         >
           <Icon name="sales" style={iconStyle} />
         </button>
-        <button
-          onClick={() => onNavigate('control')}
-          aria-label="Control"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-        >
-          <Icon name="control" style={iconStyle} />
-        </button>
+        {role === 'DUEÑO' && (
+          <>
+            <button
+              onClick={() => onNavigate('control')}
+              aria-label="Control"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <Icon name="control" style={iconStyle} />
+            </button>
+            <button
+              onClick={() => onNavigate('employees')}
+              aria-label="Empleados"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <Icon name="menu" style={iconStyle} />
+            </button>
+          </>
+        )}
       </div>
 
       <div ref={menuRef} style={{ position: 'relative' }}>
@@ -110,50 +133,17 @@ export default function Dock({ onLogout, onNavigate }: DockProps) {
               boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
-                Tema
-              </span>
+            <button onClick={onOpenProfile} style={menuButtonStyle}>
+              <Icon name="home" style={{ ...iconStyle, width: '20px', height: '20px' }} />
+              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>Perfil</span>
+            </button>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem' }}>
+              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>Tema</span>
               <ThemeSwitcher />
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
-                Idioma
-              </span>
-              <button
-                style={{
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--color-border)',
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                }}
-              >
-                ES
-              </button>
-            </div>
-
-            <hr
-              style={{
-                width: '100%',
-                border: '0',
-                borderTop: '1px solid var(--color-border)',
-                margin: '0.25rem 0',
-              }}
-            />
+            <hr style={{ width: '100%', border: '0', borderTop: '1px solid var(--color-border)', margin: '0.25rem 0' }} />
 
             <button
               onClick={onLogout}
