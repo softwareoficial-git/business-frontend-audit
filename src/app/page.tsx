@@ -1,66 +1,66 @@
 'use client';
 import { useState, useEffect } from 'react';
-import ThemeSwitcher from '../components/ThemeSwitcher';
-import { getCookie } from '../lib/cookies';
-import { getProfile, logoutUser } from '../lib/auth';
-import LoginPage from '../components/auth/LoginPage';
-import RegisterPage from '../components/auth/RegisterPage';
 import Dock from '../components/Dock';
 import StockPanel from '../components/stock/StockPanel';
+import LoginPage from '../components/auth/LoginPage';
+import RegisterPage from '../components/auth/RegisterPage';
+import { getProfile, logoutUser } from '../lib/auth';
+
+type View = 'home' | 'stock' | 'sales' | 'control' | 'login' | 'register';
 
 export default function WelcomePage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentView, setCurrentView] = useState<View>('home');
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [authView, setAuthView] = useState<'home' | 'login' | 'register'>(
-    'login'
-  );
-  const [currentView, setCurrentView] = useState<
-    'home' | 'stock' | 'sales' | 'control'
-  >('home');
-
-  const checkAuth = async () => {
-    setLoading(true);
-    const token = getCookie('session_token');
-    if (token) {
-      const result = await getProfile();
-      setIsAuthenticated(result.success);
-    } else {
-      setIsAuthenticated(false);
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
     checkAuth();
   }, []);
 
-  const handleLogout = async () => {
-    await logoutUser();
-    setIsAuthenticated(false);
-    setAuthView('login');
+  const checkAuth = async () => {
+    const result = await getProfile();
+    if (result.success) {
+      setUser(result.profile);
+      setCurrentView('home');
+    } else {
+      setUser(null);
+      setCurrentView('login');
+    }
+    setLoading(false);
   };
 
-  if (loading)
-    return (
-      <main style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</main>
-    );
+  const handleLogout = async () => {
+    await logoutUser();
+    setUser(null);
+    setCurrentView('login');
+  };
 
-  if (!isAuthenticated) {
-    return authView === 'login' ? (
-      <LoginPage onNavigate={setAuthView} onLoginSuccess={checkAuth} />
-    ) : (
-      <RegisterPage onNavigate={setAuthView} />
-    );
+  const handleNavigate = (view: 'home' | 'stock' | 'sales' | 'control') => {
+    setCurrentView(view);
+  };
+
+  // Si sigue cargando, retornamos un elemento vacío o null para evitar renderizar el main
+  if (loading) return null;
+
+  if (!user) {
+    if (currentView === 'register') {
+      return <RegisterPage onNavigate={setCurrentView} />;
+    }
+    return <LoginPage onNavigate={setCurrentView} onLoginSuccess={checkAuth} />;
   }
 
   const renderContent = () => {
     switch (currentView) {
       case 'stock':
         return <StockPanel />;
+      case 'sales':
+        return <div style={{ padding: '2rem' }}>Panel de Ventas</div>;
+      case 'control':
+        return <div style={{ padding: '2rem' }}>Panel de Control</div>;
       default:
         return (
           <div style={{ padding: '2rem' }}>
-            <h1>¡BIENVENIDO!</h1>
+            <h1>¡BIENVENIDO, {user.username}!</h1>
             <p>Selecciona una opción en el Dock para empezar.</p>
           </div>
         );
@@ -68,9 +68,16 @@ export default function WelcomePage() {
   };
 
   return (
-    <main style={{ padding: '2rem', textAlign: 'center', minHeight: '100vh' }}>
+    <main
+      style={{
+        padding: '2rem',
+        textAlign: 'center',
+        minHeight: '100vh',
+        background: 'transparent',
+      }}
+    >
       {renderContent()}
-      <Dock onLogout={handleLogout} onNavigate={setCurrentView} />
+      <Dock onLogout={handleLogout} onNavigate={handleNavigate} />
     </main>
   );
 }

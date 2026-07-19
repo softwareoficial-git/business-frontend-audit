@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getCookie } from '../../lib/cookies';
+import { apiClient } from '../../lib/api';
 import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
-
-const API_URL = '/api';
 
 export default function StockPanel() {
   const [products, setProducts] = useState([]);
@@ -14,32 +12,30 @@ export default function StockPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { startLoading, stopLoading } = useLoading();
 
+  useEffect(() => {
+    fetchStock();
+  }, []);
+
   const fetchStock = async () => {
     startLoading();
-    const response = await fetch(`${API_URL}/execute`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      body: JSON.stringify({ cmd: 'stock.list', params: {} }),
-      credentials: 'include',
-    });
-    const result = await response.json();
-    if (result.success) setProducts(result.data);
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'stock.list', params: {} }),
+      });
+      const result = await response.json();
+      if (result.success) setProducts(result.data);
+    } catch (error) {
+      console.error('Error fetching stock:', error);
+    }
     stopLoading();
   };
 
   const handleUpdate = async (product: any) => {
     startLoading();
-    await fetch(`${API_URL}/execute`, {
+    await apiClient('/execute', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
-      credentials: 'include',
     });
     fetchStock();
     stopLoading();
@@ -47,30 +43,21 @@ export default function StockPanel() {
 
   const handleDelete = async (code: string) => {
     startLoading();
-    await fetch(`${API_URL}/execute`, {
+    await apiClient('/execute', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
       body: JSON.stringify({ cmd: 'stock.delete', params: { code } }),
-      credentials: 'include',
     });
     fetchStock();
     stopLoading();
   };
 
   const handleAdd = async (product: any) => {
-    await fetch(`${API_URL}/execute`, {
+    await apiClient('/execute', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
-      credentials: 'include',
     });
     fetchStock();
+    setIsModalOpen(false);
   };
 
   const filteredProducts = (products || []).filter(

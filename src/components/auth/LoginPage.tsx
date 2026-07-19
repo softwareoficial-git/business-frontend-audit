@@ -26,14 +26,8 @@ export default function LoginPage({
     setErrors({});
 
     const newErrors: typeof errors = {};
-    if (!username) {
-      newErrors.username = 'Falta este campo';
-      auditLog('Validación Login: Campo username vacío', 'warn');
-    }
-    if (!password) {
-      newErrors.password = 'Falta este campo';
-      auditLog('Validación Login: Campo password vacío', 'warn');
-    }
+    if (!username) newErrors.username = 'Falta este campo';
+    if (!password) newErrors.password = 'Falta este campo';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -41,63 +35,123 @@ export default function LoginPage({
     }
 
     startLoading();
-    auditLog(`Iniciando login para: ${username}`);
     const result = await loginUser(username, password);
     stopLoading();
 
     if (result.success) {
-      auditLog('Login exitoso', 'info');
       onLoginSuccess();
     } else {
-      const errorMsg =
-        result.message === 'INVALID_CREDENTIALS'
-          ? 'Usuario o contraseña incorrectos.'
-          : 'Ha ocurrido un error. Intenta más tarde.';
-      setErrors({ global: errorMsg });
-      auditLog(`Error en login: ${errorMsg}`, 'error');
+      setErrors({ global: 'Usuario o contraseña incorrectos.' });
     }
   };
 
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    padding: '2rem',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    fontFamily: 'sans-serif',
+  };
+
+  const cardStyle: React.CSSProperties = {
+    background: 'white',
+    padding: '2.5rem',
+    borderRadius: '16px',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    width: '100%',
+    maxWidth: '400px',
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem',
+    margin: '0.5rem 0',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    fontSize: '1rem',
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.75rem',
+    background: '#0070f3',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    marginTop: '1rem',
+    fontWeight: 'bold',
+  };
+
   return (
-    <main style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
-      <h1>Iniciar Sesión</h1>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
-      >
-        <input
-          type="text"
-          placeholder="Usuario"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        {errors.username && (
-          <p style={{ color: 'red', margin: '0', fontSize: '0.8rem' }}>
-            {errors.username}
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h1 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+          Bienvenido
+        </h1>
+        <p style={{ textAlign: 'center', color: '#666', marginBottom: '2rem' }}>
+          Por favor, inicia sesión para acceder a tu panel de control.
+        </p>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Usuario"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            style={inputStyle}
+          />
+          {errors.username && (
+            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+              {errors.username}
+            </p>
+          )}
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={inputStyle}
+          />
+          {errors.password && (
+            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+              {errors.password}
+            </p>
+          )}
+          <button type="submit" style={buttonStyle}>
+            Entrar
+          </button>
+        </form>
+        {errors.global && (
+          <p style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}>
+            {errors.global}
           </p>
         )}
-
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {errors.password && (
-          <p style={{ color: 'red', margin: '0', fontSize: '0.8rem' }}>
-            {errors.password}
-          </p>
-        )}
-
-        <button type="submit" style={{ marginTop: '0.5rem' }}>
-          Entrar
-        </button>
-      </form>
-      {errors.global && <p style={{ color: 'red' }}>{errors.global}</p>}
-      <p>
-        ¿No tienes cuenta?{' '}
-        <button onClick={() => onNavigate('register')}>Regístrate</button>
-      </p>
-    </main>
+        <p
+          style={{
+            textAlign: 'center',
+            marginTop: '1.5rem',
+            fontSize: '0.9rem',
+          }}
+        >
+          ¿No tienes cuenta?{' '}
+          <button
+            onClick={() => onNavigate('register')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#0070f3',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+            }}
+          >
+            Regístrate aquí
+          </button>
+        </p>
+      </div>
+    </div>
   );
 }
