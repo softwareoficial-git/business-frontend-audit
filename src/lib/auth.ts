@@ -1,6 +1,7 @@
 import { setCookie, getCookie } from './cookies';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9002';
+// En lugar de apuntar a Railway directamente, usamos el proxy de Next.js
+const API_URL = '/api';
 
 // Helper para peticiones autenticadas
 const authenticatedFetch = async (cmd, params = {}) => {
@@ -30,8 +31,19 @@ export const loginUser = async (username, password) => {
       credentials: 'include',
     });
 
-    const result = await response.json();
-    console.log('Respuesta API Login:', result);
+    const text = await response.text();
+    console.log('DEBUG: Respuesta cruda API Login:', text);
+
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      console.error('DEBUG: Error parseando JSON de login:', e);
+      return {
+        success: false,
+        message: 'El servidor no devolvió un JSON válido',
+      };
+    }
 
     if (result.success) {
       return { success: true, user: result.data.user };

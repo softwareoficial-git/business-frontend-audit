@@ -6,7 +6,7 @@ import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = '/api';
 
 export default function StockPanel() {
   const [products, setProducts] = useState([]);
