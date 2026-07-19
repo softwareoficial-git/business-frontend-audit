@@ -16,14 +16,13 @@ export default function StockPanel() {
 
   const fetchStock = async () => {
     startLoading();
-    const token = getCookie('session_token');
     const response = await fetch(`${API_URL}/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ cmd: 'stock.list', params: {} }),
+      credentials: 'include',
     });
     const result = await response.json();
     if (result.success) setProducts(result.data);
@@ -35,44 +34,41 @@ export default function StockPanel() {
   }, []);
 
   const handleUpdate = async (product: any) => {
-    const token = getCookie('session_token');
     startLoading();
     await fetch(`${API_URL}/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
+      credentials: 'include',
     });
     fetchStock();
     stopLoading();
   };
 
   const handleDelete = async (code: string) => {
-    const token = getCookie('session_token');
     startLoading();
     await fetch(`${API_URL}/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ cmd: 'stock.delete', params: { code } }),
+      credentials: 'include',
     });
     fetchStock();
     stopLoading();
   };
 
   const handleAdd = async (product: any) => {
-    const token = getCookie('session_token');
     await fetch(`${API_URL}/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
+      credentials: 'include',
     });
     fetchStock();
   };
