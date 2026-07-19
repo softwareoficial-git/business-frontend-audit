@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 async function testLogin() {
   console.log('--- Iniciando prueba de login ---');
-  const API_URL = 'http://localhost:9002';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9002';
   const username = 'user_final_9002'; // El usuario que creamos antes
   const password = 'password123';
 
