@@ -1,52 +1,80 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getCookie } from '../../lib/cookies';
 import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 
+const API_URL = 'http://localhost:9002';
+
 export default function StockPanel() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { startLoading, stopLoading } = useLoading();
 
-  const loadStock = () => {
+  const fetchStock = async () => {
     startLoading();
-    const storedProducts = localStorage.getItem('products');
-    setProducts(storedProducts ? JSON.parse(storedProducts) : []);
+    const token = getCookie('session_token');
+    const response = await fetch(`${API_URL}/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cmd: 'stock.list', params: {} }),
+    });
+    const result = await response.json();
+    if (result.success) setProducts(result.data);
     stopLoading();
   };
 
   useEffect(() => {
-    loadStock();
+    fetchStock();
   }, []);
 
-  const saveStock = (newProducts: any[]) => {
-    localStorage.setItem('products', JSON.stringify(newProducts));
-    setProducts(newProducts);
-  };
-
   const handleUpdate = async (product: any) => {
+    const token = getCookie('session_token');
     startLoading();
-    const newProducts = products.map((p) =>
-      p.code === product.code ? product : p
-    );
-    saveStock(newProducts);
+    await fetch(`${API_URL}/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cmd: 'stock.add', params: product }),
+    });
+    fetchStock();
     stopLoading();
   };
 
   const handleDelete = async (code: string) => {
+    const token = getCookie('session_token');
     startLoading();
-    const newProducts = products.filter((p) => p.code !== code);
-    saveStock(newProducts);
+    await fetch(`${API_URL}/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cmd: 'stock.delete', params: { code } }),
+    });
+    fetchStock();
     stopLoading();
   };
 
   const handleAdd = async (product: any) => {
-    const newProducts = [...products, product];
-    saveStock(newProducts);
-    setIsModalOpen(false);
+    const token = getCookie('session_token');
+    await fetch(`${API_URL}/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cmd: 'stock.add', params: product }),
+    });
+    fetchStock();
   };
 
   const filteredProducts = (products || []).filter(
