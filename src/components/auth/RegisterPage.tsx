@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { registerUser } from '../../lib/auth';
+import { auditLog } from '../../lib/auditLogger';
 
 export default function RegisterPage({
   onNavigate,
