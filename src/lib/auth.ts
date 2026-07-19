@@ -8,6 +8,7 @@ const authenticatedFetch = async (cmd, params = {}) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
     },
     body: JSON.stringify({ cmd, params }),
     credentials: 'include',
@@ -18,7 +19,10 @@ export const loginUser = async (username, password) => {
   try {
     const response = await fetch(`${API_URL}/execute`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
       body: JSON.stringify({
         cmd: 'USER:login',
         params: { username, password },
@@ -35,7 +39,7 @@ export const loginUser = async (username, password) => {
       return { success: false, message: result.message || 'Error en login' };
     }
   } catch (error) {
-    console.error('Error detallado en login:', error);
+    console.error('DEBUG: Error detallado en login:', error);
     return { success: false, message: 'CONNECTION_ERROR' };
   }
 };
@@ -44,7 +48,10 @@ export const registerUser = async (username, password, nombreCliente) => {
   try {
     const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
       body: JSON.stringify({ username, password, nombreCliente }),
       credentials: 'include',
     });

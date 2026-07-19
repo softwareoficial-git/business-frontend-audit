@@ -20,6 +20,7 @@ export default function StockPanel() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
       body: JSON.stringify({ cmd: 'stock.list', params: {} }),
       credentials: 'include',
@@ -29,16 +30,13 @@ export default function StockPanel() {
     stopLoading();
   };
 
-  useEffect(() => {
-    fetchStock();
-  }, []);
-
   const handleUpdate = async (product: any) => {
     startLoading();
     await fetch(`${API_URL}/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
       credentials: 'include',
@@ -53,6 +51,7 @@ export default function StockPanel() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
       body: JSON.stringify({ cmd: 'stock.delete', params: { code } }),
       credentials: 'include',
@@ -66,6 +65,7 @@ export default function StockPanel() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
       credentials: 'include',
