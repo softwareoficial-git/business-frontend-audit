@@ -5,11 +5,13 @@ import { apiClient } from '../../lib/api';
 import EmployeeCard from './EmployeeCard';
 import CreateEmployeeModal from './CreateEmployeeModal';
 import EditPermissionsModal from './EditPermissionsModal';
+import EmployeeActivityModal from './EmployeeActivityModal';
 
 export default function EmployeesPanel() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
+  const [activityEmployee, setActivityEmployee] = useState<any>(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -60,6 +62,7 @@ export default function EmployeesPanel() {
               employee={emp}
               onDelete={handleDelete}
               onUpdatePermissions={(emp) => setEditingEmployee(emp)}
+              onShowActivity={(emp) => setActivityEmployee(emp)}
             />
           ))}
         </div>
@@ -98,6 +101,13 @@ export default function EmployeesPanel() {
           employee={editingEmployee}
           onClose={() => setEditingEmployee(null)}
           onUpdate={fetchEmployees}
+        />
+      )}
+
+      {activityEmployee && (
+        <EmployeeActivityModal
+          employee={activityEmployee}
+          onClose={() => setActivityEmployee(null)}
         />
       )}
     </div>

@@ -1,12 +1,19 @@
-import { MOCK_CATEGORIES } from './data';
 import Icon from '../Icon';
 
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+}
+
 interface CategoryGridProps {
+  categories: Category[];
   onSelectCategory: (id: string) => void;
   selectedCategoryId: string | null;
 }
 
 export default function CategoryGrid({
+  categories,
   onSelectCategory,
   selectedCategoryId,
 }: CategoryGridProps) {
@@ -19,7 +26,7 @@ export default function CategoryGrid({
         padding: 'var(--space-md)',
       }}
     >
-      {MOCK_CATEGORIES.map((cat) => (
+      {categories.map((cat) => (
         <button
           key={cat.id}
           onClick={() => onSelectCategory(cat.id)}
