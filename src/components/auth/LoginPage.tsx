@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { loginUser } from '../../lib/auth';
-import { auditLog } from '../../lib/auditLogger';
 import { useLoading } from '../loading/LoadingProvider';
 
 export default function LoginPage({
@@ -52,17 +51,18 @@ export default function LoginPage({
     justifyContent: 'center',
     minHeight: '100vh',
     padding: '2rem',
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    backgroundColor: 'var(--color-background)',
     fontFamily: 'sans-serif',
   };
 
   const cardStyle: React.CSSProperties = {
-    background: 'white',
+    backgroundColor: 'var(--color-background)',
     padding: '2.5rem',
     borderRadius: '16px',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--shadow-soft)',
     width: '100%',
     maxWidth: '400px',
+    border: '1px solid var(--color-border)',
   };
 
   const inputStyle: React.CSSProperties = {
@@ -70,14 +70,16 @@ export default function LoginPage({
     padding: '0.75rem',
     margin: '0.5rem 0',
     borderRadius: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--color-border)',
     fontSize: '1rem',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-text)',
   };
 
   const buttonStyle: React.CSSProperties = {
     width: '100%',
     padding: '0.75rem',
-    background: '#0070f3',
+    backgroundColor: 'var(--color-primary)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -90,10 +92,22 @@ export default function LoginPage({
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <h1 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+        <h1
+          style={{
+            textAlign: 'center',
+            marginBottom: '0.5rem',
+            color: 'var(--color-text)',
+          }}
+        >
           Bienvenido
         </h1>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '2rem' }}>
+        <p
+          style={{
+            textAlign: 'center',
+            color: 'var(--color-secondary)',
+            marginBottom: '2rem',
+          }}
+        >
           Por favor, inicia sesión para acceder a tu panel de control.
         </p>
         <form onSubmit={handleSubmit}>
@@ -105,7 +119,7 @@ export default function LoginPage({
             style={inputStyle}
           />
           {errors.username && (
-            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+            <p style={{ color: 'var(--color-error)', fontSize: '0.8rem' }}>
               {errors.username}
             </p>
           )}
@@ -117,7 +131,7 @@ export default function LoginPage({
             style={inputStyle}
           />
           {errors.password && (
-            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+            <p style={{ color: 'var(--color-error)', fontSize: '0.8rem' }}>
               {errors.password}
             </p>
           )}
@@ -126,7 +140,13 @@ export default function LoginPage({
           </button>
         </form>
         {errors.global && (
-          <p style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}>
+          <p
+            style={{
+              color: 'var(--color-error)',
+              textAlign: 'center',
+              marginTop: '1rem',
+            }}
+          >
             {errors.global}
           </p>
         )}
@@ -135,6 +155,7 @@ export default function LoginPage({
             textAlign: 'center',
             marginTop: '1.5rem',
             fontSize: '0.9rem',
+            color: 'var(--color-text)',
           }}
         >
           ¿No tienes cuenta?{' '}
@@ -143,7 +164,7 @@ export default function LoginPage({
             style={{
               background: 'none',
               border: 'none',
-              color: '#0070f3',
+              color: 'var(--color-primary)',
               cursor: 'pointer',
               fontWeight: 'bold',
             }}

@@ -26,6 +26,38 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <div
+          id="debug-test"
+          style={{
+            padding: '10px',
+            background: 'red',
+            color: 'white',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+          }}
+        >
+          Debug: Layout Renderizado
+        </div>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+          window.onerror = function(message, source, lineno, colno, error) {
+            var el = document.createElement('div');
+            el.style.position = 'fixed';
+            el.style.top = '50px';
+            el.style.left = '0';
+            el.style.background = 'black';
+            el.style.color = 'white';
+            el.style.padding = '20px';
+            el.style.zIndex = '10000';
+            el.innerHTML = 'ERROR JS: ' + message + ' en ' + source + ':' + lineno;
+            document.body.appendChild(el);
+          };
+        `,
+          }}
+        />
         <ThemeProvider>
           <ToastProvider>
             <TourProvider>

@@ -43,11 +43,22 @@ export default function StockPanel() {
 
   const handleDelete = async (code: string) => {
     startLoading();
-    await apiClient('/execute', {
-      method: 'POST',
-      body: JSON.stringify({ cmd: 'stock.delete', params: { code } }),
-    });
-    fetchStock();
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'stock.delete', params: { code } }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error detallado del backend (Delete):', errorData);
+        alert(`Error al eliminar: ${errorData.message || 'Error desconocido'}`);
+      } else {
+        await fetchStock();
+      }
+    } catch (error) {
+      console.error('Error de red en handleDelete:', error);
+    }
     stopLoading();
   };
 
@@ -67,43 +78,55 @@ export default function StockPanel() {
   );
 
   return (
-    <div style={{ paddingBottom: '80px' }}>
-      <input
-        type="text"
-        placeholder="Buscar producto..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{
-          width: '90%',
-          margin: '1rem',
-          padding: '0.5rem',
-          borderRadius: '10px',
-          border: '1px solid var(--color-border)',
-        }}
-      />
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        paddingBottom: '80px',
+      }}
+    >
+      {/* Buscador Fijo */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: '1rem',
-          padding: '1rem',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          padding: 'var(--space-sm)',
+          backgroundColor: 'var(--color-background)',
+          borderBottom: '1px solid var(--color-border)',
+          boxSizing: 'border-box',
+          width: '100%',
         }}
       >
+        <input
+          type="text"
+          placeholder="Buscar producto..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            padding: 'var(--space-sm)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--color-background)',
+            color: 'var(--color-text)',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
+
+      {/* Grid de tarjetas compacto sin borde de debug */}
+      <div className="stock-grid">
         {Array.isArray(filteredProducts) &&
-          filteredProducts.map((p: any) => (
+          filteredProducts.map((p: any, index: number) => (
             <StockCard
-              key={p.code}
+              key={`${p.code}-${index}`}
               product={p}
               onUpdate={handleUpdate}
               onDelete={handleDelete}
             />
           ))}
-        {(!Array.isArray(filteredProducts) ||
-          filteredProducts.length === 0) && (
-          <p style={{ color: 'var(--color-text)' }}>
-            No se encontraron productos.
-          </p>
-        )}
       </div>
 
       <button
@@ -112,15 +135,16 @@ export default function StockPanel() {
           position: 'fixed',
           bottom: '85px',
           right: '1.5rem',
-          width: '60px',
-          height: '60px',
+          width: '50px',
+          height: '50px',
           borderRadius: '50%',
           backgroundColor: 'var(--color-primary)',
           color: 'white',
           border: 'none',
-          fontSize: '2rem',
+          fontSize: '1.5rem',
           cursor: 'pointer',
-          boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          zIndex: 20,
         }}
       >
         +

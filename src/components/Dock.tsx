@@ -6,13 +6,21 @@ import ThemeSwitcher from './ThemeSwitcher';
 
 interface DockProps {
   onLogout: () => void;
-  onNavigate: (view: 'home' | 'stock' | 'sales' | 'control' | 'employees') => void;
+  onNavigate: (
+    view: 'home' | 'stock' | 'sales' | 'control' | 'employees'
+  ) => void;
   onOpenProfile: () => void;
   role: string;
 }
 
-export default function Dock({ onLogout, onNavigate, onOpenProfile, role }: DockProps) {
+export default function Dock({
+  onLogout,
+  onNavigate,
+  onOpenProfile,
+  role,
+}: DockProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [lang, setLang] = useState('ES');
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,8 +36,8 @@ export default function Dock({ onLogout, onNavigate, onOpenProfile, role }: Dock
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const iconStyle = {
-    width: '26px',
-    height: '26px',
+    width: '24px',
+    height: '24px',
     color: 'var(--color-primary)',
   };
 
@@ -39,79 +47,103 @@ export default function Dock({ onLogout, onNavigate, onOpenProfile, role }: Dock
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: 'var(--space-sm)',
     width: '100%',
-    padding: '0.5rem',
+    padding: 'var(--space-sm)',
+    color: 'var(--color-text)',
+    fontSize: '1rem',
+    borderRadius: 'var(--radius-md)',
+  };
+
+  const menuIconStyle = {
+    width: '20px',
+    height: '20px',
+    color: 'var(--color-secondary)',
   };
 
   return (
     <nav
       style={{
         position: 'fixed',
-        bottom: '1rem',
+        bottom: 'var(--space-md)',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '90%',
-        maxWidth: '500px',
+        // Ajustamos el ancho para que sea "fit-content" con un padding cómodo
+        width: 'fit-content',
         backgroundColor: 'var(--color-background)',
         borderRadius: '25px',
         border: '1px solid var(--color-border)',
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
-        padding: '0.75rem 1.5rem',
+        padding: 'var(--space-xs) var(--space-md)',
         zIndex: 1000,
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+        boxShadow: 'var(--shadow-soft)',
+        gap: 'var(--space-sm)', // Espacio más estrecho entre iconos
       }}
     >
       <button
         onClick={() => onNavigate('home')}
         aria-label="Home"
-        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 'var(--space-sm)',
+        }}
       >
         <Icon name="home" style={iconStyle} />
       </button>
 
-      <div style={{ display: 'flex', gap: '1.5rem' }}>
+      <button
+        onClick={() => onNavigate('stock')}
+        aria-label="Stock"
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 'var(--space-sm)',
+        }}
+      >
+        <Icon name="stock" style={iconStyle} />
+      </button>
+      <button
+        onClick={() => onNavigate('sales')}
+        aria-label="Ventas"
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 'var(--space-sm)',
+        }}
+      >
+        <Icon name="sales" style={iconStyle} />
+      </button>
+      {role === 'DUEÑO' && (
         <button
-          onClick={() => onNavigate('stock')}
-          aria-label="Stock"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          onClick={() => onNavigate('employees')}
+          aria-label="Empleados"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 'var(--space-sm)',
+          }}
         >
-          <Icon name="stock" style={iconStyle} />
+          <Icon name="user" style={iconStyle} />
         </button>
-        <button
-          onClick={() => onNavigate('sales')}
-          aria-label="Ventas"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-        >
-          <Icon name="sales" style={iconStyle} />
-        </button>
-        {role === 'DUEÑO' && (
-          <>
-            <button
-              onClick={() => onNavigate('control')}
-              aria-label="Control"
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              <Icon name="control" style={iconStyle} />
-            </button>
-            <button
-              onClick={() => onNavigate('employees')}
-              aria-label="Empleados"
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              <Icon name="menu" style={iconStyle} />
-            </button>
-          </>
-        )}
-      </div>
+      )}
 
       <div ref={menuRef} style={{ position: 'relative' }}>
         <button
           onClick={toggleMenu}
           aria-label="Menú"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 'var(--space-sm)',
+          }}
         >
           <Icon name="menu" style={iconStyle} />
         </button>
@@ -120,45 +152,126 @@ export default function Dock({ onLogout, onNavigate, onOpenProfile, role }: Dock
           <div
             style={{
               position: 'absolute',
-              bottom: 'calc(100% + 1rem)',
+              bottom: 'calc(100% + var(--space-md))',
               right: '0',
               backgroundColor: 'var(--color-background)',
               border: '1px solid var(--color-border)',
-              borderRadius: '20px',
-              padding: '1.25rem',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-sm)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '1rem',
               minWidth: '220px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+              boxShadow: 'var(--shadow-soft)',
             }}
           >
-            <button onClick={onOpenProfile} style={menuButtonStyle}>
-              <Icon name="home" style={{ ...iconStyle, width: '20px', height: '20px' }} />
-              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>Perfil</span>
+            <button
+              onClick={() => {
+                onOpenProfile();
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="user" style={menuIconStyle} />
+              <span>Perfil</span>
             </button>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem' }}>
-              <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>Tema</span>
+
+            {role === 'DUEÑO' && (
+              <button
+                onClick={() => {
+                  onNavigate('control');
+                  toggleMenu();
+                }}
+                style={menuButtonStyle}
+              >
+                <Icon name="control" style={menuIconStyle} />
+                <span>Control</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                /* Navegar a Configuración */ toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="settings" style={menuIconStyle} />
+              <span>Configuración</span>
+            </button>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'var(--space-sm) var(--space-md)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-sm)',
+                }}
+              >
+                <Icon name="theme" style={menuIconStyle} />
+                <span style={{ fontWeight: 600 }}>Tema</span>
+              </div>
               <ThemeSwitcher />
             </div>
 
-            <hr style={{ width: '100%', border: '0', borderTop: '1px solid var(--color-border)', margin: '0.25rem 0' }} />
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'var(--space-sm) var(--space-md)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-sm)',
+                }}
+              >
+                <Icon name="language" style={menuIconStyle} />
+                <span style={{ fontWeight: 600 }}>Idioma</span>
+              </div>
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                style={{
+                  background: 'var(--color-border)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '0.25rem 0.5rem',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="ES">ES</option>
+                <option value="EN">EN</option>
+              </select>
+            </div>
+
+            <hr
+              style={{
+                width: '100%',
+                border: '0',
+                borderTop: '1px solid var(--color-border)',
+                margin: 'var(--space-sm) 0',
+              }}
+            />
 
             <button
               onClick={onLogout}
-              style={{
-                cursor: 'pointer',
-                background: 'var(--color-error-bg)',
-                border: 'none',
-                color: 'var(--color-error)',
-                padding: '0.75rem',
-                borderRadius: '12px',
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
+              style={{ ...menuButtonStyle, color: 'var(--color-error)' }}
             >
-              Cerrar Sesión
+              <Icon
+                name="logout"
+                style={{ ...menuIconStyle, color: 'var(--color-error)' }}
+              />
+              <span>Cerrar Sesión</span>
             </button>
           </div>
         )}

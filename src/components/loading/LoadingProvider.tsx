@@ -28,7 +28,10 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(255,255,255,0.7)',
+            // Efecto Glassmorphism sutil
+            backgroundColor: 'rgba(var(--color-background-rgb), 0.3)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',

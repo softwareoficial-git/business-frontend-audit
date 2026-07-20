@@ -13,9 +13,13 @@ export default function AddProductModal({
   onAdd: (product: any) => void;
   productToEdit?: any;
 }) {
-  const [product, setProduct] = useState(
-    productToEdit || { code: '', name: '', price: '', qty: '', category: '' }
-  );
+  const [product, setProduct] = useState({
+    code: productToEdit?.code || '',
+    name: productToEdit?.name || '',
+    price: productToEdit?.price || '',
+    qty: productToEdit?.qty || '',
+    category: productToEdit?.category || '',
+  });
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     productToEdit?.metadata
       ? Object.entries(productToEdit.metadata).map(([key, value]) => ({

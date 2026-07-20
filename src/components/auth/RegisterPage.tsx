@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { registerUser } from '../../lib/auth';
-import { auditLog } from '../../lib/auditLogger';
 
 export default function RegisterPage({
   onNavigate,
@@ -20,17 +19,22 @@ export default function RegisterPage({
   }>({});
   const [loading, setLoading] = useState(false);
 
+  const validate = () => {
+    const newErrors: typeof errors = {};
+    if (!username) newErrors.username = 'Falta este campo';
+    if (password.length < 6)
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    if (!nombreCliente) newErrors.nombreCliente = 'Falta este campo';
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    const newErrors: typeof errors = {};
-    if (!username) newErrors.username = 'Falta este campo';
-    if (!password) newErrors.password = 'Falta este campo';
-    if (!nombreCliente) newErrors.nombreCliente = 'Falta este campo';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -55,17 +59,18 @@ export default function RegisterPage({
     justifyContent: 'center',
     minHeight: '100vh',
     padding: '2rem',
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    backgroundColor: 'var(--color-background)',
     fontFamily: 'sans-serif',
   };
 
   const cardStyle: React.CSSProperties = {
-    background: 'white',
+    backgroundColor: 'var(--color-background)',
     padding: '2.5rem',
     borderRadius: '16px',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    boxShadow: 'var(--shadow-soft)',
     width: '100%',
     maxWidth: '400px',
+    border: '1px solid var(--color-border)',
   };
 
   const inputStyle: React.CSSProperties = {
@@ -73,14 +78,16 @@ export default function RegisterPage({
     padding: '0.75rem',
     margin: '0.5rem 0',
     borderRadius: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--color-border)',
     fontSize: '1rem',
+    backgroundColor: 'var(--color-background)',
+    color: 'var(--color-text)',
   };
 
   const buttonStyle: React.CSSProperties = {
     width: '100%',
     padding: '0.75rem',
-    background: '#00c853',
+    backgroundColor: 'var(--color-primary)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -93,10 +100,22 @@ export default function RegisterPage({
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <h1 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+        <h1
+          style={{
+            textAlign: 'center',
+            marginBottom: '0.5rem',
+            color: 'var(--color-text)',
+          }}
+        >
           Crear cuenta
         </h1>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '2rem' }}>
+        <p
+          style={{
+            textAlign: 'center',
+            color: 'var(--color-secondary)',
+            marginBottom: '2rem',
+          }}
+        >
           Regístrate para empezar a gestionar tus productos.
         </p>
         <form onSubmit={handleSubmit}>
@@ -108,7 +127,13 @@ export default function RegisterPage({
             style={inputStyle}
           />
           {errors.username && (
-            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+            <p
+              style={{
+                color: 'var(--color-error)',
+                fontSize: '0.8rem',
+                marginTop: '-0.4rem',
+              }}
+            >
               {errors.username}
             </p>
           )}
@@ -120,7 +145,13 @@ export default function RegisterPage({
             style={inputStyle}
           />
           {errors.password && (
-            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+            <p
+              style={{
+                color: 'var(--color-error)',
+                fontSize: '0.8rem',
+                marginTop: '-0.4rem',
+              }}
+            >
               {errors.password}
             </p>
           )}
@@ -132,7 +163,13 @@ export default function RegisterPage({
             style={inputStyle}
           />
           {errors.nombreCliente && (
-            <p style={{ color: 'red', fontSize: '0.8rem' }}>
+            <p
+              style={{
+                color: 'var(--color-error)',
+                fontSize: '0.8rem',
+                marginTop: '-0.4rem',
+              }}
+            >
               {errors.nombreCliente}
             </p>
           )}
@@ -141,7 +178,13 @@ export default function RegisterPage({
           </button>
         </form>
         {errors.global && (
-          <p style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}>
+          <p
+            style={{
+              color: 'var(--color-error)',
+              textAlign: 'center',
+              marginTop: '1rem',
+            }}
+          >
             {errors.global}
           </p>
         )}
@@ -150,6 +193,7 @@ export default function RegisterPage({
             textAlign: 'center',
             marginTop: '1.5rem',
             fontSize: '0.9rem',
+            color: 'var(--color-text)',
           }}
         >
           ¿Ya tienes cuenta?{' '}
@@ -158,7 +202,7 @@ export default function RegisterPage({
             style={{
               background: 'none',
               border: 'none',
-              color: '#00c853',
+              color: 'var(--color-primary)',
               cursor: 'pointer',
               fontWeight: 'bold',
             }}
