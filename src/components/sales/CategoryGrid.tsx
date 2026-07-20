@@ -18,14 +18,7 @@ export default function CategoryGrid({
   selectedCategoryId,
 }: CategoryGridProps) {
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-        gap: 'var(--space-md)',
-        padding: 'var(--space-md)',
-      }}
-    >
+    <div className="categories-area">
       {categories.map((cat) => (
         <button
           key={cat.id}
@@ -45,10 +38,17 @@ export default function CategoryGrid({
                 : 'var(--color-text)',
             cursor: 'pointer',
             transition: 'all 0.2s',
+            minWidth: '80px',
           }}
         >
-          <Icon name={cat.icon} style={{ width: '32px', height: '32px' }} />
-          <span style={{ marginTop: 'var(--space-xs)', fontWeight: 'bold' }}>
+          <Icon name={cat.icon} style={{ width: '24px', height: '24px' }} />
+          <span
+            style={{
+              marginTop: 'var(--space-xs)',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+            }}
+          >
             {cat.name}
           </span>
         </button>

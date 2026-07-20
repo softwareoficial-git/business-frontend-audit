@@ -129,10 +129,24 @@ export default function SalesPanel() {
         />
       )}
 
-      <div
-        className="main-content"
-        style={{ position: 'relative', zIndex: 10 }}
-      >
+      <div className="search-area">
+        {/* Capa de enfoque cuando hay búsqueda activa */}
+        {searchTerm && (
+          <div
+            onClick={() => setSearchTerm('')}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.4)',
+              zIndex: 5,
+              backdropFilter: 'blur(2px)',
+            }}
+          />
+        )}
+
         {/* Buscador */}
         <div style={{ position: 'relative', zIndex: 15 }}>
           <SearchBar onSearch={setSearchTerm} />
@@ -186,40 +200,64 @@ export default function SalesPanel() {
             </div>
           )}
         </div>
+      </div>
 
-        <CategoryGrid
-          categories={categories}
-          onSelectCategory={setSelectedCategoryId}
-          selectedCategoryId={selectedCategoryId}
-        />
+      <CategoryGrid
+        categories={categories}
+        onSelectCategory={setSelectedCategoryId}
+        selectedCategoryId={selectedCategoryId}
+      />
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-            gap: 'var(--space-md)',
-            padding: 'var(--space-md)',
-          }}
-        >
-          {currentProducts.map((p: any) => (
-            <button
-              key={p.code}
-              onClick={() => setSelectedProduct(p)}
+      <div className="products-area">
+        {currentProducts.map((p: any) => (
+          <button
+            key={p.code}
+            onClick={() => setSelectedProduct(p)}
+            style={{
+              padding: 'var(--space-sm)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-background)',
+              color: 'var(--color-text)',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              textAlign: 'left',
+              boxShadow: 'var(--shadow-soft)',
+              height: '80px', // Altura fija para consistencia
+            }}
+          >
+            <span
               style={{
-                padding: 'var(--space-md)',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-background)',
-                color: 'var(--color-text)',
-                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               {p.name}
-            </button>
-          ))}
-        </div>
+            </span>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span
+                style={{ fontSize: '0.75rem', color: 'var(--color-secondary)' }}
+              >
+                {p.unit}
+              </span>
+              <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
+                ${p.price}
+              </span>
+            </div>
+          </button>
+        ))}
       </div>
-
       <div className="cart-budget-card">
         <CartList items={items} />
         <div
