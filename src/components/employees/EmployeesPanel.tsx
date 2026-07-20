@@ -2,9 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
+import EmployeeCard from './EmployeeCard';
+import CreateEmployeeModal from './CreateEmployeeModal';
+import EditPermissionsModal from './EditPermissionsModal';
 
 export default function EmployeesPanel() {
   const [employees, setEmployees] = useState<any[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -23,19 +28,77 @@ export default function EmployeesPanel() {
     }
   };
 
+  const handleDelete = async (userId: number) => {
+    if (!confirm('¿Estás seguro de eliminar este empleado?')) return;
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'staff.delete', params: { userId } }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchEmployees();
+      } else {
+        alert(`Error al eliminar: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+      alert('Error de red al eliminar el empleado.');
+    }
+  };
+
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Empleados</h1>
+    <div style={{ padding: 'var(--space-md)' }}>
+      <h1 style={{ marginBottom: 'var(--space-md)' }}>Gestión de Empleados</h1>
       {employees.length === 0 ? (
         <p>No hay empleados registrados.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <div className="stock-grid">
           {employees.map((emp) => (
-            <li key={emp.id} style={{ border: '1px solid var(--color-border)', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '0.5rem' }}>
-              <strong>{emp.username}</strong> - {emp.role_name}
-            </li>
+            <EmployeeCard
+              key={emp.id}
+              employee={emp}
+              onDelete={handleDelete}
+              onUpdatePermissions={(emp) => setEditingEmployee(emp)}
+            />
           ))}
-        </ul>
+        </div>
+      )}
+
+      <button
+        onClick={() => setIsCreateModalOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: '85px',
+          right: '1.5rem',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--color-primary)',
+          color: 'white',
+          border: 'none',
+          fontSize: '1.5rem',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          zIndex: 20,
+        }}
+      >
+        +
+      </button>
+
+      {isCreateModalOpen && (
+        <CreateEmployeeModal
+          onClose={() => setIsCreateModalOpen(false)}
+          onAdd={fetchEmployees}
+        />
+      )}
+
+      {editingEmployee && (
+        <EditPermissionsModal
+          employee={editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          onUpdate={fetchEmployees}
+        />
       )}
     </div>
   );
