@@ -3,14 +3,21 @@ import { ThemeProvider } from '../lib/theme/ThemeProvider';
 import { ToastProvider } from '../components/toast/ToastProvider';
 import { TourProvider } from '../components/tour/TourProvider';
 import { LoadingProvider } from '../components/loading/LoadingProvider';
-import Dock from '../components/Dock';
+import VersionChecker from '../components/VersionChecker';
 
 export const metadata = {
-  title: 'Plataforma Optimizada',
+  title: 'Gestión Empresarial Inteligente | Control Total y Seguridad',
   description:
-    'Plataforma web de alto rendimiento optimizada para dispositivos de bajos recursos.',
-  keywords: ['plataforma', 'optimizada', 'alto rendimiento', 'bajo consumo'],
-  authors: [{ name: 'Desarrollador' }],
+    'Plataforma integral para empresas y emprendedores. Gestiona inventarios, personal, permisos granulares y ventas con tecnología de vanguardia, alta seguridad JSONB y escalabilidad total.',
+  keywords: [
+    'gestión empresarial',
+    'control de stock',
+    'gestión de empleados',
+    'ventas',
+    'seguridad JSONB',
+    'tecnología escalable',
+  ],
+  authors: [{ name: 'Equipo de Desarrollo' }],
 };
 
 export const viewport = {
@@ -26,42 +33,26 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <div
-          id="debug-test"
-          style={{
-            padding: '10px',
-            background: 'red',
-            color: 'white',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            zIndex: 9999,
-          }}
-        >
-          Debug: Layout Renderizado
+        {/* Contenido amigable para bots y carga inicial */}
+        <div id="bot-friendly-content" style={{ display: 'none' }}>
+          <h1>Gestión Empresarial Optimizada</h1>
+          <p>
+            Potenciando negocios con seguridad, facilidad de uso y alta
+            tecnología.
+          </p>
+          <p>
+            Ofrecemos: Gestión de Inventario, Control de personal, Seguimiento
+            de ventas.
+          </p>
         </div>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-          window.onerror = function(message, source, lineno, colno, error) {
-            var el = document.createElement('div');
-            el.style.position = 'fixed';
-            el.style.top = '50px';
-            el.style.left = '0';
-            el.style.background = 'black';
-            el.style.color = 'white';
-            el.style.padding = '20px';
-            el.style.zIndex = '10000';
-            el.innerHTML = 'ERROR JS: ' + message + ' en ' + source + ':' + lineno;
-            document.body.appendChild(el);
-          };
-        `,
-          }}
-        />
+
         <ThemeProvider>
           <ToastProvider>
             <TourProvider>
-              <LoadingProvider>{children}</LoadingProvider>
+              <LoadingProvider>
+                <VersionChecker />
+                {children}
+              </LoadingProvider>
             </TourProvider>
           </ToastProvider>
         </ThemeProvider>

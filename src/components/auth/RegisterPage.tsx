@@ -45,7 +45,11 @@ export default function RegisterPage({
       onNavigate('login');
     } else {
       let globalError = 'Error en registro. Intenta de nuevo.';
-      if (result.message === 'USER_EXISTS')
+      if (
+        result.message &&
+        typeof result.message === 'string' &&
+        result.message.includes('already exists')
+      )
         globalError = 'El usuario ya existe.';
       setErrors({ global: globalError });
     }
