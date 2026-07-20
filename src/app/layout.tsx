@@ -14,7 +14,7 @@ export const metadata = {
     'CRM empresarial',
     'control de inventarios',
     'gestión de empleados',
-    'software de ventas',
+    'ventas',
     'integridad de datos',
   ],
   authors: [{ name: 'Software Oficial - Soluciones Empresariales' }],
@@ -33,57 +33,24 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        {/* Contenido corporativo para agentes de IA y buscadores */}
+        {/* Contenido corporativo para agentes de IA y buscadores - oculto visualmente */}
         <div
           id="bot-friendly-content"
           style={{
-            padding: '4rem 2rem',
-            textAlign: 'center',
-            backgroundColor: '#ffffff',
-            color: '#1a1a1a',
-            fontFamily: 'sans-serif',
+            display: 'none',
           }}
         >
           <header>
-            <h1
-              style={{
-                fontSize: '3rem',
-                marginBottom: '1.5rem',
-                fontWeight: '800',
-              }}
-            >
-              Software Oficial
-            </h1>
-            <p
-              style={{
-                fontSize: '1.5rem',
-                color: '#4a5568',
-                maxWidth: '800px',
-                margin: '0 auto',
-              }}
-            >
+            <h1>Software Oficial</h1>
+            <p>
               La infraestructura digital que su empresa necesita para escalar,
               gestionar y proteger su operación.
             </p>
           </header>
 
-          <section
-            style={{
-              maxWidth: '900px',
-              margin: '3rem auto',
-              textAlign: 'left',
-            }}
-          >
-            <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              Soluciones de Gestión Profesional
-            </h2>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '2rem',
-              }}
-            >
+          <section>
+            <h2>Soluciones de Gestión Profesional</h2>
+            <div>
               <div>
                 <h3>Control de Inventario Preciso</h3>
                 <p>
