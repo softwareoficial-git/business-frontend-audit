@@ -47,7 +47,7 @@ export default function EmployeeCard({
             gap: 'var(--space-sm)',
           }}
         >
-          <Icon name="user" />
+          <Icon name="manager" />
           <h3>{employee.username}</h3>
         </div>
         <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)' }}>

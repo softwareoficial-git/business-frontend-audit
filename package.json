@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "software-oficial-crm",
   "version": "1.0.1",
   "scripts": {
     "dev": "next dev -p 3005",
