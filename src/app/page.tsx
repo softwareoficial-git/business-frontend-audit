@@ -77,7 +77,9 @@ export default function WelcomePage() {
 
   if (!user) {
     if (currentView === 'register') {
-      return <RegisterPage onNavigate={setCurrentView} />;
+      return (
+        <RegisterPage onNavigate={setCurrentView} onLoginSuccess={checkAuth} />
+      );
     }
     return <LoginPage onNavigate={setCurrentView} onLoginSuccess={checkAuth} />;
   }

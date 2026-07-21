@@ -2,13 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
+import { LocalStorageSync } from '../../lib/localStorageSync'; // Importar servicio
 import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 import SearchBar from '../sales/SearchBar';
 
+const STOCK_STORAGE_KEY = 'stock_data';
+
 export default function StockPanel() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(
+    () => LocalStorageSync.getData(STOCK_STORAGE_KEY) || []
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { startLoading, stopLoading } = useLoading();
@@ -18,18 +23,20 @@ export default function StockPanel() {
   }, []);
 
   const fetchStock = async () => {
-    startLoading();
+    // No usamos startLoading() aquí para permitir carga silenciosa
     try {
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({ cmd: 'stock.list', params: {} }),
       });
       const result = await response.json();
-      if (result.success) setProducts(result.data);
+      if (result.success) {
+        setProducts(result.data);
+        LocalStorageSync.saveData(STOCK_STORAGE_KEY, result.data); // Persistir
+      }
     } catch (error) {
       console.error('Error fetching stock:', error);
     }
-    stopLoading();
   };
 
   const handleUpdate = async (product: any) => {
@@ -120,7 +127,7 @@ export default function StockPanel() {
         <SearchBar onSearch={setSearchTerm} />
       </div>
 
-      {/* Grid de tarjetas compacto sin borde de debug */}
+      {/* Grid de tarjetas compacto */}
       <div className="stock-grid">
         {Array.isArray(filteredProducts) &&
           filteredProducts.map((p: any, index: number) => (

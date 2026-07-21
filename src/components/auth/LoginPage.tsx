@@ -38,6 +38,10 @@ export default function LoginPage({
     stopLoading();
 
     if (result.success) {
+      // Asumimos que el backend envía el token en result.data.token
+      if (result.user?.token) {
+        localStorage.setItem('session_token', result.user.token);
+      }
       onLoginSuccess();
     } else {
       setErrors({ global: 'Usuario o contraseña incorrectos.' });
@@ -57,23 +61,30 @@ export default function LoginPage({
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: 'var(--color-background)',
-    padding: '2.5rem',
-    borderRadius: '16px',
-    boxShadow: 'var(--shadow-soft)',
-    width: '100%',
-    maxWidth: '400px',
-    border: '1px solid var(--color-border)',
+    padding: '1.5rem',
+    borderRadius: '20px',
+    boxShadow:
+      '6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.5)',
+    width: '90%',
+    maxWidth: '300px',
+    border: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
   };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '0.75rem',
-    margin: '0.5rem 0',
-    borderRadius: '8px',
+    padding: '0.6rem',
+    margin: '0.4rem 0',
+    borderRadius: '10px',
     border: '1px solid var(--color-border)',
-    fontSize: '1rem',
+    fontSize: '0.8rem',
     backgroundColor: 'var(--color-background)',
     color: 'var(--color-text)',
+    outline: 'none',
+    boxSizing: 'border-box',
   };
 
   return (
@@ -84,6 +95,7 @@ export default function LoginPage({
             textAlign: 'center',
             marginBottom: '0.5rem',
             color: 'var(--color-text)',
+            fontSize: '1.5rem',
           }}
         >
           Bienvenido
@@ -92,10 +104,11 @@ export default function LoginPage({
           style={{
             textAlign: 'center',
             color: 'var(--color-secondary)',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem',
           }}
         >
-          Por favor, inicia sesión para acceder a tu panel de control.
+          Inicia sesión para continuar.
         </p>
         <form onSubmit={handleSubmit}>
           <input

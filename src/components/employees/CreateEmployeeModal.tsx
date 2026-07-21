@@ -17,15 +17,26 @@ export default function CreateEmployeeModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Construir el payload solo con valores definidos
+    const params: any = { nombre, role, password, type: 'human' };
+    if (username && username.trim() !== '') {
+      params.username = username;
+    }
+
+    console.log('Enviando payload:', { cmd: 'staff.create', params });
+
     try {
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({
           cmd: 'staff.create',
-          params: { nombre, role, password, username, type: 'human' },
+          params,
         }),
       });
       const result = await response.json();
+      console.log('Respuesta del servidor:', result);
+
       if (result.success) {
         onAdd();
         onClose();

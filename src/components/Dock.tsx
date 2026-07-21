@@ -108,7 +108,7 @@ export default function Dock({
         width: 'fit-content',
         backgroundColor: 'var(--color-background)',
         borderRadius: '27.5px',
-        border: '2px solid red' /* DEBUG */,
+        border: '1px solid var(--color-border)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',

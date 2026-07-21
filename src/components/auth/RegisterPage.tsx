@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { registerUser } from '../../lib/auth';
+import { registerUser, loginUser } from '../../lib/auth';
 
 export default function RegisterPage({
   onNavigate,
+  onLoginSuccess,
 }: {
   onNavigate: (view: 'home' | 'login' | 'register') => void;
+  onLoginSuccess: () => void;
 }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +44,16 @@ export default function RegisterPage({
     const result = await registerUser(username, password, nombreCliente);
 
     if (result.success) {
-      onNavigate('login');
+      // Auto-login post-registro
+      const loginResult = await loginUser(username, password);
+      if (loginResult.success) {
+        if (loginResult.user?.token) {
+          localStorage.setItem('session_token', loginResult.user.token);
+        }
+        onLoginSuccess();
+      } else {
+        onNavigate('login');
+      }
     } else {
       let globalError = 'Error en registro. Intenta de nuevo.';
       if (
@@ -69,23 +80,30 @@ export default function RegisterPage({
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: 'var(--color-background)',
-    padding: '2.5rem',
-    borderRadius: '16px',
-    boxShadow: 'var(--shadow-soft)',
-    width: '100%',
-    maxWidth: '400px',
-    border: '1px solid var(--color-border)',
+    padding: '1.5rem',
+    borderRadius: '20px',
+    boxShadow:
+      '6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.5)',
+    width: '90%',
+    maxWidth: '300px',
+    border: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
   };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '0.75rem',
-    margin: '0.5rem 0',
-    borderRadius: '8px',
+    padding: '0.6rem',
+    margin: '0.4rem 0',
+    borderRadius: '10px',
     border: '1px solid var(--color-border)',
-    fontSize: '1rem',
+    fontSize: '0.8rem',
     backgroundColor: 'var(--color-background)',
     color: 'var(--color-text)',
+    outline: 'none',
+    boxSizing: 'border-box', // Importante para que el padding no afecte el ancho
   };
 
   return (
@@ -96,6 +114,7 @@ export default function RegisterPage({
             textAlign: 'center',
             marginBottom: '0.5rem',
             color: 'var(--color-text)',
+            fontSize: '1.5rem',
           }}
         >
           Crear cuenta
@@ -104,10 +123,11 @@ export default function RegisterPage({
           style={{
             textAlign: 'center',
             color: 'var(--color-secondary)',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem',
           }}
         >
-          Regístrate para empezar a gestionar tus productos.
+          Regístrate para empezar.
         </p>
         <form onSubmit={handleSubmit}>
           <input

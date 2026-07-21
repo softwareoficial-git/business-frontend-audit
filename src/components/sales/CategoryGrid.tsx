@@ -31,7 +31,7 @@ export default function CategoryGrid({
             gap: 'var(--space-sm)',
             padding: 'var(--space-sm) var(--space-md)',
             borderRadius: '50px',
-            border: `1px solid ${selectedCategoryId === cat.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+            border: `2px solid ${selectedCategoryId === cat.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
             background: 'var(--color-background)',
             color:
               selectedCategoryId === cat.id

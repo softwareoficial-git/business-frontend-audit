@@ -73,7 +73,6 @@ export default function EmployeesPanel() {
           overflowX: 'auto',
           gap: 'var(--space-sm)',
           padding: 'var(--space-sm)',
-          border: '2px solid blue', // DEBUG
           scrollbarWidth: 'none',
         }}
       >
@@ -129,7 +128,6 @@ export default function EmployeesPanel() {
           overflowY: 'auto',
           background: 'var(--color-surface)',
           borderRadius: 'var(--radius-lg)',
-          border: '2px solid yellow', // DEBUG
           paddingBottom: '100px', // Espacio para el Dock
         }}
       >

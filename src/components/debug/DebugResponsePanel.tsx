@@ -20,7 +20,7 @@ export default function DebugResponsePanel({
       }}
     >
       <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-warning)' }}>
-        DEBUG: {title}
+        {title}
       </h3>
       <pre style={{ margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
     </div>

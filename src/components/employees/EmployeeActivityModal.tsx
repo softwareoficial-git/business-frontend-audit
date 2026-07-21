@@ -23,11 +23,11 @@ export default function EmployeeActivityModal({
         method: 'POST',
         body: JSON.stringify({
           cmd: 'staff.get_employee_activity',
-          params: { userId: employee.id },
+          params: { userId: employee.id, limit: 50 },
         }),
       });
       const result = await response.json();
-      if (result.success) setTimeline(result.data.timeline || []);
+      if (result.success) setTimeline(result.data || []);
     } catch (error) {
       console.error('Error fetching activity:', error);
     } finally {
@@ -55,7 +55,7 @@ export default function EmployeeActivityModal({
           backgroundColor: 'var(--color-background)',
           padding: '2rem',
           borderRadius: 'var(--radius-lg)',
-          minWidth: '400px',
+          minWidth: '500px',
           maxHeight: '80vh',
           overflowY: 'auto',
         }}
@@ -65,18 +65,48 @@ export default function EmployeeActivityModal({
           <p>Cargando...</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0 }}>
-            {timeline.map((event: any, index: number) => (
-              <li
-                key={index}
-                style={{
-                  borderBottom: '1px solid var(--color-border)',
-                  padding: '0.5rem 0',
-                }}
-              >
-                <small>{new Date(event.timestamp).toLocaleString()}</small>
-                <p style={{ margin: '0.2rem 0' }}>{event.action}</p>
-              </li>
-            ))}
+            {timeline.map((evento: any, index: number) => {
+              const esFechaValida =
+                typeof evento.fecha === 'string' &&
+                !isNaN(Date.parse(evento.fecha));
+              const fechaHumana = esFechaValida
+                ? new Date(evento.fecha).toLocaleString('es-ES')
+                : 'Fecha no disponible';
+
+              return (
+                <li
+                  key={index}
+                  style={{
+                    borderBottom: '1px solid var(--color-border)',
+                    padding: '0.5rem 0',
+                    color:
+                      evento.estatus === 'SUCCESS'
+                        ? 'inherit'
+                        : 'var(--color-error)',
+                  }}
+                >
+                  <div style={{ fontWeight: 'bold' }}>
+                    {evento.comando === 'Venta realizada'
+                      ? '🛒 Venta'
+                      : '⚙️ Sistema'}
+                  </div>
+                  <small>{fechaHumana}</small>
+                  <p style={{ margin: '0.2rem 0', fontWeight: 'bold' }}>
+                    {evento.resumen}
+                  </p>
+                  <details
+                    style={{
+                      fontSize: '0.8rem',
+                      color: 'gray',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <summary>Ver detalles técnicos</summary>
+                    <pre>{JSON.stringify(evento.detalle, null, 2)}</pre>
+                  </details>
+                </li>
+              );
+            })}
           </ul>
         )}
         <button

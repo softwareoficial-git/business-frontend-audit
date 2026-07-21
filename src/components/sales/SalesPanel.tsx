@@ -3,21 +3,26 @@
 import './SalesPanel.css';
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
+import { LocalStorageSync } from '../../lib/localStorageSync'; // Importar servicio
 import SearchBar from './SearchBar';
 import CartList from './CartList';
 import CategoryGrid from './CategoryGrid';
 import QuickProductModal from './QuickProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 
+const SALES_PRODUCTS_STORAGE_KEY = 'sales_products_data';
+
 export default function SalesPanel() {
   const [items, setItems] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState(
+    () => LocalStorageSync.getData(SALES_PRODUCTS_STORAGE_KEY) || []
+  );
   const [searchTerm, setSearchTerm] = useState('');
 
   // Extraer categorías únicas dinámicamente de los productos cargados
   const categories = Array.from(
     new Set(products.map((p) => p.category).filter(Boolean))
-  ).map((name) => ({ id: name, name, icon: 'sales' }));
+  ).map((name) => ({ id: String(name), name: String(name), icon: 'sales' }));
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     categories.length > 0 ? categories[0].id : null
@@ -44,7 +49,10 @@ export default function SalesPanel() {
         body: JSON.stringify({ cmd: 'stock.list', params: {} }),
       });
       const result = await response.json();
-      if (result.success) setProducts(result.data);
+      if (result.success) {
+        setProducts(result.data);
+        LocalStorageSync.saveData(SALES_PRODUCTS_STORAGE_KEY, result.data); // Persistir
+      }
     } catch (error) {
       console.error('Error fetching stock:', error);
     }
@@ -144,7 +152,7 @@ export default function SalesPanel() {
             <div
               style={{
                 position: 'absolute',
-                top: '100%',
+                top: 'calc(100% + 4px)', // Justo debajo del buscador con pequeña separación
                 left: 0,
                 right: 0,
                 maxHeight: '40vh',
@@ -153,10 +161,11 @@ export default function SalesPanel() {
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-lg)',
                 boxShadow: 'var(--shadow-card)',
-                marginTop: 'var(--space-sm)',
-                padding: 'var(--space-sm)',
-                display: 'grid',
+                padding: 'var(--space-xs)', // Padding interno reducido
+                display: 'flex',
+                flexDirection: 'column',
                 gap: 'var(--space-xs)',
+                zIndex: 100,
               }}
             >
               {filteredProducts.map((p: any, index: number) => (
@@ -207,7 +216,7 @@ export default function SalesPanel() {
             style={{
               padding: '0.4rem 0.6rem',
               borderRadius: '16px', // Borde redondeado suave
-              border: '2px solid orange', // DEBUG
+              border: '1px solid var(--color-border)',
               background: 'var(--color-surface)',
               color: 'var(--color-text)',
               cursor: 'pointer',
@@ -263,19 +272,23 @@ export default function SalesPanel() {
           <div
             style={{
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
               alignItems: 'center',
               marginBottom: 'var(--space-md)',
             }}
           >
             <span
-              style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}
+              style={{
+                fontSize: '0.9rem',
+                color: 'var(--color-text-muted)',
+                marginRight: '1rem',
+              }}
             >
               Total:
             </span>
             <span
               style={{
-                fontSize: '1.5rem',
+                fontSize: '1.2rem',
                 fontWeight: '800',
                 color: 'var(--color-primary)',
               }}
@@ -288,7 +301,8 @@ export default function SalesPanel() {
             className="btn-primary"
             style={{
               width: '100%',
-              fontSize: '1rem',
+              fontSize: '0.9rem',
+              padding: '0.6rem',
             }}
           >
             Finalizar Venta

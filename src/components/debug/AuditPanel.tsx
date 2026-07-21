@@ -18,12 +18,10 @@ export default function AuditPanel({ onClose }: { onClose: () => void }) {
           cmd: 'staff.get_employee_activity',
           // Al no enviar userId, asumimos que el backend entiende que es el listado global.
           // Si el backend insiste en userId, habrá que ver cómo obtenerlo o si requiere un parámetro distinto.
-          params: { debug: true, limit: 100 },
+          params: { limit: 100 },
         }),
       });
       const result = await response.json();
-      // Ajuste: depurar la respuesta para entender por qué devuelve error o vacío.
-      console.log('DEBUG Auditoría Global:', result);
 
       if (result.success) {
         setFullAuditData(result.data || []);
