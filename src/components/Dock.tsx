@@ -3,6 +3,7 @@
 import Icon from './Icon';
 import { useState, useRef, useEffect } from 'react';
 import ThemeSwitcher from './ThemeSwitcher';
+import AuditPanel from './debug/AuditPanel';
 
 interface DockProps {
   onLogout: () => void;
@@ -21,6 +22,7 @@ export default function Dock({
 }: DockProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lang, setLang] = useState('ES');
+  const [showAudit, setShowAudit] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,7 +70,6 @@ export default function Dock({
         bottom: 'var(--space-md)',
         left: '50%',
         transform: 'translateX(-50%)',
-        // Ajustamos el ancho para que sea "fit-content" con un padding cómodo
         width: 'fit-content',
         backgroundColor: 'var(--color-background)',
         borderRadius: '25px',
@@ -79,7 +80,7 @@ export default function Dock({
         padding: 'var(--space-xs) var(--space-md)',
         zIndex: 1000,
         boxShadow: 'var(--shadow-soft)',
-        gap: 'var(--space-sm)', // Espacio más estrecho entre iconos
+        gap: 'var(--space-sm)',
       }}
     >
       <button
@@ -190,12 +191,23 @@ export default function Dock({
 
             <button
               onClick={() => {
-                /* Navegar a Configuración */ toggleMenu();
+                toggleMenu();
               }}
               style={menuButtonStyle}
             >
               <Icon name="settings" style={menuIconStyle} />
               <span>Configuración</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowAudit(!showAudit);
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="control" style={menuIconStyle} />
+              <span>Auditoría</span>
             </button>
 
             <div
@@ -276,6 +288,7 @@ export default function Dock({
           </div>
         )}
       </div>
+      {showAudit && <AuditPanel onClose={() => setShowAudit(false)} />}
     </nav>
   );
 }

@@ -33,12 +33,29 @@ export default function StockPanel() {
 
   const handleUpdate = async (product: any) => {
     startLoading();
-    await apiClient('/execute', {
-      method: 'POST',
-      body: JSON.stringify({ cmd: 'stock.add', params: product }),
-    });
-    fetchStock();
-    stopLoading();
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({
+          cmd: 'stock.update',
+          params: {
+            code: product.code,
+            ...product,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el producto');
+      }
+
+      await fetchStock();
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+      alert('No se pudo actualizar el producto. Por favor, intenta de nuevo.');
+    } finally {
+      stopLoading();
+    }
   };
 
   const handleDelete = async (code: string) => {
