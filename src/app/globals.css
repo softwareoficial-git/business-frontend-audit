@@ -13,7 +13,12 @@
 
   /* Paleta Modernizada - Estados */
   --color-error: #e11d48;
+  --color-error-bg: #fff1f2;
   --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-code-bg: #f0f0f0;
 
   /* Tipografía - Inter (Fallback seguro) */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -59,7 +64,12 @@ body {
   --color-secondary: #94a3b8;
   --color-border: #334155;
   --color-error: #f87171;
+  --color-error-bg: #4c0505;
   --color-success: #34d399;
+  --color-success-bg: #064e3b;
+  --color-warning: #fbbf24;
+  --color-warning-bg: #78350f;
+  --color-code-bg: #0f172a;
 }
 
 /* Clases utilitarias globales */

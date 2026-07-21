@@ -1,5 +1,6 @@
 'use client';
 
+import { useTheme } from '../lib/theme/ThemeProvider';
 import Icon from './Icon';
 import { useState, useRef, useEffect } from 'react';
 import ThemeSwitcher from './ThemeSwitcher';
@@ -20,10 +21,19 @@ export default function Dock({
   onOpenProfile,
   role,
 }: DockProps) {
+  const { theme } = useTheme();
+  const [activePanel, setActivePanel] = useState<string>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lang, setLang] = useState('ES');
   const [showAudit, setShowAudit] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleNavigate = (
+    view: 'home' | 'stock' | 'sales' | 'control' | 'employees'
+  ) => {
+    setActivePanel(view);
+    onNavigate(view);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,9 +48,34 @@ export default function Dock({
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const iconStyle = {
-    width: '24px',
-    height: '24px',
+    width: '26.4px',
+    height: '26.4px',
     color: 'var(--color-primary)',
+  };
+
+  // Neumorphism: Sombra más clara/blanca para modo claro, sombra más oscura/negra para modo oscuro
+  const shadow =
+    theme === 'light'
+      ? '4px 4px 6px rgba(0, 0, 0, 0.1), -4px -4px 6px rgba(255, 255, 255, 0.5)'
+      : '4px 4px 6px rgba(0, 0, 0, 0.5), -4px -4px 6px rgba(255, 255, 255, 0.05)';
+
+  const activeButtonStyle = {
+    background: 'var(--color-background)',
+    borderRadius: '50%',
+    padding: 'calc(var(--space-sm) * 1.1)',
+    border: 'none',
+    boxShadow: shadow,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  };
+
+  const defaultButtonStyle = {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 'calc(var(--space-sm) * 1.1)',
   };
 
   const menuButtonStyle = {
@@ -51,15 +86,15 @@ export default function Dock({
     alignItems: 'center',
     gap: 'var(--space-sm)',
     width: '100%',
-    padding: 'var(--space-sm)',
+    padding: 'calc(var(--space-sm) * 1.1)',
     color: 'var(--color-text)',
-    fontSize: '1rem',
+    fontSize: '1.1rem',
     borderRadius: 'var(--radius-md)',
   };
 
   const menuIconStyle = {
-    width: '20px',
-    height: '20px',
+    width: '22px',
+    height: '22px',
     color: 'var(--color-secondary)',
   };
 
@@ -72,64 +107,46 @@ export default function Dock({
         transform: 'translateX(-50%)',
         width: 'fit-content',
         backgroundColor: 'var(--color-background)',
-        borderRadius: '25px',
+        borderRadius: '27.5px',
         border: '1px solid var(--color-border)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 'var(--space-xs) var(--space-md)',
+        padding: 'calc(var(--space-xs) * 1.1) calc(var(--space-md) * 1.1)',
         zIndex: 1000,
         boxShadow: 'var(--shadow-soft)',
-        gap: 'var(--space-sm)',
+        gap: 'calc(var(--space-sm) * 1.1)',
       }}
     >
       <button
-        onClick={() => onNavigate('home')}
+        onClick={() => handleNavigate('home')}
         aria-label="Home"
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 'var(--space-sm)',
-        }}
+        style={activePanel === 'home' ? activeButtonStyle : defaultButtonStyle}
       >
         <Icon name="home" style={iconStyle} />
       </button>
 
       <button
-        onClick={() => onNavigate('stock')}
+        onClick={() => handleNavigate('stock')}
         aria-label="Stock"
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 'var(--space-sm)',
-        }}
+        style={activePanel === 'stock' ? activeButtonStyle : defaultButtonStyle}
       >
         <Icon name="stock" style={iconStyle} />
       </button>
       <button
-        onClick={() => onNavigate('sales')}
+        onClick={() => handleNavigate('sales')}
         aria-label="Ventas"
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 'var(--space-sm)',
-        }}
+        style={activePanel === 'sales' ? activeButtonStyle : defaultButtonStyle}
       >
         <Icon name="sales" style={iconStyle} />
       </button>
       {role === 'DUEÑO' && (
         <button
-          onClick={() => onNavigate('employees')}
+          onClick={() => handleNavigate('employees')}
           aria-label="Empleados"
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 'var(--space-sm)',
-          }}
+          style={
+            activePanel === 'employees' ? activeButtonStyle : defaultButtonStyle
+          }
         >
           <Icon name="user" style={iconStyle} />
         </button>
@@ -139,12 +156,7 @@ export default function Dock({
         <button
           onClick={toggleMenu}
           aria-label="Menú"
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 'var(--space-sm)',
-          }}
+          style={defaultButtonStyle}
         >
           <Icon name="menu" style={iconStyle} />
         </button>

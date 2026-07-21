@@ -69,7 +69,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     : toast.type === 'success'
                       ? '#ccffcc'
                       : '#e0e0e0',
-              color: '#333',
+              color: 'var(--color-text)',
               border: toast.type === 'warn' ? '1px solid #ffeeba' : 'none',
             }}
           >
