@@ -212,7 +212,7 @@ export default function SalesPanel() {
         {currentProducts.map((p: any) => (
           <button
             key={p.code}
-            onClick={() => setSelectedProduct(p)}
+            onClick={() => handleAddToCart(p, 1)}
             style={{
               padding: 'var(--space-sm)',
               borderRadius: 'var(--radius-md)',
@@ -259,34 +259,51 @@ export default function SalesPanel() {
         ))}
       </div>
       <div className="cart-budget-card">
-        <CartList items={items} />
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <CartList items={items} />
+        </div>
         <div
           style={{
             borderTop: '1px solid var(--color-border)',
-            paddingTop: '1rem',
+            paddingTop: 'var(--space-md)',
+            marginTop: 'auto',
           }}
         >
-          <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-            Total: ${total.toFixed(2)}
-          </p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 'var(--space-md)',
+            }}
+          >
+            <span
+              style={{ fontSize: '1rem', color: 'var(--color-text-muted)' }}
+            >
+              Total:
+            </span>
+            <span
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: '800',
+                color: 'var(--color-primary)',
+              }}
+            >
+              ${total.toFixed(2)}
+            </span>
+          </div>
           <button
             onClick={handleCheckout}
+            className="btn-primary"
             style={{
               width: '100%',
-              marginTop: '0.5rem',
-              padding: 'var(--space-sm)',
+              fontSize: '1rem',
             }}
           >
             Finalizar Venta
           </button>
         </div>
       </div>
-
-      <QuickProductModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAdd={(qty) => handleAddToCart(selectedProduct, qty)}
-      />
     </div>
   );
 }

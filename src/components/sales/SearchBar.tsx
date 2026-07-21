@@ -1,6 +1,10 @@
 'use client';
 
-export default function SearchBar({ onSearch }: { onSearch: (term: string) => void }) {
+export default function SearchBar({
+  onSearch,
+}: {
+  onSearch: (term: string) => void;
+}) {
   return (
     <input
       type="text"
@@ -13,6 +17,7 @@ export default function SearchBar({ onSearch }: { onSearch: (term: string) => vo
         border: '1px solid var(--color-border)',
         backgroundColor: 'var(--color-background)',
         color: 'var(--color-text)',
+        boxSizing: 'border-box',
       }}
     />
   );

@@ -21,7 +21,8 @@
   overflow-x: auto;
   display: flex;
   gap: var(--space-xs);
-  padding-bottom: var(--space-xs);
+  /* Aplicamos el padding aquí */
+  padding: 0 var(--space-sm) var(--space-xs) var(--space-sm);
   scrollbar-width: none;
   z-index: 5;
 }
@@ -29,31 +30,34 @@
   display: none;
 }
 
-/* Productos - Más pequeños */
+/* Productos */
 .products-area {
   flex: 1;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Más columnas, items más pequeños */
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-xs);
-  padding: var(--space-xs);
-  z-index: 1; /* Por debajo del carrito */
+  /* Aplicamos el padding aquí */
+  padding: 0 var(--space-sm) var(--space-xs) var(--space-sm);
+  z-index: 1;
 }
 
-/* Carrito - Más grande y por encima */
+/* Carrito */
 .cart-budget-card {
   position: fixed;
   bottom: 80px;
   left: var(--space-sm);
   right: var(--space-sm);
-  z-index: 15; /* Mayor que z-index de productos */
+  z-index: 15;
   background: var(--color-background);
   padding: var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
-  max-height: 40vh; /* Aumentado para mostrar listado */
-  overflow-y: auto;
+  max-height: 40vh;
+  /* Cambio para flexbox */
+  display: flex;
+  flex-direction: column;
 }
 
 @media (min-width: 768px) {
@@ -61,12 +65,15 @@
     display: grid;
     grid-template-columns: 200px 1fr 400px;
     gap: var(--space-lg);
+    /* Restauramos padding en escritorio */
     padding: var(--space-lg);
     height: calc(100vh - 80px);
   }
 
   .search-area {
     grid-column: 1 / -1;
+    /* Reseteamos padding granular en escritorio para seguir el grid */
+    padding: 0;
   }
 
   .categories-area {
@@ -74,12 +81,16 @@
     overflow-x: hidden;
     overflow-y: auto;
     z-index: auto;
+    /* Reseteamos padding granular */
+    padding: 0;
   }
 
   .products-area {
     grid-column: 2;
     overflow-y: auto;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    /* Reseteamos padding granular */
+    padding: 0;
   }
 
   .cart-budget-card {

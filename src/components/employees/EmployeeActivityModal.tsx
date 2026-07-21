@@ -79,7 +79,11 @@ export default function EmployeeActivityModal({
             ))}
           </ul>
         )}
-        <button onClick={onClose} style={{ marginTop: '1rem' }}>
+        <button
+          onClick={onClose}
+          className="btn-secondary"
+          style={{ marginTop: '1rem' }}
+        >
           Cerrar
         </button>
       </div>

@@ -76,19 +76,6 @@ export default function LoginPage({
     color: 'var(--color-text)',
   };
 
-  const buttonStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '0.75rem',
-    backgroundColor: 'var(--color-primary)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    marginTop: '1rem',
-    fontWeight: 'bold',
-  };
-
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
@@ -135,7 +122,7 @@ export default function LoginPage({
               {errors.password}
             </p>
           )}
-          <button type="submit" style={buttonStyle}>
+          <button type="submit" className="btn-primary">
             Entrar
           </button>
         </form>
@@ -159,16 +146,7 @@ export default function LoginPage({
           }}
         >
           ¿No tienes cuenta?{' '}
-          <button
-            onClick={() => onNavigate('register')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-primary)',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-            }}
-          >
+          <button onClick={() => onNavigate('register')} className="btn-text">
             Regístrate aquí
           </button>
         </p>

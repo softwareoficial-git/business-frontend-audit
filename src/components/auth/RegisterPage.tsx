@@ -88,19 +88,6 @@ export default function RegisterPage({
     color: 'var(--color-text)',
   };
 
-  const buttonStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '0.75rem',
-    backgroundColor: 'var(--color-primary)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    marginTop: '1rem',
-    fontWeight: 'bold',
-  };
-
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
@@ -177,7 +164,7 @@ export default function RegisterPage({
               {errors.nombreCliente}
             </p>
           )}
-          <button type="submit" disabled={loading} style={buttonStyle}>
+          <button type="submit" disabled={loading} className="btn-primary">
             {loading ? 'Registrando...' : 'Registrarse'}
           </button>
         </form>
@@ -201,16 +188,7 @@ export default function RegisterPage({
           }}
         >
           ¿Ya tienes cuenta?{' '}
-          <button
-            onClick={() => onNavigate('login')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-primary)',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-            }}
-          >
+          <button onClick={() => onNavigate('login')} className="btn-text">
             Inicia sesión aquí
           </button>
         </p>
