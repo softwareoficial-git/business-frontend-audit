@@ -11,6 +11,8 @@ export default function CreateEmployeeModal({
   onAdd: () => void;
 }) {
   const [nombre, setNombre] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState('EMPLEADO');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,7 +20,10 @@ export default function CreateEmployeeModal({
     try {
       const response = await apiClient('/execute', {
         method: 'POST',
-        body: JSON.stringify({ cmd: 'staff.create', params: { nombre, role } }),
+        body: JSON.stringify({
+          cmd: 'staff.create',
+          params: { nombre, role, password, username, type: 'human' },
+        }),
       });
       const result = await response.json();
       if (result.success) {
@@ -50,29 +55,87 @@ export default function CreateEmployeeModal({
       <form
         onSubmit={handleSubmit}
         style={{
-          backgroundColor: 'var(--color-background)',
-          padding: '2rem',
+          backgroundColor: 'var(--color-surface)',
+          padding: 'var(--space-md)',
           borderRadius: 'var(--radius-lg)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem',
-          minWidth: '300px',
+          gap: 'var(--space-sm)',
+          width: '90%',
+          maxWidth: '400px',
         }}
       >
-        <h2>Nuevo Empleado</h2>
+        <h2 style={{ fontSize: '1.25rem', margin: '0 0 var(--space-sm) 0' }}>
+          Nuevo Empleado
+        </h2>
+
         <input
-          placeholder="Nombre"
+          placeholder="Nombre completo"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           required
+          style={{
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
         />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <input
+          placeholder="Nombre de usuario"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
+        />
+
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          style={{
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--color-surface)',
+          }}
+        >
           <option value="EMPLEADO">EMPLEADO</option>
-          <option value="DUEÑO">DUEÑO</option>
+          {/* Restringido: <option value="DUEÑO">DUEÑO</option> */}
         </select>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button type="submit">Crear</button>
-          <button type="button" onClick={onClose}>
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginTop: 'var(--space-sm)',
+          }}
+        >
+          <button type="submit" className="btn-primary" style={{ flex: 1 }}>
+            Crear
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn-secondary"
+            style={{ flex: 1 }}
+          >
             Cancelar
           </button>
         </div>

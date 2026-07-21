@@ -69,8 +69,12 @@ export default function SalesPanel() {
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({
-          cmd: 'sales.checkout',
-          params: { items, customerId: 'CUST-1' },
+          cmd: 'sales.create',
+          params: {
+            items,
+            customerId: 'CUST-1',
+            clientTimestamp: new Date().toISOString(),
+          },
         }),
       });
       const result = await response.json();

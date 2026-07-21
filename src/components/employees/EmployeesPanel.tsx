@@ -1,17 +1,19 @@
 'use client';
 
+import './EmployeesPanel.css';
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
-import EmployeeCard from './EmployeeCard';
 import CreateEmployeeModal from './CreateEmployeeModal';
 import EditPermissionsModal from './EditPermissionsModal';
-import EmployeeActivityModal from './EmployeeActivityModal';
+import EmployeeActivityList from './EmployeeActivityList';
 
 export default function EmployeesPanel() {
   const [employees, setEmployees] = useState<any[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
+    null
+  );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
-  const [activityEmployee, setActivityEmployee] = useState<any>(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -24,70 +26,98 @@ export default function EmployeesPanel() {
         body: JSON.stringify({ cmd: 'staff.list', params: {} }),
       });
       const result = await response.json();
-      if (result.success) setEmployees(result.data.usuarios || []);
+      // Ajuste drástico: inspeccionar toda la respuesta
+      console.log('Result Full:', result);
+      // Asumimos que result.data ya es el array directamente basado en reportes anteriores
+      const staffList = Array.isArray(result.data)
+        ? result.data
+        : result.data?.usuarios || [];
+      setEmployees(staffList);
     } catch (error) {
       console.error('Error fetching employees:', error);
-    }
-  };
-
-  const handleDelete = async (userId: number) => {
-    if (!confirm('¿Estás seguro de eliminar este empleado?')) return;
-    try {
-      const response = await apiClient('/execute', {
-        method: 'POST',
-        body: JSON.stringify({ cmd: 'staff.delete', params: { userId } }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        fetchEmployees();
-      } else {
-        alert(`Error al eliminar: ${result.message}`);
-      }
-    } catch (error) {
-      console.error('Error deleting employee:', error);
-      alert('Error de red al eliminar el empleado.');
+      setEmployees([]);
     }
   };
 
   return (
-    <div style={{ padding: 'var(--space-md)' }}>
-      <h1 style={{ marginBottom: 'var(--space-md)' }}>Gestión de Empleados</h1>
-      {employees.length === 0 ? (
-        <p>No hay empleados registrados.</p>
-      ) : (
-        <div className="stock-grid">
-          {employees.map((emp) => (
-            <EmployeeCard
-              key={emp.id}
-              employee={emp}
-              onDelete={handleDelete}
-              onUpdatePermissions={(emp) => setEditingEmployee(emp)}
-              onShowActivity={(emp) => setActivityEmployee(emp)}
-            />
-          ))}
-        </div>
-      )}
-
-      <button
-        onClick={() => setIsCreateModalOpen(true)}
+    <div
+      style={{
+        padding: 'var(--space-md)',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-md)',
+      }}
+    >
+      <div
         style={{
-          position: 'fixed',
-          bottom: '85px',
-          right: '1.5rem',
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          backgroundColor: 'var(--color-primary)',
-          color: 'white',
-          border: 'none',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-          zIndex: 20,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
-        +
-      </button>
+        <h2>Personal</h2>
+        <button
+          className="btn-primary"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
+          + Nuevo Empleado
+        </button>
+      </div>
+
+      {/* Selector Horizontal */}
+      <div
+        style={{
+          display: 'flex',
+          overflowX: 'auto',
+          gap: 'var(--space-sm)',
+          paddingBottom: 'var(--space-sm)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <button
+          onClick={() => setSelectedEmployeeId(null)}
+          className={`sidebar-item ${selectedEmployeeId === null ? 'active' : ''}`}
+          style={{ minWidth: '80px' }}
+        >
+          Todo
+        </button>
+        {employees.map((emp) => (
+          <button
+            key={emp.id}
+            onClick={() => setSelectedEmployeeId(emp.id)}
+            className={`sidebar-item ${selectedEmployeeId === emp.id ? 'active' : ''}`}
+            style={{
+              minWidth: 'auto',
+              textAlign: 'left',
+              padding: '0.5rem 1rem',
+            }}
+          >
+            <span style={{ fontWeight: 'bold', display: 'block' }}>
+              {(emp.name || emp.username || 'Sin Nombre').substring(0, 10) +
+                (emp.name?.length > 10 ? '...' : '')}
+            </span>
+            <small
+              style={{ fontSize: '0.75rem', color: 'inherit', opacity: 0.8 }}
+            >
+              {emp.role}
+            </small>
+          </button>
+        ))}
+      </div>
+
+      {/* Área Principal */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          background: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border)',
+        }}
+      >
+        <EmployeeActivityList userId={selectedEmployeeId || undefined} />
+      </div>
 
       {isCreateModalOpen && (
         <CreateEmployeeModal
@@ -101,13 +131,6 @@ export default function EmployeesPanel() {
           employee={editingEmployee}
           onClose={() => setEditingEmployee(null)}
           onUpdate={fetchEmployees}
-        />
-      )}
-
-      {activityEmployee && (
-        <EmployeeActivityModal
-          employee={activityEmployee}
-          onClose={() => setActivityEmployee(null)}
         />
       )}
     </div>
