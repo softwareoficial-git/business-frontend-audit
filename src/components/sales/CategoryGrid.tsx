@@ -25,12 +25,13 @@ export default function CategoryGrid({
           onClick={() => onSelectCategory(cat.id)}
           style={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
-            padding: 'var(--space-md)',
-            borderRadius: 'var(--radius-md)',
-            border: `2px solid ${selectedCategoryId === cat.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+            justifyContent: 'flex-start',
+            gap: 'var(--space-sm)',
+            padding: 'var(--space-sm) var(--space-md)',
+            borderRadius: '50px',
+            border: `1px solid ${selectedCategoryId === cat.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
             background: 'var(--color-background)',
             color:
               selectedCategoryId === cat.id
@@ -38,15 +39,14 @@ export default function CategoryGrid({
                 : 'var(--color-text)',
             cursor: 'pointer',
             transition: 'all 0.2s',
-            minWidth: '80px',
+            whiteSpace: 'nowrap',
           }}
         >
-          <Icon name={cat.icon} style={{ width: '24px', height: '24px' }} />
+          <Icon name={cat.icon} style={{ width: '20px', height: '20px' }} />
           <span
             style={{
-              marginTop: 'var(--space-xs)',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
+              fontSize: '0.9rem',
+              fontWeight: 500,
             }}
           >
             {cat.name}

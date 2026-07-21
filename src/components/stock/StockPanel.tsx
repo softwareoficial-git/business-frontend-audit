@@ -5,6 +5,7 @@ import { apiClient } from '../../lib/api';
 import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
+import SearchBar from '../sales/SearchBar';
 
 export default function StockPanel() {
   const [products, setProducts] = useState([]);
@@ -116,21 +117,7 @@ export default function StockPanel() {
           width: '100%',
         }}
       >
-        <input
-          type="text"
-          placeholder="Buscar producto..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            padding: 'var(--space-sm)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-            backgroundColor: 'var(--color-background)',
-            color: 'var(--color-text)',
-            boxSizing: 'border-box',
-          }}
-        />
+        <SearchBar onSearch={setSearchTerm} />
       </div>
 
       {/* Grid de tarjetas compacto sin borde de debug */}

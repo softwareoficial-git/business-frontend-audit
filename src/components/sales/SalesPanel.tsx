@@ -69,11 +69,12 @@ export default function SalesPanel() {
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({
-          cmd: 'sales.create',
+          cmd: 'sales.checkout',
           params: {
             items,
             customerId: 'CUST-1',
             clientTimestamp: new Date().toISOString(),
+            client_request_id: crypto.randomUUID(), // Asegurar idempotencia
           },
         }),
       });
@@ -133,26 +134,9 @@ export default function SalesPanel() {
         />
       )}
 
+      {/* Buscador */}
       <div className="search-area">
-        {/* Capa de enfoque cuando hay búsqueda activa */}
-        {searchTerm && (
-          <div
-            onClick={() => setSearchTerm('')}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.4)',
-              zIndex: 5,
-              backdropFilter: 'blur(2px)',
-            }}
-          />
-        )}
-
-        {/* Buscador */}
-        <div style={{ position: 'relative', zIndex: 15 }}>
+        <div style={{ position: 'relative' }}>
           <SearchBar onSearch={setSearchTerm} />
 
           {/* Resultados Flotantes */}
@@ -163,12 +147,12 @@ export default function SalesPanel() {
                 top: '100%',
                 left: 0,
                 right: 0,
-                maxHeight: '60vh',
+                maxHeight: '40vh',
                 overflowY: 'auto',
                 background: 'var(--color-background)',
                 border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                borderRadius: 'var(--radius-lg)',
+                boxShadow: 'var(--shadow-card)',
                 marginTop: 'var(--space-sm)',
                 padding: 'var(--space-sm)',
                 display: 'grid',
@@ -184,7 +168,7 @@ export default function SalesPanel() {
                   }}
                   style={{
                     padding: 'var(--space-md)',
-                    borderRadius: 'var(--radius-sm)',
+                    borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--color-border)',
                     background: 'var(--color-background)',
                     textAlign: 'left',
@@ -193,6 +177,7 @@ export default function SalesPanel() {
                     alignItems: 'center',
                     color: 'var(--color-text)',
                     width: '100%',
+                    cursor: 'pointer',
                   }}
                 >
                   <span style={{ fontWeight: 'bold' }}>{p.name}</span>
@@ -206,11 +191,13 @@ export default function SalesPanel() {
         </div>
       </div>
 
-      <CategoryGrid
-        categories={categories}
-        onSelectCategory={setSelectedCategoryId}
-        selectedCategoryId={selectedCategoryId}
-      />
+      <div className="categories-area">
+        <CategoryGrid
+          categories={categories}
+          onSelectCategory={setSelectedCategoryId}
+          selectedCategoryId={selectedCategoryId}
+        />
+      </div>
 
       <div className="products-area">
         {currentProducts.map((p: any) => (
@@ -218,27 +205,29 @@ export default function SalesPanel() {
             key={p.code}
             onClick={() => handleAddToCart(p, 1)}
             style={{
-              padding: 'var(--space-sm)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-background)',
+              padding: '0.4rem 0.6rem',
+              borderRadius: '16px', // Borde redondeado suave
+              border: '2px solid orange', // DEBUG
+              background: 'var(--color-surface)',
               color: 'var(--color-text)',
               cursor: 'pointer',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
+              flexDirection: 'column', // Vertical para nombre y info
+              justifyContent: 'center',
               textAlign: 'left',
               boxShadow: 'var(--shadow-soft)',
-              height: '80px', // Altura fija para consistencia
+              fontSize: '0.75rem',
+              height: '60px', // Doble de altura aprox
+              margin: '0.2rem 0',
+              minWidth: '15ch', // Ancho mínimo consistente de 15 caracteres
             }}
           >
             <span
               style={{
                 fontWeight: 700,
-                fontSize: '0.9rem',
-                whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
               {p.name}
@@ -247,16 +236,14 @@ export default function SalesPanel() {
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center',
+                marginTop: '0.2rem',
               }}
             >
-              <span
-                style={{ fontSize: '0.75rem', color: 'var(--color-secondary)' }}
-              >
-                {p.unit}
+              <span style={{ color: 'var(--color-secondary)' }}>
+                {p.unit || 'u'}
               </span>
-              <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
-                ${p.price}
+              <span style={{ fontWeight: 800, color: 'var(--color-primary)' }}>
+                ${p.price.toFixed(0)}
               </span>
             </div>
           </button>

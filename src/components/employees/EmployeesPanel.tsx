@@ -65,43 +65,59 @@ export default function EmployeesPanel() {
         </button>
       </div>
 
-      {/* Selector Horizontal */}
+      {/* Selector de Píldoras (Estilo Categorías) */}
       <div
         style={{
           display: 'flex',
+          flexDirection: 'row',
           overflowX: 'auto',
           gap: 'var(--space-sm)',
-          paddingBottom: 'var(--space-sm)',
-          whiteSpace: 'nowrap',
+          padding: 'var(--space-sm)',
+          border: '2px solid blue', // DEBUG
+          scrollbarWidth: 'none',
         }}
       >
         <button
           onClick={() => setSelectedEmployeeId(null)}
-          className={`sidebar-item ${selectedEmployeeId === null ? 'active' : ''}`}
-          style={{ minWidth: '80px' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-sm)',
+            padding: 'var(--space-sm) var(--space-md)',
+            borderRadius: '50px',
+            border: `1px solid ${selectedEmployeeId === null ? 'var(--color-primary)' : 'var(--color-border)'}`,
+            background: 'var(--color-background)',
+            color:
+              selectedEmployeeId === null
+                ? 'var(--color-primary)'
+                : 'var(--color-text)',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
         >
-          Todo
+          <span>Todo el personal</span>
         </button>
         {employees.map((emp) => (
           <button
             key={emp.id}
             onClick={() => setSelectedEmployeeId(emp.id)}
-            className={`sidebar-item ${selectedEmployeeId === emp.id ? 'active' : ''}`}
             style={{
-              minWidth: 'auto',
-              textAlign: 'left',
-              padding: '0.5rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-sm)',
+              padding: 'var(--space-sm) var(--space-md)',
+              borderRadius: '50px',
+              border: `1px solid ${selectedEmployeeId === emp.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              background: 'var(--color-background)',
+              color:
+                selectedEmployeeId === emp.id
+                  ? 'var(--color-primary)'
+                  : 'var(--color-text)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
           >
-            <span style={{ fontWeight: 'bold', display: 'block' }}>
-              {(emp.name || emp.username || 'Sin Nombre').substring(0, 10) +
-                (emp.name?.length > 10 ? '...' : '')}
-            </span>
-            <small
-              style={{ fontSize: '0.75rem', color: 'inherit', opacity: 0.8 }}
-            >
-              {emp.role}
-            </small>
+            <span style={{ fontWeight: 600 }}>{emp.name || emp.username}</span>
           </button>
         ))}
       </div>
@@ -113,7 +129,8 @@ export default function EmployeesPanel() {
           overflowY: 'auto',
           background: 'var(--color-surface)',
           borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--color-border)',
+          border: '2px solid yellow', // DEBUG
+          paddingBottom: '100px', // Espacio para el Dock
         }}
       >
         <EmployeeActivityList userId={selectedEmployeeId || undefined} />
