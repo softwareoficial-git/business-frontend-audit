@@ -2,6 +2,9 @@ import { apiClient } from './api';
 
 export const loginUser = async (username, password) => {
   try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('session_token');
+    }
     const response = await apiClient('/execute', {
       method: 'POST',
       body: JSON.stringify({
