@@ -39,6 +39,33 @@ export default function SalesPanel() {
   const { startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        if (data.type === 'BARCODE_SCANNED') {
+          const code = data.code;
+          const product = products.find((p: any) => p.code === code);
+          if (product) {
+            handleAddToCart(product, 1);
+          } else {
+            alert(`Producto no encontrado: ${code}`);
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing message from Native:', e);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    (window as any).document.addEventListener('message', handleMessage);
+    
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      (window as any).document.removeEventListener('message', handleMessage);
+    };
+  }, [products]);
+
+  useEffect(() => {
     fetchAvailableProducts();
   }, []);
 
