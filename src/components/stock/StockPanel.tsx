@@ -16,10 +16,37 @@ export default function StockPanel() {
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [scannedCode, setScannedCode] = useState<any | null>(null);
   const { startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
-    fetchStock();
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        if (data.type === 'BARCODE_SCANNED') {
+          const code = data.code;
+          const existingProduct = products.find((p: any) => p.code === code);
+          
+          if (existingProduct) {
+            setScannedCode(existingProduct);
+          } else {
+            setScannedCode({ code });
+          }
+          setIsModalOpen(true);
+        }
+      } catch (e) {
+        console.error('Error parsing message from RN:', e);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    // Para entornos WebView
+    (window as any).document.addEventListener('message', handleMessage);
+    
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      (window as any).document.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   const fetchStock = async () => {
@@ -163,8 +190,9 @@ export default function StockPanel() {
 
       {isModalOpen && (
         <AddProductModal
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => { setIsModalOpen(false); setScannedCode(null); }}
           onAdd={handleAdd}
+          productToEdit={scannedCode && typeof scannedCode === 'object' ? scannedCode : (scannedCode ? { code: scannedCode } : undefined)}
         />
       )}
     </div>
