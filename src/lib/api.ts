@@ -34,8 +34,8 @@ export const getSalesSummary = async () => {
   const response = await apiClient('/execute', {
     method: 'POST',
     body: JSON.stringify({
-      command: 'SALES:get-summary',
-      payload: {},
+      cmd: 'sales.summary',
+      params: {},
     }),
   });
   return response.json();

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { getSalesSummary } from '../../lib/api';
 
 export default function EmployeeActivityList({ userId }: { userId?: string }) {
-  const [tickets, setTickets] = useState<any[]>([]);
+  const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSummary();
@@ -16,97 +16,49 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
     setLoading(true);
     try {
       const result = await getSalesSummary();
-      if (result.success && result.summary?.tickets) {
-        // Mapear tickets para iteración fácil
-        const ticketsArray = Object.entries(result.summary.tickets).map(([id, details]: any) => ({
-          id,
-          ...details
-        }));
-        setTickets(ticketsArray);
+      // Mapeo según la nueva estructura de la documentación
+      if (result.success && result.data?.summary) {
+        setReport(result.data.summary);
       } else {
-        setTickets([]);
+        setReport(null);
       }
     } catch (error) {
-      console.error('Error fetching sales summary:', error);
-      setTickets([]);
+      console.error('Error cargando historial:', error);
+      setReport(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateStr: any) => {
-    if (!dateStr) return 'Fecha no disp.';
-    const d = new Date(dateStr);
-    return isNaN(d.getTime())
-      ? 'Fecha inválida'
-      : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  };
+  if (loading) return <div>Cargando...</div>;
+  if (!report) return <div>No hay ventas registradas.</div>;
 
-  if (loading) return <div style={{ padding: 'var(--space-md)' }}>Cargando...</div>;
+  const employees = Object.entries(report.detalle_por_empleado || {});
 
   return (
     <div style={{ padding: 'var(--space-md)' }}>
-      <h2>Historial de Tickets</h2>
-      {tickets.length === 0 ? (
-        <p>No hay ventas registradas en las últimas 24 horas.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-          {tickets.map((ticket) => (
-            <div
-              key={ticket.id}
-              style={{
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-lg)',
-                overflow: 'hidden',
-              }}
+      <h2>Resumen de Ventas (24h)</h2>
+      <p style={{ fontWeight: 'bold' }}>Total General: ${report.total_ventas_24h}</p>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {employees.map(([empName, details]: any) => (
+          <div key={empName} style={{ border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
+            <div 
+              onClick={() => setExpandedEmployee(expandedEmployee === empName ? null : empName)}
+              style={{ padding: '10px', cursor: 'pointer', backgroundColor: '#f9f9f9' }}
             >
-              <div
-                onClick={() => setExpandedId(expandedId === ticket.id ? null : ticket.id)}
-                style={{
-                  padding: 'var(--space-md)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  backgroundColor: expandedId === ticket.id ? 'var(--color-background)' : 'transparent',
-                }}
-              >
-                <div>
-                  <span style={{ fontWeight: 'bold' }}>Ticket: {ticket.id}</span>
-                  <small style={{ display: 'block' }}>{formatDate(ticket.fecha)}</small>
-                </div>
-                <span style={{ fontWeight: '800', color: 'var(--color-primary)' }}>
-                  ${ticket.total_ticket.toFixed(2)}
-                </span>
-              </div>
-              
-              {expandedId === ticket.id && (
-                <div style={{ padding: 'var(--space-md)', borderTop: '1px solid var(--color-border)', fontSize: '0.9rem' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: 'left' }}>Producto</th>
-                        <th style={{ textAlign: 'center' }}>Cant.</th>
-                        <th style={{ textAlign: 'right' }}>Monto</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ticket.productos.map((prod: any, idx: number) => (
-                        <tr key={idx}>
-                          <td>{prod.producto}</td>
-                          <td style={{ textAlign: 'center' }}>{prod.cantidad}</td>
-                          <td style={{ textAlign: 'right' }}>${prod.monto.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+               <strong>Empleado: {empName} - Total: ${details.total_empleado.toFixed(2)}</strong>
             </div>
-          ))}
-        </div>
-      )}
+            {expandedEmployee === empName && (
+               <ul style={{ padding: '10px 20px' }}>
+                 {details.productos.map((p: any, i: number) => (
+                   <li key={i}>{p.producto} x{p.cantidad} - ${p.monto.toFixed(2)}</li>
+                 ))}
+               </ul>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
