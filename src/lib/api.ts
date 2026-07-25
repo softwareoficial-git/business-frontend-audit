@@ -29,3 +29,14 @@ export const apiClient = async (
 
   return response;
 };
+
+export const getSalesSummary = async () => {
+  const response = await apiClient('/execute', {
+    method: 'POST',
+    body: JSON.stringify({
+      command: 'SALES:get-summary',
+      payload: {},
+    }),
+  });
+  return response.json();
+};

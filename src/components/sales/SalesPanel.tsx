@@ -101,12 +101,23 @@ export default function SalesPanel() {
   const handleCheckout = async () => {
     startLoading();
     try {
+      const salesSummary = {
+        items: items.map(item => ({
+          producto: item.name,
+          cantidad: item.qty,
+          monto: item.price * item.qty
+        })),
+        total_ticket: total,
+        fecha: new Date().toISOString()
+      };
+
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({
           cmd: 'sales.checkout',
           params: {
             items,
+            summary: salesSummary,
             customerId: 'CUST-1',
             clientTimestamp: new Date().toISOString(),
             client_request_id: crypto.randomUUID(), // Asegurar idempotencia

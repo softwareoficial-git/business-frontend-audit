@@ -1,70 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiClient } from '../../lib/api';
+import { getSalesSummary } from '../../lib/api';
 
 export default function EmployeeActivityList({ userId }: { userId?: string }) {
-  const [timeline, setTimeline] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchActivity();
+    fetchSummary();
   }, [userId]);
 
-  const fetchActivity = async () => {
+  const fetchSummary = async () => {
     setLoading(true);
     try {
-      const params = userId ? { userId } : {};
-      const response = await apiClient('/execute', {
-        method: 'POST',
-        body: JSON.stringify({ cmd: 'staff.get_employee_activity', params }),
-      });
-      const result = await response.json();
-
-      if (result.success && Array.isArray(result.data)) {
-        // --- PROCESAMIENTO: Agrupar Ventas ---
-        const salesMap: Record<string, any> = {};
-        const rawEvents = result.data;
-
-        rawEvents.forEach((event) => {
-          const detalle = event.detalle || event.payload || {};
-          const cmd = event.comando || event.command || '';
-          const path = detalle.path || '';
-
-          if (cmd === 'USER:push-item') {
-            const saleId = detalle.item?.sale_id || detalle.item?.id;
-            if (saleId) {
-              if (!salesMap[saleId]) {
-                salesMap[saleId] = {
-                  id: saleId,
-                  items: [],
-                  fecha: null,
-                  total: 0,
-                };
-              }
-              if (path === 'sale_items') {
-                salesMap[saleId].items.push({
-                  name: detalle.item.product_code, // Ajustar si hay nombre
-                  qty: detalle.item.qty || 1,
-                  price: detalle.item.price || 0,
-                });
-                salesMap[saleId].total +=
-                  detalle.item.price * (detalle.item.qty || 1);
-              }
-              if (path === 'sales_orders') {
-                salesMap[saleId].fecha = detalle.item.createdAt;
-              }
-            }
-          }
-        });
-
-        setTimeline(Object.values(salesMap));
+      const result = await getSalesSummary();
+      if (result.success && result.summary?.tickets) {
+        // Mapear tickets para iteración fácil
+        const ticketsArray = Object.entries(result.summary.tickets).map(([id, details]: any) => ({
+          id,
+          ...details
+        }));
+        setTickets(ticketsArray);
       } else {
-        setTimeline([]);
+        setTickets([]);
       }
     } catch (error) {
-      console.error('Error fetching activity:', error);
-      setTimeline([]);
+      console.error('Error fetching sales summary:', error);
+      setTickets([]);
     } finally {
       setLoading(false);
     }
@@ -78,58 +42,70 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
       : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-  if (loading)
-    return <div style={{ padding: 'var(--space-md)' }}>Cargando...</div>;
+  if (loading) return <div style={{ padding: 'var(--space-md)' }}>Cargando...</div>;
 
   return (
     <div style={{ padding: 'var(--space-md)' }}>
-      <h2>Ventas realizadas</h2>
-      {timeline.length === 0 ? (
-        <p>No hay ventas registradas.</p>
+      <h2>Historial de Tickets</h2>
+      {tickets.length === 0 ? (
+        <p>No hay ventas registradas en las últimas 24 horas.</p>
       ) : (
-        <ul
-          style={{
-            listStyle: 'none',
-            padding: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--space-sm)',
-          }}
-        >
-          {timeline.map((sale) => (
-            <li
-              key={sale.id}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+          {tickets.map((ticket) => (
+            <div
+              key={ticket.id}
               style={{
-                backgroundColor: 'var(--color-success-bg)',
-                border: '1px solid #bbf7d0',
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-md)',
-                boxShadow: 'var(--shadow-card)',
+                overflow: 'hidden',
               }}
             >
               <div
+                onClick={() => setExpandedId(expandedId === ticket.id ? null : ticket.id)}
                 style={{
+                  padding: 'var(--space-md)',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: expandedId === ticket.id ? 'var(--color-background)' : 'transparent',
                 }}
               >
                 <div>
-                  <span style={{ fontWeight: 'bold' }}>Venta: {sale.id}</span>
-                  <small style={{ display: 'block' }}>
-                    {sale.items.map((i: any) => i.name).join(', ')}
-                  </small>
+                  <span style={{ fontWeight: 'bold' }}>Ticket: {ticket.id}</span>
+                  <small style={{ display: 'block' }}>{formatDate(ticket.fecha)}</small>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontWeight: '800', display: 'block' }}>
-                    ${sale.total.toFixed(2)}
-                  </span>
-                  <small>{formatDate(sale.fecha)}</small>
-                </div>
+                <span style={{ fontWeight: '800', color: 'var(--color-primary)' }}>
+                  ${ticket.total_ticket.toFixed(2)}
+                </span>
               </div>
-            </li>
+              
+              {expandedId === ticket.id && (
+                <div style={{ padding: 'var(--space-md)', borderTop: '1px solid var(--color-border)', fontSize: '0.9rem' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left' }}>Producto</th>
+                        <th style={{ textAlign: 'center' }}>Cant.</th>
+                        <th style={{ textAlign: 'right' }}>Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ticket.productos.map((prod: any, idx: number) => (
+                        <tr key={idx}>
+                          <td>{prod.producto}</td>
+                          <td style={{ textAlign: 'center' }}>{prod.cantidad}</td>
+                          <td style={{ textAlign: 'right' }}>${prod.monto.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
