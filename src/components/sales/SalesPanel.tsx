@@ -101,53 +101,42 @@ export default function SalesPanel() {
   const handleCheckout = async () => {
     startLoading();
     try {
-      const salesSummary = {
+      // 1. Estructura del resumen que el backend debe almacenar
+      const ticketResumen = {
         items: items.map(item => ({
           producto: item.name,
           cantidad: item.qty,
           monto: item.price * item.qty
         })),
         total_ticket: total,
-        const handleCheckout = async () => {
-          startLoading();
-          try {
-            // 1. Estructura del resumen que el backend debe almacenar
-            const ticketResumen = {
-              items: items.map(item => ({
-                producto: item.name,
-                cantidad: item.qty,
-                monto: item.price * item.qty
-              })),
-              total_ticket: total,
-              fecha: new Date().toISOString()
-            };
+        fecha: new Date().toISOString()
+      };
 
-            // 2. Enviamos el resumen junto con la venta según nueva documentación
-            const response = await apiClient('/execute', {
-              method: 'POST',
-              body: JSON.stringify({
-                cmd: 'sales.checkout',
-                params: {
-                  items: items.map(i => ({ code: i.code, qty: i.qty, price: i.price })),
-                  ticket: ticketResumen,
-                  customerId: 'CUST-1',
-                  clientTimestamp: new Date().toISOString(),
-                },
-              }),
-            });
-
-            const result = await response.json();
-            if (result.success) {
-              setItems([]);
-              alert('Venta realizada con éxito');
-            } else {
-              alert('Error: ' + result.message);
-            }
-          } catch (error) {
-            console.error(error);
-          }
-          stopLoading();
-        };
+      // 2. Enviamos el resumen junto con la venta según nueva documentación
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({
+          cmd: 'sales.checkout',
+          params: {
+            items: items.map(i => ({ code: i.code, qty: i.qty, price: i.price })),
+            ticket: ticketResumen,
+            customerId: 'CUST-1',
+            clientTimestamp: new Date().toISOString(),
+          },
+        }),
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        setItems([]);
+        alert('Venta realizada con éxito');
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    stopLoading();
   };
 
   const filteredProducts = searchTerm
