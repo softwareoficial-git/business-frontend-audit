@@ -23,8 +23,23 @@ export default function Dock({
   const { theme } = useTheme();
   const [activePanel, setActivePanel] = useState<string>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [lang, setLang] = useState('ES');
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const WHATSAPP_NUMBER = '3765245980';
+  const WHATSAPP_MESSAGE = 'Hola Software Oficial';
+
+  const handleSendWhatsAppMessage = () => {
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`,
+      '_blank'
+    );
+  };
+
+  const handleCopyWhatsAppNumber = () => {
+    navigator.clipboard?.writeText(`+${WHATSAPP_NUMBER}`);
+  };
 
   const handleNavigate = (
     view: 'home' | 'stock' | 'sales' | 'control' | 'employees'
@@ -37,6 +52,7 @@ export default function Dock({
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
+        setIsWhatsAppOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -209,6 +225,16 @@ export default function Dock({
               <span>Configuración</span>
             </button>
 
+            <button
+              onClick={() => {
+                setIsWhatsAppOpen((prev) => !prev);
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="whatsapp" style={menuIconStyle} />
+              <span>WhatsApp</span>
+            </button>
+
             <div
               style={{
                 display: 'flex',
@@ -283,6 +309,109 @@ export default function Dock({
                 style={{ ...menuIconStyle, color: 'var(--color-error)' }}
               />
               <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        )}
+
+        {isWhatsAppOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 'calc(100% + var(--space-md))',
+              right: '0',
+              backgroundColor: 'var(--color-background)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-md)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--space-sm)',
+              minWidth: '260px',
+              boxShadow: 'var(--shadow-soft)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-sm)',
+                }}
+              >
+                <Icon name="whatsapp" style={menuIconStyle} />
+                <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
+                  Contacta con nosotros
+                </span>
+              </div>
+              <button
+                onClick={() => setIsWhatsAppOpen(false)}
+                aria-label="Cerrar"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-secondary)',
+                  fontSize: '1.1rem',
+                  lineHeight: 1,
+                  padding: '0.25rem',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <span
+              style={{
+                color: 'var(--color-secondary)',
+                fontSize: '0.95rem',
+              }}
+            >
+              +{WHATSAPP_NUMBER}
+            </span>
+
+            <button
+              onClick={handleSendWhatsAppMessage}
+              style={{
+                background: 'var(--color-background)',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: shadow,
+                cursor: 'pointer',
+                padding: 'calc(var(--space-sm) * 1.1)',
+                color: 'var(--color-text)',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--space-sm)',
+              }}
+            >
+              <Icon name="whatsapp" style={{ width: '18px', height: '18px', color: 'var(--color-primary)' }} />
+              <span>Enviar mensaje</span>
+            </button>
+
+            <button
+              onClick={handleCopyWhatsAppNumber}
+              style={{
+                background: 'none',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer',
+                padding: 'calc(var(--space-sm) * 1.1)',
+                color: 'var(--color-text)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--space-sm)',
+              }}
+            >
+              <span>Copiar número</span>
             </button>
           </div>
         )}
