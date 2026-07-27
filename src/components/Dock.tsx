@@ -4,7 +4,6 @@ import { useTheme } from '../lib/theme/ThemeProvider';
 import Icon from './Icon';
 import { useState, useRef, useEffect } from 'react';
 import ThemeSwitcher from './ThemeSwitcher';
-import AuditPanel from './debug/AuditPanel';
 
 interface DockProps {
   onLogout: () => void;
@@ -25,7 +24,6 @@ export default function Dock({
   const [activePanel, setActivePanel] = useState<string>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lang, setLang] = useState('ES');
-  const [showAudit, setShowAudit] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleNavigate = (
@@ -211,17 +209,6 @@ export default function Dock({
               <span>Configuración</span>
             </button>
 
-            <button
-              onClick={() => {
-                setShowAudit(!showAudit);
-                toggleMenu();
-              }}
-              style={menuButtonStyle}
-            >
-              <Icon name="control" style={menuIconStyle} />
-              <span>Auditoría</span>
-            </button>
-
             <div
               style={{
                 display: 'flex',
@@ -300,7 +287,6 @@ export default function Dock({
           </div>
         )}
       </div>
-      {showAudit && <AuditPanel onClose={() => setShowAudit(false)} />}
     </nav>
   );
 }

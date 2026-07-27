@@ -1,63 +1,116 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getSalesSummary } from '../../lib/api';
+import { getSalesHistory } from '../../lib/api';
 
 export default function EmployeeActivityList({ userId }: { userId?: string }) {
-  const [report, setReport] = useState<any>(null);
+  const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null);
+  const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSummary();
+    fetchHistory();
   }, [userId]);
 
-  const fetchSummary = async () => {
+  const fetchHistory = async () => {
     setLoading(true);
     try {
-      const result = await getSalesSummary();
-      // Mapeo según la nueva estructura de la documentación
-      if (result.success && result.data?.summary) {
-        setReport(result.data.summary);
+      const result = await getSalesHistory();
+
+      // LOG RAW CRUCIAL:
+      console.log(
+        '--- DEBUG: RESPUESTA RAW DEL SERVIDOR (sales.history) ---',
+        result
+      );
+
+      if (result.success && Array.isArray(result.data)) {
+        // Ordenar por fecha descendente
+        const sorted = result.data.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setTickets(sorted);
       } else {
-        setReport(null);
+        setTickets([]);
       }
     } catch (error) {
       console.error('Error cargando historial:', error);
-      setReport(null);
+      setTickets([]);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) return <div>Cargando...</div>;
-  if (!report) return <div>No hay ventas registradas.</div>;
-
-  const employees = Object.entries(report.detalle_por_empleado || {});
+  if (tickets.length === 0) return <div>No hay ventas registradas.</div>;
 
   return (
     <div style={{ padding: 'var(--space-md)' }}>
-      <h2>Resumen de Ventas (24h)</h2>
-      <p style={{ fontWeight: 'bold' }}>Total General: ${report.total_ventas_24h}</p>
-      
+      <h2>Historial de Ventas</h2>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {employees.map(([empName, details]: any) => (
-          <div key={empName} style={{ border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
-            <div 
-              onClick={() => setExpandedEmployee(expandedEmployee === empName ? null : empName)}
-              style={{ padding: '10px', cursor: 'pointer', backgroundColor: '#f9f9f9' }}
+        {tickets.map((ticket: any) => {
+          const items =
+            ticket.items || (ticket.ticket ? ticket.ticket.items : []);
+          const empleado =
+            ticket.role === 'DUEÑO'
+              ? 'Dueño'
+              : ticket.empleado
+                ? `Empleado (${ticket.empleado})`
+                : 'Desconocido';
+
+          return (
+            <div
+              key={ticket.id}
+              style={{
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                overflow: 'hidden',
+              }}
             >
-               <strong>Empleado: {empName} - Total: ${details.total_empleado.toFixed(2)}</strong>
+              <div
+                onClick={() =>
+                  setExpandedTicketId(
+                    expandedTicketId === ticket.id ? null : ticket.id
+                  )
+                }
+                style={{
+                  padding: '15px',
+                  cursor: 'pointer',
+                  backgroundColor: '#f9f9f9',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span>
+                  <strong>ID: {ticket.id}</strong>
+                </span>
+                <span>
+                  <strong>{empleado}</strong>
+                </span>
+                <span>
+                  <strong>Total: ${Number(ticket.total).toFixed(2)}</strong>
+                </span>
+              </div>
+              {expandedTicketId === ticket.id && (
+                <div
+                  style={{ padding: '15px 20px', borderTop: '1px solid #eee' }}
+                >
+                  <p>Fecha: {new Date(ticket.createdAt).toLocaleString()}</p>
+                  <ul>
+                    {items.map((p: any, i: number) => (
+                      <li key={i}>
+                        {p.name || p.producto || 'Producto'} x
+                        {p.qty || p.cantidad || 0} - $
+                        {Number(p.price || p.monto || 0).toFixed(2)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-            {expandedEmployee === empName && (
-               <ul style={{ padding: '10px 20px' }}>
-                 {details.productos.map((p: any, i: number) => (
-                   <li key={i}>{p.producto} x{p.cantidad} - ${p.monto.toFixed(2)}</li>
-                 ))}
-               </ul>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

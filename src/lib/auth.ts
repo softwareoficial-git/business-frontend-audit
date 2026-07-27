@@ -42,6 +42,7 @@ export const registerUser = async (username, password, nombreCliente) => {
 };
 
 export const getProfile = async () => {
+  console.trace('TRACE: getProfile called by:');
   try {
     const response = await apiClient('/execute', {
       method: 'POST',

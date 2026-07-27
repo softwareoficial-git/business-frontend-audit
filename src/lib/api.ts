@@ -40,3 +40,14 @@ export const getSalesSummary = async () => {
   });
   return response.json();
 };
+
+export const getSalesHistory = async () => {
+  const response = await apiClient('/execute', {
+    method: 'POST',
+    body: JSON.stringify({
+      cmd: 'sales.history',
+      params: {},
+    }),
+  });
+  return response.json();
+};

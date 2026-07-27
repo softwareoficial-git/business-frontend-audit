@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Dock from '../components/Dock';
 import StockPanel from '../components/stock/StockPanel';
 import SalesPanel from '../components/sales/SalesPanel';
@@ -23,9 +23,13 @@ export default function WelcomePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const authChecked = useRef(false);
 
   useEffect(() => {
-    checkAuth();
+    if (!authChecked.current) {
+      checkAuth();
+      authChecked.current = true;
+    }
   }, []);
 
   const checkAuth = async () => {
