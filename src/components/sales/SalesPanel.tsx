@@ -9,6 +9,7 @@ import CartList from './CartList';
 import CategoryGrid from './CategoryGrid';
 import QuickProductModal from './QuickProductModal';
 import { useLoading } from '../loading/LoadingProvider';
+import { useToast } from '../toast/ToastProvider';
 
 const SALES_PRODUCTS_STORAGE_KEY = 'sales_products_data';
 
@@ -18,6 +19,11 @@ export default function SalesPanel() {
     () => LocalStorageSync.getData(SALES_PRODUCTS_STORAGE_KEY) || []
   );
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const { addToast } = useToast();
+
+  // Helper para obtener stock de forma robusta
+  const getProductStock = (p: any) => p.qty != null ? Number(p.qty) : (p.stock != null ? Number(p.stock) : 0);
 
   // Extraer categorías únicas dinámicamente de los productos cargados
   const categories = Array.from(
@@ -49,7 +55,7 @@ export default function SalesPanel() {
           if (product) {
             handleAddToCart(product, 1);
           } else {
-            alert(`Producto no encontrado: ${code}`);
+            addToast(`Producto no encontrado: ${code}`, 'error');
           }
         }
       } catch (e) {
@@ -85,28 +91,29 @@ export default function SalesPanel() {
       console.error('Error fetching stock:', error);
     }
   };
+const handleAddToCart = (product: any, qty: number) => {
+  // Buscar la versión más reciente del producto en el estado 'products'
+  const latestProduct = products.find(p => p.code === product.code) || product;
+  const stockDisponible = getProductStock(latestProduct);
 
-  const handleAddToCart = (product: any, qty: number) => {
-    // Validar stock disponible
-    const currentItem = items.find((i) => i.code === product.code);
-    const currentQty = currentItem ? currentItem.qty : 0;
+  const currentItem = items.find((i) => i.code === latestProduct.code);
+  const currentQty = currentItem ? currentItem.qty : 0;
 
-    if (currentQty + qty > (product.stock || 0)) {
-      alert('Stock insuficiente');
-      return;
+  if (currentQty + qty > stockDisponible) {
+    return;
+  }
+
+  setItems((prev) => {
+    const exists = prev.find((i) => i.code === latestProduct.code);
+    if (exists) {
+      return prev.map((i) =>
+        i.code === latestProduct.code ? { ...i, qty: i.qty + qty } : i
+      );
     }
-
-    setItems((prev) => {
-      const exists = prev.find((i) => i.code === product.code);
-      if (exists) {
-        return prev.map((i) =>
-          i.code === product.code ? { ...i, qty: i.qty + qty } : i
-        );
-      }
-      return [...prev, { ...product, qty }];
-    });
-    setSelectedProduct(null);
-  };
+    return [...prev, { ...latestProduct, qty, stock: stockDisponible }];
+  });
+  setSelectedProduct(null);
+};
 
   const handleUpdateQty = (code: string, delta: number) => {
     setItems((prev) => {
@@ -118,9 +125,10 @@ export default function SalesPanel() {
 
       // Validar contra producto
       const product = products.find((p) => p.code === code);
-      if (product && newQty > (product.stock || 0)) {
-        alert('Stock insuficiente');
-        return prev;
+      const stockDisponible = getProductStock(product || {});
+      
+      if (product && newQty > stockDisponible) {
+        return prev; // No permitir incrementar si supera el stock
       }
 
       return prev.map((i) => (i.code === code ? { ...i, qty: newQty } : i));
@@ -162,9 +170,10 @@ export default function SalesPanel() {
       const result = await response.json();
       if (result.success) {
         setItems([]);
-        alert('Venta realizada con éxito');
+        addToast('Venta realizada con éxito', 'success');
+        fetchAvailableProducts(); // Refrescar stock inmediatamente
       } else {
-        alert('Error: ' + result.message);
+        addToast('Error: ' + result.message, 'error');
       }
     } catch (error) {
       console.error(error);
@@ -241,9 +250,12 @@ export default function SalesPanel() {
                 zIndex: 100,
               }}
             >
-              {filteredProducts.map((p: any, index: number) => (
+              {filteredProducts.map((p: any, index: number) => {
+                  const stock = getProductStock(p);
+                  return (
                 <button
                   key={`${p.code || 'unknown'}-${index}`}
+                  disabled={stock <= 0}
                   onClick={() => {
                     setSelectedProduct(p);
                     setSearchTerm('');
@@ -259,15 +271,16 @@ export default function SalesPanel() {
                     alignItems: 'center',
                     color: 'var(--color-text)',
                     width: '100%',
-                    cursor: 'pointer',
+                    cursor: stock <= 0 ? 'not-allowed' : 'pointer',
+                    opacity: stock <= 0 ? 0.5 : 1,
                   }}
                 >
-                  <span style={{ fontWeight: 'bold' }}>{p.name}</span>
+                  <span style={{ fontWeight: 'bold' }}>{p.name} {stock <= 0 ? '(Agotado)' : ''}</span>
                   <span style={{ color: 'var(--color-primary)' }}>
                     ${p.price}
                   </span>
                 </button>
-              ))}
+              )})}
             </div>
           )}
         </div>
@@ -282,10 +295,12 @@ export default function SalesPanel() {
       </div>
 
       <div className="products-area">
-        {currentProducts.map((p: any) => (
+        {currentProducts.map((p: any) => {
+          const stock = getProductStock(p);
+          return (
           <button
             key={p.code}
-            disabled={p.stock <= 0}
+            disabled={stock <= 0}
             onClick={() => handleAddToCart(p, 1)}
             style={{
               padding: '0.4rem 0.6rem',
@@ -293,7 +308,7 @@ export default function SalesPanel() {
               border: '1px solid var(--color-border)',
               background: 'var(--color-surface)',
               color: 'var(--color-text)',
-              cursor: p.stock <= 0 ? 'not-allowed' : 'pointer',
+              cursor: stock <= 0 ? 'not-allowed' : 'pointer',
               display: 'flex',
               flexDirection: 'column', // Vertical para nombre y info
               justifyContent: 'center',
@@ -303,7 +318,7 @@ export default function SalesPanel() {
               height: '60px', // Doble de altura aprox
               margin: '0.2rem 0',
               minWidth: '15ch', // Ancho mínimo consistente de 15 caracteres
-              opacity: p.stock <= 0 ? 0.5 : 1,
+              opacity: stock <= 0 ? 0.5 : 1,
             }}
           >
             <span
@@ -314,7 +329,7 @@ export default function SalesPanel() {
                 whiteSpace: 'nowrap',
               }}
             >
-              {p.name} {p.stock <= 0 ? '(Agotado)' : ''}
+              {p.name} {stock <= 0 ? '(Agotado)' : ''}
             </span>
             <div
               style={{
@@ -331,11 +346,11 @@ export default function SalesPanel() {
               </span>
             </div>
           </button>
-        ))}
+        )})}
       </div>
       <div className="cart-budget-card">
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          <CartList items={items} onUpdateQty={handleUpdateQty} />
+          <CartList items={items} onUpdateQty={handleUpdateQty} products={products} />
         </div>
         <div
           style={{

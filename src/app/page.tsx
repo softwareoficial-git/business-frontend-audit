@@ -7,7 +7,7 @@ import EmployeesPanel from '../components/employees/EmployeesPanel';
 import LoginPage from '../components/auth/LoginPage';
 import RegisterPage from '../components/auth/RegisterPage';
 import ProfilePanel from '../components/auth/ProfilePanel';
-import HomePage from '../components/home/HomePage'; // Nuevo
+import HomePage from '../components/home/HomePage';
 import { getProfile, logoutUser } from '../lib/auth';
 
 type View =
@@ -101,6 +101,8 @@ export default function WelcomePage() {
         ) : null;
       case 'employees':
         return user.role_name === 'DUEÑO' ? <EmployeesPanel /> : null;
+      case 'home':
+        return <HomePage user={user} />;
       default:
         return <HomePage user={user} onNavigate={handleNavigate} />;
     }

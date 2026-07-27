@@ -11,9 +11,11 @@ interface CartItem {
 export default function CartList({
   items,
   onUpdateQty,
+  products,
 }: {
   items: CartItem[];
   onUpdateQty: (code: string, delta: number) => void;
+  products: any[];
 }) {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 0' }}>
@@ -22,7 +24,12 @@ export default function CartList({
           Carrito vacío
         </p>
       ) : (
-        items.map((item) => (
+        items.map((item) => {
+          const product = products.find((p) => p.code === item.code);
+          const maxStock = product ? (product.stock != null ? product.stock : Infinity) : item.stock || 0;
+          const isDisabled = maxStock != null && item.qty >= maxStock;
+          
+          return (
           <div
             key={item.code}
             style={{
@@ -54,7 +61,12 @@ export default function CartList({
               <span>{item.qty}</span>
               <button
                 onClick={() => onUpdateQty(item.code, 1)}
-                style={{ padding: '0.2rem 0.5rem' }}
+                disabled={isDisabled}
+                style={{
+                  padding: '0.2rem 0.5rem',
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  opacity: isDisabled ? 0.5 : 1
+                }}
               >
                 +
               </button>
@@ -64,7 +76,7 @@ export default function CartList({
               ${(item.price * item.qty).toFixed(2)}
             </span>
           </div>
-        ))
+        )})
       )}
     </div>
   );

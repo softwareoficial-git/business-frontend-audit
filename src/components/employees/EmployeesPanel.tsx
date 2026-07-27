@@ -7,7 +7,8 @@ import EmployeeActivityList from './EmployeeActivityList';
 import PermissionsEditor from './PermissionsEditor';
 import TasksEditor from './TasksEditor';
 import EmployeeManager from './EmployeeManager';
-import EmployeeProfileEditor from './EmployeeProfileEditor'; // Nuevo
+import EmployeeProfileEditor from './EmployeeProfileEditor';
+import CreateEmployeeForm from './CreateEmployeeForm'; // Importación corregida
 
 export default function EmployeesPanel() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -17,7 +18,8 @@ export default function EmployeesPanel() {
   const [activeTab, setActiveTab] = useState<
     'profile' | 'permissions' | 'goals' | 'sales'
   >('profile');
-  const [isManagerOpen, setIsManagerOpen] = useState(false); // Estado para el panel de gestión
+  const [isManagerOpen, setIsManagerOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false); // Estado para el nuevo formulario
 
   useEffect(() => {
     fetchEmployees();
@@ -47,15 +49,23 @@ export default function EmployeesPanel() {
       {/* Sidebar: Listado de empleados */}
       <aside className="employees-sidebar">
         <h2>Personal</h2>
+        
+        {/* Nuevo formulario de creación */}
         <button
-          onClick={() => setIsManagerOpen(true)}
-          style={{
-            marginBottom: 'var(--space-sm)',
-            padding: 'var(--space-sm)',
-          }}
+          onClick={() => setShowForm(!showForm)}
+          style={{ marginBottom: 'var(--space-sm)', padding: 'var(--space-sm)' }}
         >
-          + Agregar Empleado
+          {showForm ? 'Cancelar' : '+ Nuevo Empleado'}
         </button>
+        {showForm && (
+          <CreateEmployeeForm
+            onEmployeeCreated={() => {
+              setShowForm(false);
+              fetchEmployees();
+            }}
+          />
+        )}
+
         <div className="sidebar-list">
           <button
             onClick={() => {
@@ -132,7 +142,7 @@ export default function EmployeesPanel() {
                 />
               )}
               {activeTab === 'sales' && (
-                <EmployeeActivityList userId={selectedEmployeeId} />
+                <EmployeeActivityList userId={selectedEmployeeId!} />
               )}
             </div>
           </div>
@@ -143,7 +153,7 @@ export default function EmployeesPanel() {
           </div>
         )}
 
-        {/* Modal/Panel para agregar empleado */}
+        {/* Modal/Panel para agregar empleado (Legacy/Gestor avanzado) */}
         {isManagerOpen && (
           <div
             style={{
