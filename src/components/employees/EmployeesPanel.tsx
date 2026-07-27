@@ -1,15 +1,23 @@
 'use client';
 
-import './EmployeesPanel.css';
 import { useState, useEffect } from 'react';
+import './EmployeesPanel.css';
 import { apiClient } from '../../lib/api';
 import EmployeeActivityList from './EmployeeActivityList';
+import PermissionsEditor from './PermissionsEditor';
+import TasksEditor from './TasksEditor';
+import EmployeeManager from './EmployeeManager';
+import EmployeeProfileEditor from './EmployeeProfileEditor'; // Nuevo
 
 export default function EmployeesPanel() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
     null
   );
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'permissions' | 'goals' | 'sales'
+  >('profile');
+  const [isManagerOpen, setIsManagerOpen] = useState(false); // Estado para el panel de gestión
 
   useEffect(() => {
     fetchEmployees();
@@ -32,68 +40,143 @@ export default function EmployeesPanel() {
     }
   };
 
-  return (
-    <div
-      style={{
-        padding: 'var(--space-md)',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-md)',
-      }}
-    >
-      <h2>Personal</h2>
+  const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId);
 
-      {/* Selector de Empleados */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          overflowX: 'auto',
-          gap: 'var(--space-sm)',
-          padding: 'var(--space-sm)',
-          scrollbarWidth: 'none',
-        }}
-      >
+  return (
+    <div className="employees-panel">
+      {/* Sidebar: Listado de empleados */}
+      <aside className="employees-sidebar">
+        <h2>Personal</h2>
         <button
-          onClick={() => setSelectedEmployeeId(null)}
+          onClick={() => setIsManagerOpen(true)}
           style={{
-            padding: 'var(--space-sm) var(--space-md)',
-            borderRadius: '50px',
-            border: `1px solid ${selectedEmployeeId === null ? 'var(--color-primary)' : 'var(--color-border)'}`,
-            cursor: 'pointer',
+            marginBottom: 'var(--space-sm)',
+            padding: 'var(--space-sm)',
           }}
         >
-          Todo el personal
+          + Agregar Empleado
         </button>
-        {employees.map((emp) => (
+        <div className="sidebar-list">
           <button
-            key={emp.id}
-            onClick={() => setSelectedEmployeeId(emp.id)}
-            style={{
-              padding: 'var(--space-sm) var(--space-md)',
-              borderRadius: '50px',
-              border: `1px solid ${selectedEmployeeId === emp.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
-              cursor: 'pointer',
+            onClick={() => {
+              setSelectedEmployeeId(null);
+              setActiveTab('profile');
             }}
+            className={`sidebar-item ${selectedEmployeeId === null ? 'active' : ''}`}
           >
-            <span style={{ fontWeight: 600 }}>{emp.name || emp.username}</span>
+            <span>Todo el personal</span>
           </button>
-        ))}
-      </div>
+          {employees.map((emp) => (
+            <button
+              key={emp.id}
+              onClick={() => {
+                setSelectedEmployeeId(emp.id);
+                setActiveTab('profile');
+              }}
+              className={`sidebar-item ${selectedEmployeeId === emp.id ? 'active' : ''}`}
+            >
+              <span style={{ fontWeight: 600 }}>
+                {emp.name || emp.username}
+              </span>
+            </button>
+          ))}
+        </div>
+      </aside>
 
-      {/* Historial de Ventas */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          background: 'var(--color-surface)',
-          borderRadius: 'var(--radius-lg)',
-          paddingBottom: '100px',
-        }}
-      >
-        <EmployeeActivityList userId={selectedEmployeeId || undefined} />
-      </div>
+      {/* Main: Detalle de empleado o Historial Global */}
+      <main className="employees-main">
+        {selectedEmployee ? (
+          <div className="employee-detail">
+            <h3>{selectedEmployee.name || selectedEmployee.username}</h3>
+
+            {/* Sistema de pestañas */}
+            <div className="tabs">
+              {(['profile', 'permissions', 'goals', 'sales'] as const).map(
+                (tab) => {
+                  const tabNames = {
+                    profile: 'Perfil',
+                    permissions: 'Permisos',
+                    goals: 'Tareas',
+                    sales: 'Ventas',
+                  };
+                  return (
+                    <button
+                      key={tab}
+                      className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+                      onClick={() => setActiveTab(tab)}
+                    >
+                      {tabNames[tab]}
+                    </button>
+                  );
+                }
+              )}
+            </div>
+
+            <div className="tab-content">
+              {activeTab === 'profile' && (
+                <EmployeeProfileEditor
+                  employee={selectedEmployee}
+                  onUpdate={fetchEmployees}
+                />
+              )}
+              {activeTab === 'permissions' && (
+                <PermissionsEditor
+                  employee={selectedEmployee}
+                  onUpdate={fetchEmployees}
+                />
+              )}
+              {activeTab === 'goals' && (
+                <TasksEditor
+                  employee={selectedEmployee}
+                  onUpdate={fetchEmployees}
+                />
+              )}
+              {activeTab === 'sales' && (
+                <EmployeeActivityList userId={selectedEmployeeId} />
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="employee-detail">
+            <h3>Actividad Reciente (Global)</h3>
+            <EmployeeActivityList userId={undefined} />
+          </div>
+        )}
+
+        {/* Modal/Panel para agregar empleado */}
+        {isManagerOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 10000,
+            }}
+            onClick={() => setIsManagerOpen(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()}>
+              <EmployeeManager
+                onUpdate={() => {
+                  fetchEmployees();
+                  setIsManagerOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Tercera Columna: Actividad / Historial Global (Solo escritorio) */}
+      <aside className="employees-activity">
+        <h3>Actividad Reciente (Global)</h3>
+        <EmployeeActivityList userId={undefined} />
+      </aside>
     </div>
   );
 }

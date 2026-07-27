@@ -34,6 +34,9 @@ export default function HomePage({ user, onNavigate }: HomePageProps) {
         Rol: {user.role_name}
       </p>
 
+      {/* Guías de Onboarding Primero - Desaparecen si no hay pendientes */}
+      <OnboardingGuideWidget user={user} onNavigate={onNavigate} />
+
       <div
         style={{
           display: 'grid',
@@ -59,9 +62,6 @@ export default function HomePage({ user, onNavigate }: HomePageProps) {
             <QuickActionsWidget onNavigate={onNavigate} />
           </>
         )}
-
-        {/* Guías de Onboarding para todos (o según lógica de negocio) */}
-        <OnboardingGuideWidget user={user} />
       </div>
     </div>
   );

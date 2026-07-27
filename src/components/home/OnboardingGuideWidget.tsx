@@ -3,7 +3,15 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
 
-export default function OnboardingGuideWidget({ user }: { user: any }) {
+interface OnboardingGuideWidgetProps {
+  user: any;
+  onNavigate?: (view: any) => void;
+}
+
+export default function OnboardingGuideWidget({
+  user,
+  onNavigate,
+}: OnboardingGuideWidgetProps) {
   const [guides, setGuides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +39,7 @@ export default function OnboardingGuideWidget({ user }: { user: any }) {
   };
 
   if (loading) return <div>Cargando guías reales...</div>;
-  if (guides.length === 0) return null; // No mostrar nada si no hay guías pendientes
+  if (guides.length === 0) return null; // Desaparece si no hay guías pendientes
 
   return (
     <div
@@ -40,13 +48,14 @@ export default function OnboardingGuideWidget({ user }: { user: any }) {
         background: 'var(--color-primary-soft)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-primary)',
+        marginBottom: 'var(--space-md)',
       }}
     >
       <h3 style={{ color: 'var(--color-primary)', marginTop: 0 }}>
         Guías para comenzar
       </h3>
       <p style={{ fontSize: '0.9rem', marginBottom: 'var(--space-md)' }}>
-        Parece que eres nuevo por aquí. Completa estas tareas para empezar:
+        Completa estas tareas para optimizar el uso de la plataforma:
       </p>
 
       <div style={{ display: 'grid', gap: 'var(--space-sm)' }}>
@@ -73,15 +82,16 @@ export default function OnboardingGuideWidget({ user }: { user: any }) {
               {guide.description}
             </p>
             <button
-              onClick={() => (window.location.href = guide.actionLink)}
+              onClick={() => onNavigate?.(guide.view)}
               style={{
                 fontSize: '0.75rem',
-                padding: '4px 12px',
+                padding: '6px 16px',
                 background: 'var(--color-primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer',
+                fontWeight: 600,
               }}
             >
               Comenzar ahora
