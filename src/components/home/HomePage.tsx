@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import StockControlWidget from './StockControlWidget';
 import SalesStatsWidget from './SalesStatsWidget';
 import OnboardingGuideWidget from './OnboardingGuideWidget';
 import EmployeeTasksWidget from './EmployeeTasksWidget';
 import BusinessAlertsWidget from './BusinessAlertsWidget';
-import KeyReportsWidget from './KeyReportsWidget';
-import QuickActionsWidget from './QuickActionsWidget';
+import TopProductsWidget from './TopProductsWidget';
+import PurchasesListWidget from './PurchasesListWidget';
 
 interface HomePageProps {
   user: any;
@@ -48,10 +47,9 @@ export default function HomePage({ user, onNavigate }: HomePageProps) {
         {user.role_name === 'DUEÑO' && (
           <>
             <SalesStatsWidget />
-            <StockControlWidget />
-            <KeyReportsWidget />
+            <TopProductsWidget />
+            <PurchasesListWidget />
             <BusinessAlertsWidget />
-            <QuickActionsWidget onNavigate={onNavigate} />
           </>
         )}
 
@@ -59,7 +57,6 @@ export default function HomePage({ user, onNavigate }: HomePageProps) {
         {user.role_name === 'EMPLEADO' && (
           <>
             <EmployeeTasksWidget user={user} />
-            <QuickActionsWidget onNavigate={onNavigate} />
           </>
         )}
       </div>

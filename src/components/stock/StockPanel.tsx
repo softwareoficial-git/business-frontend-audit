@@ -20,13 +20,18 @@ export default function StockPanel() {
   const { startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
+    fetchStock();
+  }, []);
+
+  useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        const data =
+          typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
         if (data.type === 'BARCODE_SCANNED') {
           const code = data.code;
           const existingProduct = products.find((p: any) => p.code === code);
-          
+
           if (existingProduct) {
             setScannedCode(existingProduct);
           } else {
@@ -42,7 +47,7 @@ export default function StockPanel() {
     window.addEventListener('message', handleMessage);
     // Para entornos WebView
     (window as any).document.addEventListener('message', handleMessage);
-    
+
     return () => {
       window.removeEventListener('message', handleMessage);
       (window as any).document.removeEventListener('message', handleMessage);
@@ -190,9 +195,18 @@ export default function StockPanel() {
 
       {isModalOpen && (
         <AddProductModal
-          onClose={() => { setIsModalOpen(false); setScannedCode(null); }}
+          onClose={() => {
+            setIsModalOpen(false);
+            setScannedCode(null);
+          }}
           onAdd={handleAdd}
-          productToEdit={scannedCode && typeof scannedCode === 'object' ? scannedCode : (scannedCode ? { code: scannedCode } : undefined)}
+          productToEdit={
+            scannedCode && typeof scannedCode === 'object'
+              ? scannedCode
+              : scannedCode
+                ? { code: scannedCode }
+                : undefined
+          }
         />
       )}
     </div>

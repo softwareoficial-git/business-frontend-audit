@@ -52,7 +52,6 @@ export default function WelcomePage() {
   };
 
   const handleNavigate = (view: View) => {
-    // Protección de rutas: solo el DUEÑO puede acceder a control y employees
     if (
       user?.role_name !== 'DUEÑO' &&
       (view === 'control' || view === 'employees')
@@ -114,9 +113,10 @@ export default function WelcomePage() {
         textAlign: 'center',
         minHeight: '100vh',
         backgroundColor: 'var(--color-background)',
+        paddingBottom: '70px', // Espacio ajustado para el Dock flotante
       }}
     >
-      {renderContent()}
+      <div style={{ flex: 1, overflowY: 'auto' }}>{renderContent()}</div>
       {isProfileOpen && user && (
         <ProfilePanel user={user} onClose={() => setIsProfileOpen(false)} />
       )}

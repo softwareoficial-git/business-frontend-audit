@@ -19,11 +19,12 @@ export default function SalesPanel() {
     () => LocalStorageSync.getData(SALES_PRODUCTS_STORAGE_KEY) || []
   );
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const { addToast } = useToast();
 
   // Helper para obtener stock de forma robusta
-  const getProductStock = (p: any) => p.qty != null ? Number(p.qty) : (p.stock != null ? Number(p.stock) : 0);
+  const getProductStock = (p: any) =>
+    p.qty != null ? Number(p.qty) : p.stock != null ? Number(p.stock) : 0;
 
   // Extraer categorías únicas dinámicamente de los productos cargados
   const categories = Array.from(
@@ -91,29 +92,30 @@ export default function SalesPanel() {
       console.error('Error fetching stock:', error);
     }
   };
-const handleAddToCart = (product: any, qty: number) => {
-  // Buscar la versión más reciente del producto en el estado 'products'
-  const latestProduct = products.find(p => p.code === product.code) || product;
-  const stockDisponible = getProductStock(latestProduct);
+  const handleAddToCart = (product: any, qty: number) => {
+    // Buscar la versión más reciente del producto en el estado 'products'
+    const latestProduct =
+      products.find((p) => p.code === product.code) || product;
+    const stockDisponible = getProductStock(latestProduct);
 
-  const currentItem = items.find((i) => i.code === latestProduct.code);
-  const currentQty = currentItem ? currentItem.qty : 0;
+    const currentItem = items.find((i) => i.code === latestProduct.code);
+    const currentQty = currentItem ? currentItem.qty : 0;
 
-  if (currentQty + qty > stockDisponible) {
-    return;
-  }
-
-  setItems((prev) => {
-    const exists = prev.find((i) => i.code === latestProduct.code);
-    if (exists) {
-      return prev.map((i) =>
-        i.code === latestProduct.code ? { ...i, qty: i.qty + qty } : i
-      );
+    if (currentQty + qty > stockDisponible) {
+      return;
     }
-    return [...prev, { ...latestProduct, qty, stock: stockDisponible }];
-  });
-  setSelectedProduct(null);
-};
+
+    setItems((prev) => {
+      const exists = prev.find((i) => i.code === latestProduct.code);
+      if (exists) {
+        return prev.map((i) =>
+          i.code === latestProduct.code ? { ...i, qty: i.qty + qty } : i
+        );
+      }
+      return [...prev, { ...latestProduct, qty, stock: stockDisponible }];
+    });
+    setSelectedProduct(null);
+  };
 
   const handleUpdateQty = (code: string, delta: number) => {
     setItems((prev) => {
@@ -126,7 +128,7 @@ const handleAddToCart = (product: any, qty: number) => {
       // Validar contra producto
       const product = products.find((p) => p.code === code);
       const stockDisponible = getProductStock(product || {});
-      
+
       if (product && newQty > stockDisponible) {
         return prev; // No permitir incrementar si supera el stock
       }
@@ -251,36 +253,39 @@ const handleAddToCart = (product: any, qty: number) => {
               }}
             >
               {filteredProducts.map((p: any, index: number) => {
-                  const stock = getProductStock(p);
-                  return (
-                <button
-                  key={`${p.code || 'unknown'}-${index}`}
-                  disabled={stock <= 0}
-                  onClick={() => {
-                    setSelectedProduct(p);
-                    setSearchTerm('');
-                  }}
-                  style={{
-                    padding: 'var(--space-md)',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--color-border)',
-                    background: 'var(--color-background)',
-                    textAlign: 'left',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    color: 'var(--color-text)',
-                    width: '100%',
-                    cursor: stock <= 0 ? 'not-allowed' : 'pointer',
-                    opacity: stock <= 0 ? 0.5 : 1,
-                  }}
-                >
-                  <span style={{ fontWeight: 'bold' }}>{p.name} {stock <= 0 ? '(Agotado)' : ''}</span>
-                  <span style={{ color: 'var(--color-primary)' }}>
-                    ${p.price}
-                  </span>
-                </button>
-              )})}
+                const stock = getProductStock(p);
+                return (
+                  <button
+                    key={`${p.code || 'unknown'}-${index}`}
+                    disabled={stock <= 0}
+                    onClick={() => {
+                      handleAddToCart(p, 1);
+                      setSearchTerm('');
+                    }}
+                    style={{
+                      padding: 'var(--space-md)',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-background)',
+                      textAlign: 'left',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      color: 'var(--color-text)',
+                      width: '100%',
+                      cursor: stock <= 0 ? 'not-allowed' : 'pointer',
+                      opacity: stock <= 0 ? 0.5 : 1,
+                    }}
+                  >
+                    <span style={{ fontWeight: 'bold' }}>
+                      {p.name} {stock <= 0 ? '(Agotado)' : ''}
+                    </span>
+                    <span style={{ color: 'var(--color-primary)' }}>
+                      ${p.price}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -298,59 +303,66 @@ const handleAddToCart = (product: any, qty: number) => {
         {currentProducts.map((p: any) => {
           const stock = getProductStock(p);
           return (
-          <button
-            key={p.code}
-            disabled={stock <= 0}
-            onClick={() => handleAddToCart(p, 1)}
-            style={{
-              padding: '0.4rem 0.6rem',
-              borderRadius: '16px', // Borde redondeado suave
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text)',
-              cursor: stock <= 0 ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              flexDirection: 'column', // Vertical para nombre y info
-              justifyContent: 'center',
-              textAlign: 'left',
-              boxShadow: 'var(--shadow-soft)',
-              fontSize: '0.75rem',
-              height: '60px', // Doble de altura aprox
-              margin: '0.2rem 0',
-              minWidth: '15ch', // Ancho mínimo consistente de 15 caracteres
-              opacity: stock <= 0 ? 0.5 : 1,
-            }}
-          >
-            <span
+            <button
+              key={p.code}
+              disabled={stock <= 0}
+              onClick={() => handleAddToCart(p, 1)}
               style={{
-                fontWeight: 700,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {p.name} {stock <= 0 ? '(Agotado)' : ''}
-            </span>
-            <div
-              style={{
+                padding: '0.4rem 0.6rem',
+                borderRadius: '16px', // Borde redondeado suave
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)',
+                cursor: stock <= 0 ? 'not-allowed' : 'pointer',
                 display: 'flex',
-                justifyContent: 'space-between',
-                marginTop: '0.2rem',
+                flexDirection: 'column', // Vertical para nombre y info
+                justifyContent: 'center',
+                textAlign: 'left',
+                boxShadow: 'var(--shadow-soft)',
+                fontSize: '0.75rem',
+                height: '60px', // Doble de altura aprox
+                margin: '0.2rem 0',
+                minWidth: '15ch', // Ancho mínimo consistente de 15 caracteres
+                opacity: stock <= 0 ? 0.5 : 1,
               }}
             >
-              <span style={{ color: 'var(--color-secondary)' }}>
-                {p.unit || 'u'}
+              <span
+                style={{
+                  fontWeight: 700,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {p.name} {stock <= 0 ? '(Agotado)' : ''}
               </span>
-              <span style={{ fontWeight: 800, color: 'var(--color-primary)' }}>
-                ${p.price.toFixed(0)}
-              </span>
-            </div>
-          </button>
-        )})}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '0.2rem',
+                }}
+              >
+                <span style={{ color: 'var(--color-secondary)' }}>
+                  {p.unit || 'u'}
+                </span>
+                <span
+                  style={{ fontWeight: 800, color: 'var(--color-primary)' }}
+                >
+                  ${p.price.toFixed(0)}
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
       <div className="cart-budget-card">
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          <CartList items={items} onUpdateQty={handleUpdateQty} products={products} />
+          <CartList
+            items={items}
+            onUpdateQty={handleUpdateQty}
+            products={products}
+          />
         </div>
         <div
           style={{

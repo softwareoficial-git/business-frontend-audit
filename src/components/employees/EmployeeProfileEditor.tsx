@@ -41,6 +41,12 @@ export default function EmployeeProfileEditor({
   };
 
   const handleDeleteEmployee = async () => {
+    console.log(
+      '[DEBUG] Eliminando empleado, ID:',
+      employee.id,
+      'Tipo:',
+      typeof employee.id
+    );
     if (!confirm(`¿Estás seguro de eliminar a ${employee.name}?`)) return;
     setDeleteLoading(true);
     try {
@@ -48,7 +54,7 @@ export default function EmployeeProfileEditor({
         method: 'POST',
         body: JSON.stringify({
           cmd: 'staff.delete',
-          params: { userId: employee.id },
+          params: { userId: String(employee.id) },
         }),
       });
       alert('Empleado eliminado exitosamente.');
