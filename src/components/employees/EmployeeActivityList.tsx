@@ -1,32 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getSalesHistory } from '../../lib/api';
+import './EmployeeActivityList.css';
 
 export default function EmployeeActivityList({ userId }: { userId?: string }) {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchHistory();
-  }, [userId]);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     setLoading(true);
     try {
       const result = await getSalesHistory();
-
-      // LOG RAW CRUCIAL:
-      console.log(
-        '--- DEBUG: RESPUESTA RAW DEL SERVIDOR (sales.history) ---',
-        result
-      );
-
       if (result.success && Array.isArray(result.data)) {
-        // Ordenar por fecha descendente
         const sorted = result.data.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setTickets(sorted);
@@ -39,70 +28,73 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  if (loading) return <div>Cargando...</div>;
-  if (tickets.length === 0) return <div>No hay ventas registradas.</div>;
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  const filteredTickets = userId
+    ? tickets.filter((t: any) => String(t.empleado) === String(userId))
+    : tickets;
+
+  if (loading)
+    return <div style={{ padding: 'var(--space-md)' }}>Cargando...</div>;
 
   return (
-    <div style={{ padding: 'var(--space-md)' }}>
-      <h2>Historial de Ventas</h2>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {tickets.map((ticket: any) => {
+    <div className="tickets-container">
+      {filteredTickets.length === 0 ? (
+        <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          No hay ventas registradas {userId ? 'para este empleado.' : '.'}
+        </div>
+      ) : (
+        filteredTickets.map((ticket: any) => {
           const items =
             ticket.items || (ticket.ticket ? ticket.ticket.items : []);
           const empleado =
-            ticket.role === 'DUEÑO'
-              ? 'Dueño'
-              : ticket.empleado
-                ? `Empleado (${ticket.empleado})`
-                : 'Desconocido';
+            ticket.role === 'DUEÑO' ? 'Dueño' : `Emp. (${ticket.empleado})`;
 
           return (
-            <div
-              key={ticket.id}
-              style={{
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                overflow: 'hidden',
-              }}
-            >
+            <div key={ticket.id} className="ticket-card">
               <div
+                className="ticket-header"
                 onClick={() =>
                   setExpandedTicketId(
                     expandedTicketId === ticket.id ? null : ticket.id
                   )
                 }
-                style={{
-                  padding: '15px',
-                  cursor: 'pointer',
-                  backgroundColor: '#f9f9f9',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
               >
-                <span>
-                  <strong>ID: {ticket.id}</strong>
-                </span>
-                <span>
-                  <strong>{empleado}</strong>
-                </span>
-                <span>
-                  <strong>Total: ${Number(ticket.total).toFixed(2)}</strong>
-                </span>
+                <div className="ticket-summary">
+                  <span>
+                    <strong>#{ticket.id.slice(-6)}</strong>
+                  </span>
+                  <span>{empleado}</span>
+                  <span style={{ textAlign: 'right' }}>
+                    <strong>${Number(ticket.total).toFixed(2)}</strong>
+                  </span>
+                </div>
               </div>
+
               {expandedTicketId === ticket.id && (
-                <div
-                  style={{ padding: '15px 20px', borderTop: '1px solid #eee' }}
-                >
-                  <p>Fecha: {new Date(ticket.createdAt).toLocaleString()}</p>
-                  <ul>
+                <div className="ticket-body">
+                  <p
+                    style={{
+                      fontSize: '0.85rem',
+                      marginBottom: 'var(--space-xs)',
+                    }}
+                  >
+                    {new Date(ticket.createdAt).toLocaleString()}
+                  </p>
+                  <ul className="ticket-items">
                     {items.map((p: any, i: number) => (
-                      <li key={i}>
-                        {p.name || p.producto || 'Producto'} x
-                        {p.qty || p.cantidad || 0} - $
-                        {Number(p.price || p.monto || 0).toFixed(2)}
+                      <li key={i} className="ticket-item">
+                        <span>
+                          {p.name || p.producto || 'Producto'} x{' '}
+                          {p.qty || p.cantidad || 0}
+                        </span>
+                        <span>
+                          ${Number(p.price || p.monto || 0).toFixed(2)}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -110,8 +102,8 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
               )}
             </div>
           );
-        })}
-      </div>
+        })
+      )}
     </div>
   );
 }
