@@ -26,57 +26,107 @@ export default function CartList({
       ) : (
         items.map((item) => {
           const product = products.find((p) => p.code === item.code);
-          const maxStock = product ? (product.stock != null ? product.stock : Infinity) : item.stock || 0;
+          const maxStock = product
+            ? product.stock != null
+              ? product.stock
+              : Infinity
+            : item.stock || 0;
           const isDisabled = maxStock != null && item.qty >= maxStock;
-          
-          return (
-          <div
-            key={item.code}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.5rem 0',
-              borderBottom: '1px solid var(--color-border)',
-            }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 600 }}>{item.name}</span>
-              <span
-                style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}
-              >
-                ${item.price.toFixed(2)}
-              </span>
-            </div>
 
+          return (
             <div
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              key={item.code}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr auto auto',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '0.75rem 0',
+                borderBottom: '1px solid var(--color-border)',
+              }}
             >
-              <button
-                onClick={() => onUpdateQty(item.code, -1)}
-                style={{ padding: '0.2rem 0.5rem' }}
-              >
-                -
-              </button>
-              <span>{item.qty}</span>
-              <button
-                onClick={() => onUpdateQty(item.code, 1)}
-                disabled={isDisabled}
+              <div style={{ overflow: 'hidden', textAlign: 'left' }}>
+                <span
+                  style={{
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: 'block',
+                  }}
+                >
+                  {item.name}
+                </span>
+              </div>
+
+              <div
                 style={{
-                  padding: '0.2rem 0.5rem',
-                  cursor: isDisabled ? 'not-allowed' : 'pointer',
-                  opacity: isDisabled ? 0.5 : 1
+                  display: 'grid',
+                  gridTemplateColumns: '32px 30px 32px',
+                  alignItems: 'center',
+                  justifyItems: 'center',
+                  gap: '4px',
+                  width: '100px',
                 }}
               >
-                +
-              </button>
-            </div>
+                <button
+                  onClick={() => onUpdateQty(item.code, -1)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '1px solid var(--color-border)',
+                    background: 'var(--color-surface)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    padding: 0,
+                  }}
+                >
+                  -
+                </button>
+                <span style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                  {item.qty}
+                </span>
+                <button
+                  onClick={() => onUpdateQty(item.code, 1)}
+                  disabled={isDisabled}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    background: isDisabled
+                      ? 'var(--color-border)'
+                      : 'var(--color-primary)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isDisabled ? 0.6 : 1,
+                    fontSize: '1rem',
+                    padding: 0,
+                  }}
+                >
+                  +
+                </button>
+              </div>
 
-            <span style={{ fontWeight: 600 }}>
-              ${(item.price * item.qty).toFixed(2)}
-            </span>
-          </div>
-        )})
+              <span
+                style={{
+                  fontWeight: 600,
+                  minWidth: '60px',
+                  textAlign: 'right',
+                }}
+              >
+                ${(item.price * item.qty).toFixed(2)}
+              </span>
+            </div>
+          );
+        })
       )}
     </div>
   );
