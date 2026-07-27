@@ -58,11 +58,11 @@ body {
 [data-theme='dark'] {
   --color-text: #f8fafc;
   --color-background: #0f172a;
-  --color-surface: #1e293b;
+  --color-surface: #2d3748; /* Ligeramente más claro para separar del fondo */
   --color-primary: #60a5fa;
   --color-primary-hover: #3b82f6;
   --color-secondary: #94a3b8;
-  --color-border: #334155;
+  --color-border: #475569; /* Más claro para mejor contraste */
   --color-error: #f87171;
   --color-error-bg: #4c0505;
   --color-success: #34d399;
@@ -70,6 +70,24 @@ body {
   --color-warning: #fbbf24;
   --color-warning-bg: #78350f;
   --color-code-bg: #0f172a;
+}
+
+[data-theme='rosita'] {
+  --color-text: #4a3a3a;
+  --color-text-muted: #6b5f5f;
+  --color-background: #fff5f7;
+  --color-surface: #ffffff;
+  --color-border: #fbcfe8;
+  --color-primary: #f472b6;
+  --color-primary-hover: #db2777;
+  --color-secondary: #9f7aea;
+  --color-error: #e11d48;
+  --color-error-bg: #fff1f2;
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-code-bg: #ffe4e6;
 }
 
 /* Clases utilitarias globales */

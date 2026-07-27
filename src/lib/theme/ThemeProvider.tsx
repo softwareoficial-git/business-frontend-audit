@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'rosita';
 
 interface ThemeContextType {
   theme: Theme;
@@ -37,7 +37,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme((prevTheme) => {
+      if (prevTheme === 'light') return 'dark';
+      if (prevTheme === 'dark') return 'rosita';
+      return 'light';
+    });
   };
 
   return (
