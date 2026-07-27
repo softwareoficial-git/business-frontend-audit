@@ -265,6 +265,17 @@ export default function Dock({
               </select>
             </div>
 
+            <button
+              onClick={() => {
+                window.open('https://wa.me/3765245980', '_blank');
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="whatsapp" style={menuIconStyle} />
+              <span>Contáctanos</span>
+            </button>
+
             <hr
               style={{
                 width: '100%',
