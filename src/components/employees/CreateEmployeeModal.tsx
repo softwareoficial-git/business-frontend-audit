@@ -18,13 +18,21 @@ export default function CreateEmployeeModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (!username || username.trim().length < 3) {
+      alert('El nombre de usuario debe tener al menos 3 caracteres.');
+      return;
+    }
+
     // Construir el payload solo con valores definidos
     const params: any = { nombre, role, password, type: 'human' };
     if (username && username.trim() !== '') {
       params.username = username;
     }
-
-    console.log('Enviando payload:', { cmd: 'staff.create', params });
 
     try {
       const response = await apiClient('/execute', {
@@ -35,16 +43,19 @@ export default function CreateEmployeeModal({
         }),
       });
       const result = await response.json();
-      console.log('Respuesta del servidor:', result);
 
       if (result.success) {
+        alert('Empleado creado correctamente.');
         onAdd();
         onClose();
       } else {
-        alert(`Error al crear: ${result.message}`);
+        alert(
+          `Error al crear empleado: ${result.message || 'Error desconocido'}`
+        );
       }
     } catch (error) {
       console.error('Error creating employee:', error);
+      alert('Ocurrió un error al conectar con el servidor.');
     }
   };
 

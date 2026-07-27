@@ -41,7 +41,8 @@ export default function SalesPanel() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        const data =
+          typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
         if (data.type === 'BARCODE_SCANNED') {
           const code = data.code;
           const product = products.find((p: any) => p.code === code);
@@ -58,7 +59,7 @@ export default function SalesPanel() {
 
     window.addEventListener('message', handleMessage);
     (window as any).document.addEventListener('message', handleMessage);
-    
+
     return () => {
       window.removeEventListener('message', handleMessage);
       (window as any).document.removeEventListener('message', handleMessage);
@@ -86,6 +87,15 @@ export default function SalesPanel() {
   };
 
   const handleAddToCart = (product: any, qty: number) => {
+    // Validar stock disponible
+    const currentItem = items.find((i) => i.code === product.code);
+    const currentQty = currentItem ? currentItem.qty : 0;
+
+    if (currentQty + qty > (product.stock || 0)) {
+      alert('Stock insuficiente');
+      return;
+    }
+
     setItems((prev) => {
       const exists = prev.find((i) => i.code === product.code);
       if (exists) {
@@ -98,18 +108,37 @@ export default function SalesPanel() {
     setSelectedProduct(null);
   };
 
+  const handleUpdateQty = (code: string, delta: number) => {
+    setItems((prev) => {
+      const item = prev.find((i) => i.code === code);
+      if (!item) return prev;
+
+      const newQty = item.qty + delta;
+      if (newQty <= 0) return prev.filter((i) => i.code !== code);
+
+      // Validar contra producto
+      const product = products.find((p) => p.code === code);
+      if (product && newQty > (product.stock || 0)) {
+        alert('Stock insuficiente');
+        return prev;
+      }
+
+      return prev.map((i) => (i.code === code ? { ...i, qty: newQty } : i));
+    });
+  };
+
   const handleCheckout = async () => {
     startLoading();
     try {
       // 1. Estructura del resumen que el backend debe almacenar
       const ticketResumen = {
-        items: items.map(item => ({
+        items: items.map((item) => ({
           producto: item.name,
           cantidad: item.qty,
-          monto: item.price * item.qty
+          monto: item.price * item.qty,
         })),
         total_ticket: total,
-        fecha: new Date().toISOString()
+        fecha: new Date().toISOString(),
       };
 
       // 2. Enviamos el resumen junto con la venta según nueva documentación
@@ -118,14 +147,18 @@ export default function SalesPanel() {
         body: JSON.stringify({
           cmd: 'sales.checkout',
           params: {
-            items: items.map(i => ({ code: i.code, qty: i.qty, price: i.price })),
+            items: items.map((i) => ({
+              code: i.code,
+              qty: i.qty,
+              price: i.price,
+            })),
             ticket: ticketResumen,
             customerId: 'CUST-1',
             clientTimestamp: new Date().toISOString(),
           },
         }),
       });
-      
+
       const result = await response.json();
       if (result.success) {
         setItems([]);
@@ -252,6 +285,7 @@ export default function SalesPanel() {
         {currentProducts.map((p: any) => (
           <button
             key={p.code}
+            disabled={p.stock <= 0}
             onClick={() => handleAddToCart(p, 1)}
             style={{
               padding: '0.4rem 0.6rem',
@@ -259,7 +293,7 @@ export default function SalesPanel() {
               border: '1px solid var(--color-border)',
               background: 'var(--color-surface)',
               color: 'var(--color-text)',
-              cursor: 'pointer',
+              cursor: p.stock <= 0 ? 'not-allowed' : 'pointer',
               display: 'flex',
               flexDirection: 'column', // Vertical para nombre y info
               justifyContent: 'center',
@@ -269,6 +303,7 @@ export default function SalesPanel() {
               height: '60px', // Doble de altura aprox
               margin: '0.2rem 0',
               minWidth: '15ch', // Ancho mínimo consistente de 15 caracteres
+              opacity: p.stock <= 0 ? 0.5 : 1,
             }}
           >
             <span
@@ -279,7 +314,7 @@ export default function SalesPanel() {
                 whiteSpace: 'nowrap',
               }}
             >
-              {p.name}
+              {p.name} {p.stock <= 0 ? '(Agotado)' : ''}
             </span>
             <div
               style={{
@@ -300,7 +335,7 @@ export default function SalesPanel() {
       </div>
       <div className="cart-budget-card">
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          <CartList items={items} />
+          <CartList items={items} onUpdateQty={handleUpdateQty} />
         </div>
         <div
           style={{
