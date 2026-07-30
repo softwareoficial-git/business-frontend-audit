@@ -18,16 +18,26 @@ export const apiClient = async (
     defaultHeaders['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-    credentials: 'include',
-  });
-
-  return response;
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+      credentials: 'include',
+    });
+    return response;
+  } catch (error) {
+    console.error('[API Error] Network failure:', error);
+    // Devolvemos un objeto que simula una respuesta de error para que 
+    // los componentes no fallen catastróficamente.
+    return {
+      ok: false,
+      status: 503,
+      json: async () => ({ success: false, message: 'Servicio no disponible (Offline)' }),
+    } as Response;
+  }
 };
 
 export const getSalesSummary = async () => {
