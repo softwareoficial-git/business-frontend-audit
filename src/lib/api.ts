@@ -1,9 +1,16 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+import { isLauncher } from './environment/detector';
+import { bridge } from './bridge/UniversalBridge';
 
 export const apiClient = async (
   endpoint: string,
   options: RequestInit = {}
 ) => {
+  // Integración condicional: solo usar si es Launcher y tiene capacidades
+  if (isLauncher() && bridge.isAvailable('event-queue')) {
+    console.log('[Bridge] Usando bridge nativo');
+  }
+
   const token =
     typeof window !== 'undefined'
       ? localStorage.getItem('session_token')
@@ -30,12 +37,15 @@ export const apiClient = async (
     return response;
   } catch (error) {
     console.error('[API Error] Network failure:', error);
-    // Devolvemos un objeto que simula una respuesta de error para que 
+    // Devolvemos un objeto que simula una respuesta de error para que
     // los componentes no fallen catastróficamente.
     return {
       ok: false,
       status: 503,
-      json: async () => ({ success: false, message: 'Servicio no disponible (Offline)' }),
+      json: async () => ({
+        success: false,
+        message: 'Servicio no disponible (Offline)',
+      }),
     } as Response;
   }
 };
