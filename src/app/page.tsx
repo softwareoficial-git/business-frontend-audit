@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Dock from '../components/Dock';
+import ArcadeGame from '../components/game/ArcadeGame';
 import StockPanel from '../components/stock/StockPanel';
 import SalesPanel from '../components/sales/SalesPanel';
 import EmployeesPanel from '../components/employees/EmployeesPanel';
@@ -16,6 +17,7 @@ type View =
   | 'sales'
   | 'control'
   | 'employees'
+  | 'game'
   | 'login'
   | 'register';
 
@@ -100,6 +102,8 @@ export default function WelcomePage() {
         ) : null;
       case 'employees':
         return user.role_name === 'DUEÑO' ? <EmployeesPanel /> : null;
+      case 'game':
+        return <ArcadeGame />;
       case 'home':
         return <HomePage user={user} />;
       default:

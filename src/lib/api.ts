@@ -34,6 +34,12 @@ export const apiClient = async (
       },
       credentials: 'include',
     });
+
+    // Log para depuración
+    console.log(
+      `[API Debug] Endpoint: ${endpoint}, Status: ${response.status}`
+    );
+
     return response;
   } catch (error) {
     console.error('[API Error] Network failure:', error);

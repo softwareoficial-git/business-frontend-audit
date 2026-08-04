@@ -8,7 +8,7 @@ import ThemeSwitcher from './ThemeSwitcher';
 interface DockProps {
   onLogout: () => void;
   onNavigate: (
-    view: 'home' | 'stock' | 'sales' | 'control' | 'employees'
+    view: 'home' | 'stock' | 'sales' | 'control' | 'employees' | 'game'
   ) => void;
   onOpenProfile: () => void;
   role: string;
@@ -27,7 +27,7 @@ export default function Dock({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleNavigate = (
-    view: 'home' | 'stock' | 'sales' | 'control' | 'employees'
+    view: 'home' | 'stock' | 'sales' | 'control' | 'employees' | 'game'
   ) => {
     setActivePanel(view);
     onNavigate(view);
@@ -198,6 +198,16 @@ export default function Dock({
                 <span>Control</span>
               </button>
             )}
+            <button
+              onClick={() => {
+                onNavigate('game');
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="sales" style={menuIconStyle} />
+              <span>Modo Juego</span>
+            </button>
 
             <button
               onClick={() => {
