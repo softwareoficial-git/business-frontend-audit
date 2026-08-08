@@ -10,7 +10,43 @@ export const guides: Record<string, GuideFlow> = {
         targetSelector: 'button[aria-label="Stock"]',
         triggerEvent: 'navigate_stock',
       },
-      // Aquí se pueden añadir nuevos pasos fácilmente
+      {
+        id: 'step2',
+        message: 'Acá se agrega nuevo producto',
+        targetSelector: 'button[style*="position: fixed"]',
+        triggerEvent: 'click_add_product',
+      },
+      {
+        id: 'step3',
+        message: 'Genera un código aleatorio.',
+        // Usamos el selector del botón dentro del div del código
+        targetSelector: 'button.btn-primary',
+        triggerEvent: 'click_generate_code',
+      },
+      {
+        id: 'step4',
+        message: 'Escribe el nombre del producto.',
+        targetSelector: 'input[placeholder="Nombre"]',
+        triggerEvent: 'input_product_name',
+      },
+      {
+        id: 'step5',
+        message: 'Define el precio.',
+        targetSelector: 'input[placeholder="Precio"]',
+        triggerEvent: 'input_product_price',
+      },
+      {
+        id: 'step6',
+        message: 'Cantidad disponible en stock.',
+        targetSelector: 'input[placeholder="Cantidad"]',
+        triggerEvent: 'input_product_qty',
+      },
+      {
+        id: 'step7',
+        message: 'Categoría del producto (ej: gaseosa).',
+        targetSelector: 'input[placeholder="Categoría"]',
+        triggerEvent: 'input_product_category',
+      },
     ],
   },
 };
