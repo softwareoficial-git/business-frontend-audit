@@ -35,7 +35,7 @@ export default function TourUI() {
 
   return (
     <>
-      {/* Overlay para efecto de spotlight */}
+      {/* Overlay transparente para eventos, pero visualmente tenue */}
       <div
         style={{
           position: 'absolute',
@@ -43,42 +43,47 @@ export default function TourUI() {
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 1999,
-          pointerEvents: 'none',
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          zIndex: 1998,
+          pointerEvents: 'none', // Permite clickear elementos de fondo
         }}
       />
-      {/* Elemento resaltado */}
+      {/* Elemento resaltado con spotlight circular/redondeado y degradado */}
       <div
         style={{
           position: 'absolute',
-          top: position.top - 4,
-          left: position.left - 4,
-          width: position.width + 8,
-          height: position.height + 8,
-          backgroundColor: 'transparent',
-          border: '2px solid var(--color-primary)',
-          borderRadius: 'var(--radius-md)',
-          zIndex: 2000,
-          boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
+          top: position.top - 6,
+          left: position.left - 6,
+          width: position.width + 12,
+          height: position.height + 12,
+          background: 'transparent',
+          border: '3px solid transparent',
+          backgroundImage: 'linear-gradient(var(--color-background), var(--color-background)), linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))',
+          backgroundOrigin: 'border-box',
+          backgroundClip: 'padding-box, border-box',
+          borderRadius: '50%', // O 'var(--radius-lg)' si prefieres redondeado cuadrado
+          zIndex: 1999,
+          pointerEvents: 'none', // Permite clickear el elemento resaltado
+          boxShadow: '0 0 15px rgba(0,0,0,0.2)',
         }}
       />
       {/* Mensaje de ayuda */}
       <div
         style={{
           position: 'absolute',
-          top: position.top - 60,
+          top: position.top - 70,
           left: position.left + position.width / 2,
           transform: 'translateX(-50%)',
           backgroundColor: 'var(--color-primary)',
           color: 'white',
           padding: '8px 16px',
-          borderRadius: 'var(--radius-md)',
-          zIndex: 2001,
+          borderRadius: 'var(--radius-lg)',
+          zIndex: 2000,
           boxShadow: 'var(--shadow-soft)',
           whiteSpace: 'nowrap',
           fontSize: '0.9rem',
-          fontWeight: 500,
+          fontWeight: 600,
+          pointerEvents: 'none',
         }}
       >
         {currentStep.message}
