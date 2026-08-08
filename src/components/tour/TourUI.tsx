@@ -1,7 +1,7 @@
 'use client';
 
 import { useTour } from './TourProvider';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useLayoutEffect, useRef } from 'react';
 
 export default function TourUI() {
   const { isTourActive, currentStep } = useTour();
@@ -12,8 +12,14 @@ export default function TourUI() {
     height: number;
   } | null>(null);
 
-  useEffect(() => {
-    if (isTourActive && currentStep) {
+  // Usamos useLayoutEffect para medir elementos antes del pintado del navegador
+  useLayoutEffect(() => {
+    if (!isTourActive || !currentStep) {
+      setPosition(null);
+      return;
+    }
+
+    const updatePosition = () => {
       const element = document.querySelector(currentStep.targetSelector);
       if (element) {
         const rect = element.getBoundingClientRect();
@@ -23,19 +29,25 @@ export default function TourUI() {
           width: rect.width,
           height: rect.height,
         });
-      } else {
-        setPosition(null);
       }
-    } else {
-      setPosition(null);
-    }
+    };
+
+    updatePosition();
+
+    // Actualizar posición ante scroll y resize
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
   }, [isTourActive, currentStep]);
 
   if (!isTourActive || !currentStep || !position) return null;
 
   return (
     <>
-      {/* Overlay transparente para eventos, pero visualmente tenue */}
       <div
         style={{
           position: 'absolute',
@@ -44,11 +56,10 @@ export default function TourUI() {
           width: '100%',
           height: '100%',
           backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          zIndex: 1998,
-          pointerEvents: 'none', // Permite clickear elementos de fondo
+          zIndex: 9998,
+          pointerEvents: 'none',
         }}
       />
-      {/* Elemento resaltado con spotlight circular/redondeado y degradado */}
       <div
         style={{
           position: 'absolute',
@@ -61,13 +72,13 @@ export default function TourUI() {
           backgroundImage: 'linear-gradient(var(--color-background), var(--color-background)), linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))',
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box',
-          borderRadius: '50%', // O 'var(--radius-lg)' si prefieres redondeado cuadrado
-          zIndex: 1999,
-          pointerEvents: 'none', // Permite clickear el elemento resaltado
+          borderRadius: '50%',
+          zIndex: 9999,
+          pointerEvents: 'none',
           boxShadow: '0 0 15px rgba(0,0,0,0.2)',
+          transition: 'all 0.2s ease-out',
         }}
       />
-      {/* Mensaje de ayuda */}
       <div
         style={{
           position: 'absolute',
@@ -78,12 +89,13 @@ export default function TourUI() {
           color: 'white',
           padding: '8px 16px',
           borderRadius: 'var(--radius-lg)',
-          zIndex: 2000,
+          zIndex: 10000,
           boxShadow: 'var(--shadow-soft)',
           whiteSpace: 'nowrap',
           fontSize: '0.9rem',
           fontWeight: 600,
           pointerEvents: 'none',
+          transition: 'all 0.2s ease-out',
         }}
       >
         {currentStep.message}
