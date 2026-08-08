@@ -6,13 +6,28 @@ import {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from 'react';
+
+export interface GuideStep {
+  id: string;
+  message: string;
+  targetSelector: string; // CSS selector
+  triggerEvent: string; // The event that moves to the next step
+}
+
+export interface GuideFlow {
+  id: string;
+  steps: GuideStep[];
+}
 
 interface TourContextType {
   isTourActive: boolean;
-  startTour: () => void;
+  startTour: (flow: GuideFlow) => void;
   endTour: () => void;
   toggleTourActivation: () => void;
+  triggerEvent: (eventName: string) => void;
+  currentStep: GuideStep | null;
 }
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
@@ -20,6 +35,8 @@ const TourContext = createContext<TourContextType | undefined>(undefined);
 export function TourProvider({ children }: { children: ReactNode }) {
   const [isTourActive, setIsTourActive] = useState(false);
   const [isEnabled, setIsEnabled] = useState(true);
+  const [currentFlow, setCurrentFlow] = useState<GuideFlow | null>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   // Persistencia de si el tour está habilitado por el usuario
   useEffect(() => {
@@ -27,13 +44,19 @@ export function TourProvider({ children }: { children: ReactNode }) {
     if (saved === 'false') setIsEnabled(false);
   }, []);
 
-  const startTour = () => {
-    if (isEnabled) setIsTourActive(true);
+  const startTour = (flow: GuideFlow) => {
+    if (isEnabled) {
+      setCurrentFlow(flow);
+      setCurrentStepIndex(0);
+      setIsTourActive(true);
+    }
   };
 
-  const endTour = () => {
+  const endTour = useCallback(() => {
     setIsTourActive(false);
-  };
+    setCurrentFlow(null);
+    setCurrentStepIndex(0);
+  }, []);
 
   const toggleTourActivation = () => {
     const newState = !isEnabled;
@@ -41,12 +64,34 @@ export function TourProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('tourEnabled', String(newState));
   };
 
+  const triggerEvent = useCallback(
+    (eventName: string) => {
+      if (!isTourActive || !currentFlow) return;
+
+      const currentStep = currentFlow.steps[currentStepIndex];
+      if (currentStep && currentStep.triggerEvent === eventName) {
+        if (currentStepIndex < currentFlow.steps.length - 1) {
+          setCurrentStepIndex((prev) => prev + 1);
+        } else {
+          endTour(); // Tour completed
+        }
+      }
+    },
+    [isTourActive, currentFlow, currentStepIndex, endTour]
+  );
+
   return (
     <TourContext.Provider
-      value={{ isTourActive, startTour, endTour, toggleTourActivation }}
+      value={{
+        isTourActive,
+        startTour,
+        endTour,
+        toggleTourActivation,
+        triggerEvent,
+        currentStep: currentFlow?.steps[currentStepIndex] || null,
+      }}
     >
       {children}
-      {/* El componente UI del tour se implementará al final */}
     </TourContext.Provider>
   );
 }

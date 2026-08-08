@@ -10,6 +10,7 @@ import RegisterPage from '../components/auth/RegisterPage';
 import ProfilePanel from '../components/auth/ProfilePanel';
 import HomePage from '../components/home/HomePage';
 import { getProfile, logoutUser } from '../lib/auth';
+import { useTour } from '../components/tour/TourProvider';
 
 type View =
   | 'home'
@@ -22,11 +23,29 @@ type View =
   | 'register';
 
 export default function WelcomePage() {
+  const { startTour } = useTour();
   const [currentView, setCurrentView] = useState<View>('home');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const authChecked = useRef(false);
+
+  useEffect(() => {
+    if (user && !localStorage.getItem('tourSeen')) {
+      startTour({
+        id: 'new-user-guide',
+        steps: [
+          {
+            id: 'step1',
+            message: '¡Bienvenido! Empieza creando tu stock.',
+            targetSelector: 'button[aria-label="Stock"]',
+            triggerEvent: 'navigate_stock',
+          },
+        ],
+      });
+      localStorage.setItem('tourSeen', 'true');
+    }
+  }, [user, startTour]);
 
   useEffect(() => {
     if (!authChecked.current) {

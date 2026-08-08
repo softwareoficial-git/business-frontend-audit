@@ -4,6 +4,7 @@ import { useTheme } from '../lib/theme/ThemeProvider';
 import Icon from './Icon';
 import { useState, useRef, useEffect } from 'react';
 import ThemeSwitcher from './ThemeSwitcher';
+import { useTour } from './tour/TourProvider';
 
 interface DockProps {
   onLogout: () => void;
@@ -21,6 +22,7 @@ export default function Dock({
   role,
 }: DockProps) {
   const { theme } = useTheme();
+  const { triggerEvent } = useTour();
   const [activePanel, setActivePanel] = useState<string>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lang, setLang] = useState('ES');
@@ -31,6 +33,7 @@ export default function Dock({
   ) => {
     setActivePanel(view);
     onNavigate(view);
+    triggerEvent(`navigate_${view}`);
   };
 
   useEffect(() => {

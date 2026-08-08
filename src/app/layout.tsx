@@ -2,6 +2,7 @@ import './globals.css';
 import { ThemeProvider } from '../lib/theme/ThemeProvider';
 import { ToastProvider } from '../components/toast/ToastProvider';
 import { TourProvider } from '../components/tour/TourProvider';
+import TourUI from '../components/tour/TourUI';
 import { LoadingProvider } from '../components/loading/LoadingProvider';
 import VersionChecker from '../components/VersionChecker';
 
@@ -73,6 +74,7 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <TourProvider>
+              <TourUI />
               <LoadingProvider>
                 <VersionChecker />
                 {children}
