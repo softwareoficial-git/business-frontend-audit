@@ -4,13 +4,17 @@ import { useTour } from './TourProvider';
 import { useEffect, useState, useLayoutEffect } from 'react';
 
 export default function TourUI() {
-  const { isTourActive, currentStep } = useTour();
+  const { isTourActive, currentStep, endTour } = useTour();
   const [position, setPosition] = useState<{
     top: number;
     left: number;
     width: number;
     height: number;
   } | null>(null);
+
+  // Memoizar endTour para usarlo en el efecto sin recrear el efecto constantemente
+  const endTourMemoized = endTour;
+
   useLayoutEffect(() => {
     if (!isTourActive || !currentStep) {
       setPosition(null);
@@ -21,7 +25,7 @@ export default function TourUI() {
     const updatePosition = () => {
       const element = document.querySelector(currentStep.targetSelector);
       if (element) {
-        retryCount = 0; // Reset si encuentra el elemento
+        retryCount = 0;
         const rect = element.getBoundingClientRect();
         setPosition({
           top: rect.top + window.scrollY,
@@ -30,12 +34,10 @@ export default function TourUI() {
           height: rect.height,
         });
       } else if (retryCount < 20) {
-        // Aumentar reintentos para mayor tolerancia
         retryCount++;
         setTimeout(updatePosition, 200);
       } else {
-        // Elemento no encontrado tras varios intentos: terminar tour
-        endTour();
+        endTourMemoized();
       }
     };
 
