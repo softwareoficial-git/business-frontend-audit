@@ -11,13 +11,13 @@ export default function TourUI() {
     width: number;
     height: number;
   } | null>(null);
-
   useLayoutEffect(() => {
     if (!isTourActive || !currentStep) {
       setPosition(null);
       return;
     }
 
+    let retryCount = 0;
     const updatePosition = () => {
       const element = document.querySelector(currentStep.targetSelector);
       if (element) {
@@ -28,6 +28,12 @@ export default function TourUI() {
           width: rect.width,
           height: rect.height,
         });
+      } else if (retryCount < 10) {
+        // Reintentar si el elemento aún no está en el DOM (renderizado del modal)
+        retryCount++;
+        setTimeout(updatePosition, 100);
+      } else {
+        setPosition(null);
       }
     };
 
