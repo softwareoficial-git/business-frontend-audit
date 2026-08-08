@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import SalesStatsWidget from './SalesStatsWidget';
-import OnboardingGuideWidget from './OnboardingGuideWidget';
 import EmployeeTasksWidget from './EmployeeTasksWidget';
 import BusinessAlertsWidget from './BusinessAlertsWidget';
 import TopProductsWidget from './TopProductsWidget';
@@ -32,9 +31,6 @@ export default function HomePage({ user, onNavigate }: HomePageProps) {
       >
         Rol: {user.role_name}
       </p>
-
-      {/* Guías de Onboarding Primero - Desaparecen si no hay pendientes */}
-      <OnboardingGuideWidget user={user} onNavigate={onNavigate} />
 
       <div
         style={{
