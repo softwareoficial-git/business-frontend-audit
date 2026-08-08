@@ -21,6 +21,7 @@ export default function TourUI() {
     const updatePosition = () => {
       const element = document.querySelector(currentStep.targetSelector);
       if (element) {
+        retryCount = 0; // Reset si encuentra el elemento
         const rect = element.getBoundingClientRect();
         setPosition({
           top: rect.top + window.scrollY,
@@ -28,12 +29,13 @@ export default function TourUI() {
           width: rect.width,
           height: rect.height,
         });
-      } else if (retryCount < 10) {
-        // Reintentar si el elemento aún no está en el DOM (renderizado del modal)
+      } else if (retryCount < 20) {
+        // Aumentar reintentos para mayor tolerancia
         retryCount++;
-        setTimeout(updatePosition, 100);
+        setTimeout(updatePosition, 200);
       } else {
-        setPosition(null);
+        // Elemento no encontrado tras varios intentos: terminar tour
+        endTour();
       }
     };
 

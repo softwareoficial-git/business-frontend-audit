@@ -66,15 +66,26 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
   const triggerEvent = useCallback(
     (eventName: string) => {
+      console.log(
+        `[Tour Debug] Evento recibido: ${eventName}, Activo: ${isTourActive}`
+      );
       if (!isTourActive || !currentFlow) return;
 
       const currentStep = currentFlow.steps[currentStepIndex];
+      console.log(
+        `[Tour Debug] Paso actual: ${currentStepIndex}, ID paso: ${currentStep?.id}, Evento esperado: ${currentStep?.triggerEvent}`
+      );
+
       if (currentStep && currentStep.triggerEvent === eventName) {
         if (currentStepIndex < currentFlow.steps.length - 1) {
+          console.log(`[Tour Debug] Avanzando al siguiente paso`);
           setCurrentStepIndex((prev) => prev + 1);
         } else {
+          console.log(`[Tour Debug] Tour finalizado`);
           endTour(); // Tour completed
         }
+      } else {
+        console.log(`[Tour Debug] Evento no coincide o paso no encontrado`);
       }
     },
     [isTourActive, currentFlow, currentStepIndex, endTour]
