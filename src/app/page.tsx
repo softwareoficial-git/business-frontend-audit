@@ -104,8 +104,6 @@ export default function WelcomePage() {
         return user.role_name === 'DUEÑO' ? <EmployeesPanel /> : null;
       case 'game':
         return <ArcadeGame />;
-      case 'home':
-        return <HomePage user={user} />;
       default:
         return <HomePage user={user} onNavigate={handleNavigate} />;
     }
