@@ -1,7 +1,7 @@
 'use client';
 
 import { useTour } from './TourProvider';
-import { useEffect, useState, useLayoutEffect, useRef } from 'react';
+import { useEffect, useState, useLayoutEffect } from 'react';
 
 export default function TourUI() {
   const { isTourActive, currentStep } = useTour();
@@ -12,7 +12,6 @@ export default function TourUI() {
     height: number;
   } | null>(null);
 
-  // Usamos useLayoutEffect para medir elementos antes del pintado del navegador
   useLayoutEffect(() => {
     if (!isTourActive || !currentStep) {
       setPosition(null);
@@ -33,8 +32,6 @@ export default function TourUI() {
     };
 
     updatePosition();
-
-    // Actualizar posición ante scroll y resize
     window.addEventListener('scroll', updatePosition, true);
     window.addEventListener('resize', updatePosition);
 
@@ -46,60 +43,55 @@ export default function TourUI() {
 
   if (!isTourActive || !currentStep || !position) return null;
 
+  // Lógica de posicionamiento del tooltip
+  const tooltipWidth = 200; // Ancho estimado del tooltip
+  const isNearRightEdge =
+    position.left + position.width + tooltipWidth > window.innerWidth;
+
+  const tooltipStyle = {
+    position: 'absolute' as const,
+    // Si está cerca del borde derecho, al costado izquierdo; si no, arriba centrado
+    top: isNearRightEdge
+      ? position.top + position.height / 2
+      : position.top - 60,
+    left: isNearRightEdge
+      ? position.left - 10 // A la izquierda del botón
+      : position.left + position.width / 2,
+    transform: isNearRightEdge
+      ? 'translateY(-50%) translateX(-100%)'
+      : 'translateX(-50%)',
+    backgroundColor: 'var(--color-primary)',
+    color: 'white',
+    padding: '8px 16px',
+    borderRadius: 'var(--radius-lg)',
+    zIndex: 10000,
+    boxShadow: 'var(--shadow-soft)',
+    whiteSpace: 'nowrap' as const,
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    pointerEvents: 'none' as const,
+    transition: 'all 0.2s ease-out',
+  };
+
   return (
     <>
+      {/* Spotlight: centro transparente con borde difuminado */}
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          zIndex: 9998,
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: position.top - 6,
-          left: position.left - 6,
-          width: position.width + 12,
-          height: position.height + 12,
-          background: 'transparent',
-          border: '3px solid transparent',
-          backgroundImage: 'linear-gradient(var(--color-background), var(--color-background)), linear-gradient(to bottom right, var(--color-primary), var(--color-secondary))',
-          backgroundOrigin: 'border-box',
-          backgroundClip: 'padding-box, border-box',
+          top: position.top - 4,
+          left: position.left - 4,
+          width: position.width + 8,
+          height: position.height + 8,
           borderRadius: '50%',
           zIndex: 9999,
           pointerEvents: 'none',
-          boxShadow: '0 0 15px rgba(0,0,0,0.2)',
+          boxShadow:
+            '0 0 15px 5px rgba(var(--color-primary-rgb, 66, 133, 244), 0.5)',
           transition: 'all 0.2s ease-out',
         }}
       />
-      <div
-        style={{
-          position: 'absolute',
-          top: position.top - 70,
-          left: position.left + position.width / 2,
-          transform: 'translateX(-50%)',
-          backgroundColor: 'var(--color-primary)',
-          color: 'white',
-          padding: '8px 16px',
-          borderRadius: 'var(--radius-lg)',
-          zIndex: 10000,
-          boxShadow: 'var(--shadow-soft)',
-          whiteSpace: 'nowrap',
-          fontSize: '0.9rem',
-          fontWeight: 600,
-          pointerEvents: 'none',
-          transition: 'all 0.2s ease-out',
-        }}
-      >
-        {currentStep.message}
-      </div>
+      <div style={tooltipStyle}>{currentStep.message}</div>
     </>
   );
 }
