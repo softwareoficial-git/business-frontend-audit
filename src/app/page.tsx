@@ -11,6 +11,7 @@ import ProfilePanel from '../components/auth/ProfilePanel';
 import HomePage from '../components/home/HomePage';
 import { getProfile, logoutUser } from '../lib/auth';
 import { useTour } from '../components/tour/TourProvider';
+import { guides } from '../lib/guides';
 
 type View =
   | 'home'
@@ -32,17 +33,7 @@ export default function WelcomePage() {
 
   useEffect(() => {
     if (user && !localStorage.getItem('tourSeen')) {
-      startTour({
-        id: 'new-user-guide',
-        steps: [
-          {
-            id: 'step1',
-            message: '¡Bienvenido! Empieza creando tu stock.',
-            targetSelector: 'button[aria-label="Stock"]',
-            triggerEvent: 'navigate_stock',
-          },
-        ],
-      });
+      startTour(guides.newUser);
       localStorage.setItem('tourSeen', 'true');
     }
   }, [user, startTour]);
