@@ -38,67 +38,45 @@ export default function OnboardingGuideWidget({
     }
   };
 
-  if (loading) return <div>Cargando guías reales...</div>;
-  if (guides.length === 0) return null; // Desaparece si no hay guías pendientes
-
   return (
-    <div
-      style={{
-        padding: 'var(--space-md)',
-        background: 'var(--color-primary-soft)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--color-primary)',
-        marginBottom: 'var(--space-md)',
-      }}
-    >
-      <h3 style={{ color: 'var(--color-primary)', marginTop: 0 }}>
-        Guías para comenzar
-      </h3>
-      <p style={{ fontSize: '0.9rem', marginBottom: 'var(--space-md)' }}>
-        Completa estas tareas para optimizar el uso de la plataforma:
-      </p>
-
-      <div style={{ display: 'grid', gap: 'var(--space-sm)' }}>
-        {guides.map((guide: any, index: number) => (
-          <div
-            key={index}
-            style={{
-              padding: 'var(--space-sm)',
-              background: 'var(--color-surface)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <strong style={{ display: 'block', marginBottom: '4px' }}>
-              {guide.title}
-            </strong>
-            <p
-              style={{
-                fontSize: '0.8rem',
-                color: 'var(--color-text-muted)',
-                margin: '0 0 8px 0',
-              }}
-            >
-              {guide.description}
-            </p>
-            <button
-              onClick={() => onNavigate?.(guide.view)}
-              style={{
-                fontSize: '0.75rem',
-                padding: '6px 16px',
-                background: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
-            >
-              Comenzar ahora
-            </button>
-          </div>
-        ))}
+    <div style={{ padding: 'var(--space-md)', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', marginBottom: 'var(--space-md)' }}>
+      
+      {/* Sección de Descarga APK */}
+      <div style={{ marginBottom: 'var(--space-lg)', paddingBottom: 'var(--space-md)', borderBottom: '1px solid var(--color-border)' }}>
+        <h3 style={{ marginTop: 0 }}>¡Lleva la app en tu móvil!</h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+          Descarga nuestra versión oficial para Android. Optimizado para escaneo ultra-rápido, modo batch, linterna integrada y gestión inteligente de inventario.
+        </p>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+          <a href="/downloads/app-arm64-v8a-release.apk" download style={{ padding: '8px 16px', background: 'var(--color-primary)', color: 'white', textDecoration: 'none', borderRadius: '4px', fontSize: '0.8rem' }}>
+            Descargar ARM64 (Modernos)
+          </a>
+          <a href="/downloads/app-armeabi-v7a-release.apk" download style={{ padding: '8px 16px', background: 'var(--color-secondary)', color: 'white', textDecoration: 'none', borderRadius: '4px', fontSize: '0.8rem' }}>
+            Descargar ARM32 (Anteriores)
+          </a>
+        </div>
       </div>
+
+      {/* Sección de Guías */}
+      {!loading && guides.length > 0 && (
+        <>
+          <h3 style={{ color: 'var(--color-primary)', marginTop: 0 }}>Guías para comenzar</h3>
+          <div style={{ display: 'grid', gap: 'var(--space-sm)' }}>
+            {guides.map((guide: any, index: number) => (
+              <div key={index} style={{ padding: 'var(--space-sm)', background: 'var(--color-background)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+                <strong>{guide.title}</strong>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: '4px 0' }}>{guide.description}</p>
+                <button
+                  onClick={() => onNavigate?.(guide.view)}
+                  style={{ fontSize: '0.75rem', padding: '6px 12px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                >
+                  Ir a {guide.view === 'stock' ? 'Stock' : guide.view === 'sales' ? 'Ventas' : guide.view}
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
