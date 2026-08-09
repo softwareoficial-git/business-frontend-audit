@@ -91,6 +91,31 @@ export function TourProvider({ children }: { children: ReactNode }) {
     [isTourActive, currentFlow, currentStepIndex, endTour]
   );
 
+  // Listener global para detectar clics en elementos objetivo
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (!isTourActive || !currentFlow) return;
+
+      const currentStep = currentFlow.steps[currentStepIndex];
+      if (!currentStep) return;
+
+      const target = e.target as HTMLElement;
+      // Verificar si el clic fue en el elemento objetivo o uno de sus hijos
+      if (
+        target.matches(currentStep.targetSelector) ||
+        target.closest(currentStep.targetSelector)
+      ) {
+        console.log(
+          `[Tour Debug] Clic detectado en: ${currentStep.targetSelector}`
+        );
+        triggerEvent(currentStep.triggerEvent);
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [isTourActive, currentFlow, currentStepIndex, triggerEvent]);
+
   return (
     <TourContext.Provider
       value={{

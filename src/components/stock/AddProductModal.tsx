@@ -157,15 +157,15 @@ export default function AddProductModal({
           {!productToEdit && (
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
                 setProduct({
                   ...product,
                   code: Math.random()
                     .toString(36)
                     .substring(2, 10)
                     .toUpperCase(),
-                })
-              }
+                });
+              }}
               className="btn-primary"
               style={{ padding: '0.5rem var(--space-sm)' }}
             >
@@ -177,7 +177,9 @@ export default function AddProductModal({
         <input
           placeholder="Nombre"
           value={product.name}
-          onChange={(e) => setProduct({ ...product, name: e.target.value })}
+          onChange={(e) => {
+            setProduct({ ...product, name: e.target.value });
+          }}
           required
           style={{
             padding: '0.5rem',
@@ -200,7 +202,9 @@ export default function AddProductModal({
             type="number"
             placeholder="Precio"
             value={product.price}
-            onChange={(e) => setProduct({ ...product, price: e.target.value })}
+            onChange={(e) => {
+              setProduct({ ...product, price: e.target.value });
+            }}
             required
             style={{
               flex: 1,
@@ -215,7 +219,9 @@ export default function AddProductModal({
             type="number"
             placeholder="Cantidad"
             value={product.qty}
-            onChange={(e) => setProduct({ ...product, qty: e.target.value })}
+            onChange={(e) => {
+              setProduct({ ...product, qty: e.target.value });
+            }}
             required
             style={{
               flex: 1,
