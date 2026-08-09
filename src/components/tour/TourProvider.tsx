@@ -24,8 +24,11 @@ export interface GuideFlow {
 
 interface TourContextType {
   isTourActive: boolean;
+  showExitConfirmation: boolean;
   startTour: (flow: GuideFlow) => void;
   endTour: () => void;
+  cancelExit: () => void;
+  confirmExit: () => void;
   toggleTourActivation: () => void;
   triggerEvent: (eventName: string) => void;
   currentStep: GuideStep | null;
@@ -35,15 +38,12 @@ const TourContext = createContext<TourContextType | undefined>(undefined);
 
 export function TourProvider({ children }: { children: ReactNode }) {
   const [isTourActive, setIsTourActive] = useState(false);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [isEnabled, setIsEnabled] = useState(true);
   const [currentFlow, setCurrentFlow] = useState<GuideFlow | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  // Persistencia de si el tour está habilitado por el usuario
-  useEffect(() => {
-    const saved = localStorage.getItem('tourEnabled');
-    if (saved === 'false') setIsEnabled(false);
-  }, []);
+  // ... (otros useEffects)
 
   const startTour = (flow: GuideFlow) => {
     if (isEnabled) {
@@ -57,7 +57,11 @@ export function TourProvider({ children }: { children: ReactNode }) {
     setIsTourActive(false);
     setCurrentFlow(null);
     setCurrentStepIndex(0);
+    setShowExitConfirmation(false);
   }, []);
+
+  const cancelExit = () => setShowExitConfirmation(false);
+  const confirmExit = () => endTour();
 
   const toggleTourActivation = () => {
     const newState = !isEnabled;
@@ -124,31 +128,35 @@ export function TourProvider({ children }: { children: ReactNode }) {
         target.matches(currentStep.targetSelector) ||
         target.closest(currentStep.targetSelector);
 
-      // Verificar si el clic fue sobre el tooltip de la guía
+      // Verificar si el clic fue sobre el tooltip o el modal de confirmación
       const isTooltip = target.closest('[data-tour-tooltip="true"]');
+      const isConfirmation = target.closest('[data-tour-confirmation="true"]');
 
       if (isTarget) {
         console.log(
           `[Tour Debug] Clic detectado en elemento objetivo: ${currentStep.targetSelector}`
         );
         triggerEvent(currentStep.triggerEvent);
-      } else if (!isTooltip) {
-        // Clic fuera, cerrar guía
-        console.log(`[Tour Debug] Clic fuera, cerrando guía`);
-        endTour();
+      } else if (!isTooltip && !isConfirmation) {
+        // Clic fuera, solicitar confirmación
+        console.log(`[Tour Debug] Clic fuera, solicitando confirmación`);
+        setShowExitConfirmation(true);
       }
     };
 
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [isTourActive, currentFlow, currentStepIndex, triggerEvent, endTour]);
+  }, [isTourActive, currentFlow, currentStepIndex, triggerEvent]);
 
   return (
     <TourContext.Provider
       value={{
         isTourActive,
+        showExitConfirmation,
         startTour,
         endTour,
+        cancelExit,
+        confirmExit,
         toggleTourActivation,
         triggerEvent,
         currentStep: currentFlow?.steps[currentStepIndex] || null,

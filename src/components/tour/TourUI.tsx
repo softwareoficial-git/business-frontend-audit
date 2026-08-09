@@ -1,10 +1,17 @@
 'use client';
 
 import { useTour } from './TourProvider';
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 
 export default function TourUI() {
-  const { isTourActive, currentStep, endTour } = useTour();
+  const {
+    isTourActive,
+    currentStep,
+    endTour,
+    showExitConfirmation,
+    cancelExit,
+    confirmExit,
+  } = useTour();
   const [position, setPosition] = useState<{
     top: number;
     left: number;
@@ -49,7 +56,7 @@ export default function TourUI() {
       window.removeEventListener('scroll', updatePosition, true);
       window.removeEventListener('resize', updatePosition);
     };
-  }, [isTourActive, currentStep]);
+  }, [isTourActive, currentStep, endTourMemoized]);
 
   if (!isTourActive || !currentStep || !position) return null;
 
@@ -85,6 +92,72 @@ export default function TourUI() {
 
   return (
     <>
+      {showExitConfirmation && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 10001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          data-tour-confirmation="true"
+        >
+          <div
+            style={{
+              backgroundColor: 'var(--color-surface)',
+              padding: '1.5rem',
+              borderRadius: 'var(--radius-lg)',
+              textAlign: 'center',
+              boxShadow: 'var(--shadow-soft)',
+            }}
+          >
+            <p style={{ marginBottom: '1rem', color: 'var(--color-text)' }}>
+              ¿Quieres cerrar las instrucciones?
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: '0.5rem',
+                justifyContent: 'center',
+              }}
+            >
+              <button
+                onClick={cancelExit}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  cursor: 'pointer',
+                }}
+              >
+                Continuar
+              </button>
+              <button
+                onClick={confirmExit}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: 'var(--color-border)',
+                  color: 'var(--color-text)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  cursor: 'pointer',
+                }}
+              >
+                Salir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Spotlight: centro transparente con borde difuminado */}
       <div
         style={{
