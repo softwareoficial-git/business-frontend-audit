@@ -49,4 +49,27 @@ export const guides: Record<string, GuideFlow> = {
       },
     ],
   },
+  salesTour: {
+    id: 'sales-guide',
+    steps: [
+      {
+        id: 'sales_step1',
+        message: 'Selecciona una categoría.',
+        targetSelector: '.categories-area button',
+        triggerEvent: 'select_category',
+      },
+      {
+        id: 'sales_step2',
+        message: 'Toca un producto para venderlo.',
+        targetSelector: '.products-area button',
+        triggerEvent: 'select_product',
+      },
+      {
+        id: 'sales_step3',
+        message: 'Finaliza la venta aquí.',
+        targetSelector: 'button.btn-primary',
+        triggerEvent: 'click_checkout',
+      },
+    ],
+  },
 };

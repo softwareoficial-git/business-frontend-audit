@@ -43,6 +43,18 @@ export default function WelcomePage() {
       checkAuth();
       authChecked.current = true;
     }
+
+    // Escuchar evento de redirección
+    const handleNavigateToSales = () => {
+      handleNavigate('sales');
+      // Pequeño delay para asegurar que el componente SalesPanel se monte
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('start_sales_tour'));
+      }, 500);
+    };
+    window.addEventListener('navigate_to_sales', handleNavigateToSales);
+    return () =>
+      window.removeEventListener('navigate_to_sales', handleNavigateToSales);
   }, []);
 
   const checkAuth = async () => {

@@ -8,6 +8,7 @@ import {
   useEffect,
   useCallback,
 } from 'react';
+import { guides } from '../../lib/guides';
 
 export interface GuideStep {
   id: string;
@@ -69,6 +70,23 @@ export function TourProvider({ children }: { children: ReactNode }) {
       console.log(
         `[Tour Debug] Evento recibido: ${eventName}, Activo: ${isTourActive}`
       );
+
+      // Lógica especial: al guardar, cambiar a ventas y redirigir
+      if (eventName === 'product_saved') {
+        // Redirigir al panel de ventas
+        window.dispatchEvent(new CustomEvent('navigate_to_sales'));
+
+        // Esperar a que la página cambie antes de activar el tour
+        const startTourHandler = () => {
+          setCurrentFlow(guides.salesTour);
+          setCurrentStepIndex(0);
+          setIsTourActive(true);
+          window.removeEventListener('start_sales_tour', startTourHandler);
+        };
+        window.addEventListener('start_sales_tour', startTourHandler);
+        return;
+      }
+
       if (!isTourActive || !currentFlow) return;
 
       const currentStep = currentFlow.steps[currentStepIndex];

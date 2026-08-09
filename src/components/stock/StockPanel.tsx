@@ -7,6 +7,7 @@ import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 import SearchBar from '../sales/SearchBar';
+import { useTour } from '../tour/TourProvider';
 
 const STOCK_STORAGE_KEY = 'stock_data';
 
@@ -18,6 +19,7 @@ export default function StockPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scannedCode, setScannedCode] = useState<any | null>(null);
   const { startLoading, stopLoading } = useLoading();
+  const { triggerEvent } = useTour();
 
   useEffect(() => {
     fetchStock();
@@ -124,6 +126,7 @@ export default function StockPanel() {
       method: 'POST',
       body: JSON.stringify({ cmd: 'stock.add', params: product }),
     });
+    triggerEvent('product_saved');
     fetchStock();
     setIsModalOpen(false);
   };
