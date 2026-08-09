@@ -55,6 +55,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Eliminar recuadro de foco en elementos interactivos */
+*:focus {
+  outline: none;
+}
+
 [data-theme='dark'] {
   --color-text: #f8fafc;
   --color-background: #0f172a;
