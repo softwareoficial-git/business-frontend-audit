@@ -101,7 +101,9 @@ export default function TourUI() {
           transition: 'all 0.2s ease-out',
         }}
       />
-      <div style={tooltipStyle}>{currentStep.message}</div>
+      <div style={tooltipStyle} data-tour-tooltip="true">
+        {currentStep.message}
+      </div>
     </>
   );
 }

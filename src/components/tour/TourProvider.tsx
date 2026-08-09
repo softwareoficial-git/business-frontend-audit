@@ -100,21 +100,30 @@ export function TourProvider({ children }: { children: ReactNode }) {
       if (!currentStep) return;
 
       const target = e.target as HTMLElement;
+
       // Verificar si el clic fue en el elemento objetivo o uno de sus hijos
-      if (
+      const isTarget =
         target.matches(currentStep.targetSelector) ||
-        target.closest(currentStep.targetSelector)
-      ) {
+        target.closest(currentStep.targetSelector);
+
+      // Verificar si el clic fue sobre el tooltip de la guía
+      const isTooltip = target.closest('[data-tour-tooltip="true"]');
+
+      if (isTarget) {
         console.log(
-          `[Tour Debug] Clic detectado en: ${currentStep.targetSelector}`
+          `[Tour Debug] Clic detectado en elemento objetivo: ${currentStep.targetSelector}`
         );
         triggerEvent(currentStep.triggerEvent);
+      } else if (!isTooltip) {
+        // Clic fuera, cerrar guía
+        console.log(`[Tour Debug] Clic fuera, cerrando guía`);
+        endTour();
       }
     };
 
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [isTourActive, currentFlow, currentStepIndex, triggerEvent]);
+  }, [isTourActive, currentFlow, currentStepIndex, triggerEvent, endTour]);
 
   return (
     <TourContext.Provider
