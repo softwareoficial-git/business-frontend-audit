@@ -15,10 +15,12 @@ import { createPaymentPreference } from '../../lib/billing';
 const PaymentMethods = ({
   clienteId,
   targetPlan,
+  amount,
   onPaymentSuccess,
 }: {
   clienteId: number;
   targetPlan: string;
+  amount: number;
   onPaymentSuccess: () => void;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -27,58 +29,68 @@ const PaymentMethods = ({
   const generatePaymentLink = async () => {
     setLoading(true);
     try {
-      // Monto fijo para el ejemplo, a futuro podría venir del backend según el plan
-      const amount = targetPlan === 'pro' ? 30000 : 0;
       const res = await createPaymentPreference(clienteId, targetPlan, amount);
-
       if (res.success && res.data?.init_point) {
         setLink(res.data.init_point);
       } else {
-        alert('Error al generar link: ' + (res.message || 'Desconocido'));
+        alert('Error: ' + (res.message || 'No se pudo generar el link'));
       }
     } catch (e) {
-      alert('Error de conexión con el backend');
+      alert('Error de conexión');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        marginTop: '1rem',
-        padding: '1rem',
-        borderTop: '1px solid var(--color-border)',
-      }}
-    >
+    <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
       {!link ? (
         <button
           onClick={generatePaymentLink}
           disabled={loading}
           style={{
             width: '100%',
-            padding: '0.75rem',
+            padding: '0.8rem',
             background: 'var(--color-primary)',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: 'var(--radius-md)',
+            fontWeight: 'bold',
             cursor: loading ? 'not-allowed' : 'pointer',
           }}
         >
           {loading
             ? 'Generando...'
-            : `Obtener link para ${targetPlan.toUpperCase()}`}
+            : `Obtener Pago ${targetPlan.toUpperCase()}`}
         </button>
       ) : (
-        <div style={{ textAlign: 'center' }}>
-          <p>Link de pago generado:</p>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
+            alignItems: 'center',
+          }}
+        >
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(link)}`}
+            alt="QR de Pago"
+            style={{
+              border: '2px solid var(--color-border)',
+              borderRadius: '8px',
+            }}
+          />
           <a
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}
+            style={{
+              color: 'var(--color-primary)',
+              fontWeight: 'bold',
+              textDecoration: 'none',
+            }}
           >
-            Ir a Mercado Pago
+            o click aquí para pagar
           </a>
         </div>
       )}
@@ -90,73 +102,71 @@ const PricingCard = ({
   clienteId,
   title,
   price,
+  amount,
   features,
   isPro,
   isCurrent,
-  canUpgrade,
   onPaymentSuccess,
 }: {
   clienteId: number;
   title: string;
   price: string;
+  amount: number;
   features: string[];
   isPro?: boolean;
   isCurrent?: boolean;
-  canUpgrade?: boolean;
   onPaymentSuccess: () => void;
 }) => {
-  const [showPayment, setShowPayment] = useState(false);
-
   return (
     <div
       style={{
-        padding: '1rem',
-        border: `2px solid ${isPro ? 'var(--color-primary)' : 'var(--color-border)'}`,
-        borderRadius: '12px',
-        background: isPro
-          ? 'linear-gradient(135deg, var(--color-primary-light), white)'
-          : 'white',
+        padding: '1.5rem',
+        border: `1px solid ${isPro ? 'var(--color-primary)' : 'var(--color-border)'}`,
+        borderRadius: 'var(--radius-lg)',
+        background: 'var(--color-surface)',
         display: 'flex',
         flexDirection: 'column',
+        boxShadow: isPro ? 'var(--shadow-card)' : 'none',
+        position: 'relative',
       }}
     >
-      <h3
-        style={{
-          marginTop: 0,
-          color: isPro ? 'var(--color-primary)' : 'inherit',
-        }}
-      >
-        {title} {isCurrent && '(Actual)'}
-      </h3>
-      <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0.5rem 0' }}>
+      {isPro && (
+        <span
+          style={{
+            position: 'absolute',
+            top: '-10px',
+            right: '10px',
+            background: 'var(--color-primary)',
+            color: 'white',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontSize: '0.7rem',
+          }}
+        >
+          POPULAR
+        </span>
+      )}
+      <h3 style={{ marginTop: 0, fontSize: '1.1rem' }}>{title}</h3>
+      <p style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0.5rem 0' }}>
         {price}
       </p>
-      <ul style={{ fontSize: '0.9rem', paddingLeft: '1.2rem', flexGrow: 1 }}>
+      <ul
+        style={{
+          fontSize: '0.85rem',
+          paddingLeft: '1rem',
+          flexGrow: 1,
+          color: 'var(--color-text-muted)',
+        }}
+      >
         {features.map((f, i) => (
           <li key={i}>{f}</li>
         ))}
       </ul>
-      {/* El botón de acción aparece siempre para poder cambiar bidireccionalmente en el simulador */}
-      {!isCurrent && (
-        <button
-          onClick={() => setShowPayment(!showPayment)}
-          style={{
-            marginTop: '1rem',
-            padding: '0.5rem',
-            borderRadius: '4px',
-            background: 'var(--color-primary)',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          {showPayment ? 'Ocultar opciones' : 'Cambiar plan'}
-        </button>
-      )}
-      {showPayment && (
+      {!isCurrent && title !== 'Free' && (
         <PaymentMethods
           clienteId={clienteId}
-          targetPlan={isPro ? 'pro' : 'free'}
+          targetPlan={title.toLowerCase()}
+          amount={amount}
           onPaymentSuccess={onPaymentSuccess}
         />
       )}
@@ -188,6 +198,7 @@ const PricingComparison = ({
         clienteId={clienteId}
         title="Free"
         price="$0"
+        amount={0}
         isCurrent={currentPlan === 'free'}
         onPaymentSuccess={onPaymentSuccess}
         features={['Stock básico', 'Ventas básicas']}
@@ -196,6 +207,7 @@ const PricingComparison = ({
         clienteId={clienteId}
         title="Trial"
         price="30 días"
+        amount={0}
         isCurrent={isTrial}
         onPaymentSuccess={onPaymentSuccess}
         features={['Todo lo de Free', 'Prueba total del sistema']}
@@ -204,6 +216,7 @@ const PricingComparison = ({
         clienteId={clienteId}
         title="Pro"
         price="$29/mes"
+        amount={29000}
         isPro
         isCurrent={currentPlan === 'pro' && !isTrial}
         onPaymentSuccess={onPaymentSuccess}
