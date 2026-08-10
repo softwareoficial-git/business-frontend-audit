@@ -6,6 +6,7 @@ import { getProfile } from '../../lib/auth';
 interface ProfilePanelProps {
   user: any;
   onUpdateUser: (user: any) => void;
+  onClose?: () => void;
 }
 
 const PaymentMethods = ({
