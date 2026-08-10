@@ -21,14 +21,14 @@ type View =
   | 'employees'
   | 'game'
   | 'login'
-  | 'register';
+  | 'register'
+  | 'profile';
 
 export default function WelcomePage() {
   const { startTour } = useTour();
   const [currentView, setCurrentView] = useState<View>('home');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const authChecked = useRef(false);
 
   useEffect(() => {
@@ -44,10 +44,8 @@ export default function WelcomePage() {
       authChecked.current = true;
     }
 
-    // Escuchar evento de redirección
     const handleNavigateToSales = () => {
       handleNavigate('sales');
-      // Pequeño delay para asegurar que el componente SalesPanel se monte
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('start_sales_tour'));
       }, 500);
@@ -114,6 +112,10 @@ export default function WelcomePage() {
 
   const renderContent = () => {
     switch (currentView) {
+      case 'profile':
+        return (
+          <ProfilePanel user={user} onUpdateUser={setUser} onClose={() => {}} />
+        );
       case 'stock':
         return <StockPanel />;
       case 'sales':
@@ -137,17 +139,14 @@ export default function WelcomePage() {
         textAlign: 'center',
         minHeight: '100vh',
         backgroundColor: 'var(--color-background)',
-        paddingBottom: '70px', // Espacio ajustado para el Dock flotante
+        paddingBottom: '70px',
       }}
     >
       <div style={{ flex: 1, overflowY: 'auto' }}>{renderContent()}</div>
-      {isProfileOpen && user && (
-        <ProfilePanel user={user} onClose={() => setIsProfileOpen(false)} />
-      )}
       <Dock
         onLogout={handleLogout}
         onNavigate={handleNavigate}
-        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenProfile={() => handleNavigate('profile')}
         role={user?.role_name || ''}
       />
     </main>
