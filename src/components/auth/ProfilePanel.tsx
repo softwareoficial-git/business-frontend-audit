@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { getProfile } from '../../lib/auth';
-import MercadoPagoConfigPanel from './MercadoPagoConfigPanel';
 
 interface ProfilePanelProps {
   user: any;
@@ -218,8 +217,8 @@ const PricingComparison = ({
       <PricingCard
         clienteId={clienteId}
         title="Pro"
-        price="$29/mes"
-        amount={29000}
+        price="$500/mes"
+        amount={500}
         isPro
         isCurrent={currentPlan === 'pro' && !isTrial}
         onPaymentSuccess={onPaymentSuccess}
@@ -347,7 +346,6 @@ export default function ProfilePanel({
               window.location.reload();
             }}
           />
-          <MercadoPagoConfigPanel tenantId={clienteId} />
         </>
       ) : (
         <EmployeeView ownerInfo={user.ownerContact} />
