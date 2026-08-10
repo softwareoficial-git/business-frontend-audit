@@ -203,7 +203,7 @@ export default function Dock({
               <span>Perfil</span>
             </button>
 
-            {role === 'DUEÑO' && (
+            {/* {role === 'DUEÑO' && (
               <button
                 onClick={() => {
                   onNavigate('control');
@@ -224,7 +224,7 @@ export default function Dock({
             >
               <Icon name="sales" style={menuIconStyle} />
               <span>Modo Juego</span>
-            </button>
+            </button> */}
 
             <button
               onClick={() => {
