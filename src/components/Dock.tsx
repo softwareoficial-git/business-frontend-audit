@@ -9,7 +9,14 @@ import { useTour } from './tour/TourProvider';
 interface DockProps {
   onLogout: () => void;
   onNavigate: (
-    view: 'home' | 'stock' | 'sales' | 'control' | 'employees' | 'game'
+    view:
+      | 'home'
+      | 'stock'
+      | 'sales'
+      | 'control'
+      | 'employees'
+      | 'game'
+      | 'mercadopago'
   ) => void;
   onOpenProfile: () => void;
   role: string;
@@ -29,7 +36,14 @@ export default function Dock({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleNavigate = (
-    view: 'home' | 'stock' | 'sales' | 'control' | 'employees' | 'game'
+    view:
+      | 'home'
+      | 'stock'
+      | 'sales'
+      | 'control'
+      | 'employees'
+      | 'game'
+      | 'mercadopago'
   ) => {
     setActivePanel(view);
     onNavigate(view);
@@ -210,6 +224,17 @@ export default function Dock({
             >
               <Icon name="sales" style={menuIconStyle} />
               <span>Modo Juego</span>
+            </button>
+
+            <button
+              onClick={() => {
+                onNavigate('mercadopago');
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="sales" style={menuIconStyle} />
+              <span>Mercado Pago</span>
             </button>
 
             <button

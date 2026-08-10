@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getProfile } from '../../lib/auth';
+import MercadoPagoConfigPanel from './MercadoPagoConfigPanel';
 
 interface ProfilePanelProps {
   user: any;
@@ -190,27 +191,29 @@ const PricingComparison = ({
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
         gap: '1rem',
       }}
     >
+      {isTrial && (
+        <PricingCard
+          clienteId={clienteId}
+          title="Trial"
+          price="30 días"
+          amount={0}
+          isCurrent={true}
+          onPaymentSuccess={onPaymentSuccess}
+          features={['Todo lo de Free', 'Prueba total del sistema']}
+        />
+      )}
       <PricingCard
         clienteId={clienteId}
         title="Free"
         price="$0"
         amount={0}
-        isCurrent={currentPlan === 'free'}
+        isCurrent={currentPlan === 'free' && !isTrial}
         onPaymentSuccess={onPaymentSuccess}
         features={['Stock básico', 'Ventas básicas']}
-      />
-      <PricingCard
-        clienteId={clienteId}
-        title="Trial"
-        price="30 días"
-        amount={0}
-        isCurrent={isTrial}
-        onPaymentSuccess={onPaymentSuccess}
-        features={['Todo lo de Free', 'Prueba total del sistema']}
       />
       <PricingCard
         clienteId={clienteId}
@@ -341,10 +344,10 @@ export default function ProfilePanel({
             currentPlan={currentPlan}
             isTrial={user.subscription?.is_trial || false}
             onPaymentSuccess={() => {
-              // Recargar datos para reflejar el cambio
               window.location.reload();
             }}
           />
+          <MercadoPagoConfigPanel tenantId={clienteId} />
         </>
       ) : (
         <EmployeeView ownerInfo={user.ownerContact} />

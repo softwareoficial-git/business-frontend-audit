@@ -8,6 +8,7 @@ import EmployeesPanel from '../components/employees/EmployeesPanel';
 import LoginPage from '../components/auth/LoginPage';
 import RegisterPage from '../components/auth/RegisterPage';
 import ProfilePanel from '../components/auth/ProfilePanel';
+import MercadoPagoConfigPanel from '../components/auth/MercadoPagoConfigPanel';
 import HomePage from '../components/home/HomePage';
 import { getProfile, logoutUser } from '../lib/auth';
 import { useTour } from '../components/tour/TourProvider';
@@ -22,7 +23,8 @@ type View =
   | 'game'
   | 'login'
   | 'register'
-  | 'profile';
+  | 'profile'
+  | 'mercadopago';
 
 export default function WelcomePage() {
   const { startTour } = useTour();
@@ -116,6 +118,8 @@ export default function WelcomePage() {
         return (
           <ProfilePanel user={user} onUpdateUser={setUser} onClose={() => {}} />
         );
+      case 'mercadopago':
+        return <MercadoPagoConfigPanel tenantId={user.cliente_id} />;
       case 'stock':
         return <StockPanel />;
       case 'sales':
