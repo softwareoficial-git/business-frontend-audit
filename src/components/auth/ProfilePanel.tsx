@@ -9,6 +9,9 @@ interface ProfilePanelProps {
   onClose?: () => void;
 }
 
+import { createPaymentPreference } from '../../lib/billing';
+
+// ... (dentro de PaymentMethods)
 const PaymentMethods = ({
   clienteId,
   targetPlan,
@@ -18,29 +21,25 @@ const PaymentMethods = ({
   targetPlan: string;
   onPaymentSuccess: () => void;
 }) => {
-  const simulateChangePlan = async () => {
-    try {
-      // Corregido: Apuntando al puerto 3001 donde escucha el backend
-      const response = await fetch(
-        'http://localhost:3001/api/billing/simulate-payment',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-          },
-          body: JSON.stringify({ clienteId, plan: targetPlan }),
-        }
-      );
+  const [loading, setLoading] = useState(false);
+  const [link, setLink] = useState<string | null>(null);
 
-      if (response.ok) {
-        alert(`Plan cambiado exitosamente a: ${targetPlan}`);
-        onPaymentSuccess();
+  const generatePaymentLink = async () => {
+    setLoading(true);
+    try {
+      // Monto fijo para el ejemplo, a futuro podría venir del backend según el plan
+      const amount = targetPlan === 'pro' ? 30000 : 0;
+      const res = await createPaymentPreference(clienteId, targetPlan, amount);
+
+      if (res.success && res.data?.init_point) {
+        setLink(res.data.init_point);
       } else {
-        alert('Error en la simulación');
+        alert('Error al generar link: ' + (res.message || 'Desconocido'));
       }
     } catch (e) {
       alert('Error de conexión con el backend');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,20 +51,37 @@ const PaymentMethods = ({
         borderTop: '1px solid var(--color-border)',
       }}
     >
-      <p style={{ fontWeight: 'bold' }}>Simular pago / cambio:</p>
-      <button
-        onClick={simulateChangePlan}
-        style={{
-          width: '100%',
-          margin: '0.5rem 0',
-          padding: '0.5rem',
-          background: '#e0f7fa',
-          cursor: 'pointer',
-          border: '1px solid #00acc1',
-        }}
-      >
-        [SIMULADOR] Cambiar a {targetPlan.toUpperCase()}
-      </button>
+      {!link ? (
+        <button
+          onClick={generatePaymentLink}
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            background: 'var(--color-primary)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {loading
+            ? 'Generando...'
+            : `Obtener link para ${targetPlan.toUpperCase()}`}
+        </button>
+      ) : (
+        <div style={{ textAlign: 'center' }}>
+          <p>Link de pago generado:</p>
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}
+          >
+            Ir a Mercado Pago
+          </a>
+        </div>
+      )}
     </div>
   );
 };
@@ -151,16 +167,22 @@ const PricingCard = ({
 const PricingComparison = ({
   clienteId,
   currentPlan,
+  isTrial,
   onPaymentSuccess,
 }: {
   clienteId: number;
   currentPlan: string;
+  isTrial: boolean;
   onPaymentSuccess: () => void;
 }) => (
   <div style={{ marginTop: '2rem' }}>
     <h3 style={{ marginBottom: '1rem' }}>Planes Disponibles</h3>
     <div
-      style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: '1rem',
+      }}
     >
       <PricingCard
         clienteId={clienteId}
@@ -172,16 +194,25 @@ const PricingComparison = ({
       />
       <PricingCard
         clienteId={clienteId}
+        title="Trial"
+        price="30 días"
+        isCurrent={isTrial}
+        onPaymentSuccess={onPaymentSuccess}
+        features={['Todo lo de Free', 'Prueba total del sistema']}
+      />
+      <PricingCard
+        clienteId={clienteId}
         title="Pro"
         price="$29/mes"
         isPro
-        isCurrent={currentPlan === 'pro'}
+        isCurrent={currentPlan === 'pro' && !isTrial}
         onPaymentSuccess={onPaymentSuccess}
         features={[
-          'Todo lo de Free',
+          'Todo lo de Free/Trial',
           'Gestión de empleados',
-          'Reportes y estadísticas',
-          'Auditoría y alertas',
+          'Reportes avanzados',
+          'Soporte dedicado 24/7',
+          'Solicitud de nuevas funciones',
         ]}
       />
     </div>
@@ -295,6 +326,7 @@ export default function ProfilePanel({
           <PricingComparison
             clienteId={clienteId}
             currentPlan={currentPlan}
+            isTrial={user.subscription?.is_trial || false}
             onPaymentSuccess={() => {
               // Recargar datos para reflejar el cambio
               window.location.reload();
