@@ -31,15 +31,27 @@ export default function TourUI() {
     let retryCount = 0;
     const updatePosition = () => {
       const element = document.querySelector(currentStep.targetSelector);
+      const dockElement = document.querySelector('nav');
       if (element) {
         retryCount = 0;
         const rect = element.getBoundingClientRect();
-        setPosition({
+
+        let targetPosition = {
           top: rect.top + window.scrollY,
           left: rect.left + window.scrollX,
           width: rect.width,
           height: rect.height,
-        });
+        };
+
+        // Si es el primer paso, calculamos la posición del Dock para el tooltip
+        if (currentStep.id === 'step1' && dockElement) {
+          const dockRect = dockElement.getBoundingClientRect();
+          // Guardamos la posición del Dock en un estado temporal o calculamos dinámicamente
+          // Para no romper la estructura, calculamos la posición basada en el dock directamente aquí
+          // Pero la posición del tooltip se calcula abajo.
+        }
+
+        setPosition(targetPosition);
       } else if (retryCount < 20) {
         retryCount++;
         setTimeout(updatePosition, 200);
@@ -61,28 +73,39 @@ export default function TourUI() {
   if (!isTourActive || !currentStep || !position) return null;
 
   // Lógica de posicionamiento del tooltip
-  const tooltipWidth = 200; // Ancho estimado del tooltip
+  const dockElement = document.querySelector('nav');
+  const dockRect = dockElement ? dockElement.getBoundingClientRect() : null;
+
+  const tooltipWidth = 200;
   const isNearRightEdge =
     position.left + position.width + tooltipWidth > window.innerWidth;
 
   const tooltipStyle = {
     position: 'absolute' as const,
-    // Si está cerca del borde derecho, al costado izquierdo; si no, arriba centrado
-    top: isNearRightEdge
-      ? position.top + position.height / 2
-      : position.top - 60,
-    left: isNearRightEdge
-      ? position.left - 10 // A la izquierda del botón
-      : position.left + position.width / 2,
-    transform: isNearRightEdge
-      ? 'translateY(-50%) translateX(-100%)'
-      : 'translateX(-50%)',
+    // Lógica personalizada: Frase sobre el Dock si es paso 1
+    top:
+      currentStep.id === 'step1' && dockRect
+        ? dockRect.top + window.scrollY - 70 // Arriba del Dock
+        : currentStep.id === 'step2'
+          ? position.top + position.height / 2
+          : position.top - 70,
+    left:
+      currentStep.id === 'step1' && dockRect
+        ? dockRect.left + window.scrollX + dockRect.width / 2
+        : currentStep.id === 'step2'
+          ? position.left - 10
+          : position.left + position.width / 2,
+    transform:
+      currentStep.id === 'step2'
+        ? 'translateY(-50%) translateX(-100%)'
+        : 'translateX(-50%)',
     backgroundColor: 'var(--color-primary)',
     color: 'white',
     padding: '8px 16px',
     borderRadius: 'var(--radius-lg)',
     zIndex: 10000,
     boxShadow: 'var(--shadow-soft)',
+    textAlign: 'center' as const,
     whiteSpace: 'nowrap' as const,
     fontSize: '0.9rem',
     fontWeight: 600,
@@ -158,7 +181,7 @@ export default function TourUI() {
         </div>
       )}
 
-      {/* Spotlight: centro transparente con borde difuminado */}
+      {/* Spotlight: Apunta siempre al objetivo (position) */}
       <div
         style={{
           position: 'absolute',
@@ -166,7 +189,10 @@ export default function TourUI() {
           left: position.left - 4,
           width: position.width + 8,
           height: position.height + 8,
-          borderRadius: '50%',
+          borderRadius:
+            currentStep.id === 'step1' || currentStep.id === 'step2'
+              ? '50%'
+              : 'var(--radius-md)',
           zIndex: 9999,
           pointerEvents: 'none',
           boxShadow:
@@ -174,8 +200,27 @@ export default function TourUI() {
           transition: 'all 0.2s ease-out',
         }}
       />
+      {/* Tooltip: Se posiciona sobre el Dock si es paso 1 */}
       <div style={tooltipStyle} data-tour-tooltip="true">
-        {currentStep.message}
+        {currentStep.id === 'step1' ? (
+          <>
+            ¡Bienvenido!
+            <br />
+            Empieza creando tu stock.
+          </>
+        ) : (
+          (() => {
+            const words = currentStep.message.split(' ');
+            const middle = Math.ceil(words.length / 2);
+            return (
+              <>
+                {words.slice(0, middle).join(' ')}
+                <br />
+                {words.slice(middle).join(' ')}
+              </>
+            );
+          })()
+        )}
       </div>
     </>
   );
