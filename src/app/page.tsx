@@ -9,6 +9,7 @@ import LoginPage from '../components/auth/LoginPage';
 import RegisterPage from '../components/auth/RegisterPage';
 import ProfilePanel from '../components/auth/ProfilePanel';
 import MercadoPagoConfigPanel from '../components/auth/MercadoPagoConfigPanel';
+import HelpSupportPanel from '../components/help/HelpSupportPanel';
 import HomePage from '../components/home/HomePage';
 import { getProfile, logoutUser } from '../lib/auth';
 import { useTour } from '../components/tour/TourProvider';
@@ -24,7 +25,8 @@ type View =
   | 'login'
   | 'register'
   | 'profile'
-  | 'mercadopago';
+  | 'mercadopago'
+  | 'help';
 
 export default function WelcomePage() {
   const { startTour } = useTour();
@@ -120,6 +122,8 @@ export default function WelcomePage() {
         );
       case 'mercadopago':
         return <MercadoPagoConfigPanel tenantId={user.cliente_id} />;
+      case 'help':
+        return <HelpSupportPanel onClose={() => handleNavigate('home')} />;
       case 'stock':
         return <StockPanel />;
       case 'sales':

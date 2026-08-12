@@ -19,7 +19,6 @@ export const guides: Record<string, GuideFlow> = {
       {
         id: 'step3',
         message: 'Genera un código aleatorio.',
-        // Usamos el selector del botón dentro del div del código
         targetSelector: 'button.btn-primary',
         triggerEvent: 'click_generate_code',
       },
@@ -52,6 +51,12 @@ export const guides: Record<string, GuideFlow> = {
   salesTour: {
     id: 'sales-guide',
     steps: [
+      {
+        id: 'sales_init',
+        message: 'Vamos al panel de Ventas.',
+        targetSelector: 'button[aria-label="Ventas"]',
+        triggerEvent: 'navigate_sales',
+      },
       {
         id: 'sales_step1',
         message: 'Selecciona una categoría.',
@@ -88,9 +93,14 @@ export const guides: Record<string, GuideFlow> = {
         targetSelector: '.ticket-body',
         triggerEvent: 'finish_sales_tour',
       },
+    ],
+  },
+  themeTour: {
+    id: 'theme-guide',
+    steps: [
       {
-        id: 'theme_step1',
-        message: 'Abre el menú para ver temas.',
+        id: 'theme_init',
+        message: 'Abre el menú.',
         targetSelector: 'button[aria-label="Menú"]',
         triggerEvent: 'menu_opened',
       },
@@ -99,6 +109,43 @@ export const guides: Record<string, GuideFlow> = {
         message: 'Aquí puedes cambiar el tema.',
         targetSelector: '.theme-container',
         triggerEvent: 'finish_theme_tour',
+      },
+    ],
+  },
+  employeeTour: {
+    id: 'employee-guide',
+    steps: [
+      {
+        id: 'emp_init',
+        message: 'Vamos al panel de Empleados.',
+        targetSelector: 'button[aria-label="Empleados"]',
+        triggerEvent: 'navigate_employees',
+      },
+      {
+        id: 'emp_step1',
+        message: 'Haz clic aquí para añadir un nuevo empleado.',
+        targetSelector: 'button.btn-primary',
+        triggerEvent: 'click_new_employee',
+      },
+      {
+        id: 'emp_step2',
+        message:
+          'Define Usuario y Contraseña. Con estos datos el empleado iniciará sesión.',
+        targetSelector: 'input[placeholder="Usuario"]',
+        triggerEvent: 'input_employee_user',
+      },
+      {
+        id: 'emp_step3',
+        message: 'Aquí puedes configurar permisos y tareas.',
+        targetSelector: '.tabs',
+        triggerEvent: 'select_tabs',
+      },
+      {
+        id: 'emp_step4',
+        message:
+          'Selecciona este empleado para ver sus ventas o todos los tickets globales.',
+        targetSelector: '.sidebar-list',
+        triggerEvent: 'view_employee_sales',
       },
     ],
   },

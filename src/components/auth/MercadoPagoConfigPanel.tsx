@@ -73,60 +73,92 @@ export default function MercadoPagoConfigPanel({
   return (
     <div
       style={{
-        padding: '2rem',
-        maxWidth: '800px',
-        margin: '0 auto',
-        background: 'var(--color-surface)',
+        padding: 'var(--space-md)',
+        maxWidth: '600px',
+        margin: '2rem auto',
+        backgroundColor: 'var(--color-surface)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-border)',
-        marginTop: '2rem',
+        boxShadow: 'var(--shadow-soft)',
+        position: 'relative',
+        marginTop: '3rem',
       }}
     >
-      <h2 style={{ marginTop: 0 }}>Mercado Pago</h2>
+      <div
+        style={{
+          position: 'absolute',
+          top: '-24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'var(--color-primary)',
+          color: 'white',
+          padding: '0.5rem 1.5rem',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '1rem',
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        Mercado Pago
+      </div>
+
+      <div style={{ marginTop: '1rem' }}></div>
 
       {config && !isEditing ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div
             style={{
               padding: '1rem',
-              background: '#e6fffa',
-              border: '1px solid #b2f5ea',
-              borderRadius: '8px',
-              color: '#234e52',
+              background: 'rgba(var(--color-success-rgb), 0.1)',
+              border: '1px solid var(--color-success)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--color-success)',
+              textAlign: 'center',
             }}
           >
             <strong>✅ Pasarela Activa</strong>
-            <p style={{ margin: '0.5rem 0' }}>
-              Estado: {config.is_active ? 'Activo' : 'Inactivo'}
+            <p style={{ margin: '0.5rem 0 0' }}>
+              Entorno: {config.environment}
             </p>
-            <p style={{ margin: 0 }}>Entorno: {config.environment}</p>
           </div>
-          <button onClick={() => setIsEditing(true)} className="btn-primary">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="btn-primary"
+            style={{ fontWeight: 'bold' }}
+          >
             Editar Credenciales
           </button>
         </div>
       ) : (
         <form
           onSubmit={handleSubmit}
-          style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-sm)',
+          }}
         >
           <div
             style={{
               padding: '1rem',
-              background: 'var(--color-background-secondary)',
+              background: 'var(--color-background)',
               borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>
-              URL de Webhook (Configurar en MP):
+              URL de Webhook:
             </p>
             <code
               style={{
                 display: 'block',
-                background: '#eee',
+                background: 'var(--color-surface)',
                 padding: '0.5rem',
-                borderRadius: '4px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
                 wordBreak: 'break-all',
+                fontSize: '0.85rem',
               }}
             >
               {webhookUrl}
@@ -137,9 +169,9 @@ export default function MercadoPagoConfigPanel({
             placeholder="Access Token"
             defaultValue={config?.config_data?.access_token}
             style={{
-              padding: '0.8rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
+              padding: '0.5rem',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-border)',
             }}
           />
           <input
@@ -147,9 +179,9 @@ export default function MercadoPagoConfigPanel({
             placeholder="Public Key"
             defaultValue={config?.config_data?.public_key}
             style={{
-              padding: '0.8rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
+              padding: '0.5rem',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-border)',
             }}
           />
           <input
@@ -157,19 +189,24 @@ export default function MercadoPagoConfigPanel({
             placeholder="Webhook Secret"
             defaultValue={config?.config_data?.webhook_secret}
             style={{
-              padding: '0.8rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
+              padding: '0.5rem',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-border)',
             }}
           />
-          <button type="submit" disabled={loading} className="btn-primary">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary"
+            style={{ fontWeight: 'bold' }}
+          >
             {loading ? 'Guardando...' : 'Guardar Credenciales'}
           </button>
           {config && (
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              className="btn-secondary"
             >
               Cancelar
             </button>

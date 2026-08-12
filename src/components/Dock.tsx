@@ -17,6 +17,7 @@ interface DockProps {
       | 'employees'
       | 'game'
       | 'mercadopago'
+      | 'help'
   ) => void;
   onOpenProfile: () => void;
   role: string;
@@ -34,7 +35,6 @@ export default function Dock({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lang, setLang] = useState('ES');
   const menuRef = useRef<HTMLDivElement>(null);
-
   const handleNavigate = (
     view:
       | 'home'
@@ -44,6 +44,7 @@ export default function Dock({
       | 'employees'
       | 'game'
       | 'mercadopago'
+      | 'help'
   ) => {
     setActivePanel(view);
     onNavigate(view);
@@ -230,6 +231,17 @@ export default function Dock({
               <Icon name="sales" style={menuIconStyle} />
               <span>Modo Juego</span>
             </button> */}
+
+            <button
+              onClick={() => {
+                onNavigate('help');
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="help" style={menuIconStyle} />
+              <span>Ayuda</span>
+            </button>
 
             <button
               onClick={() => {
