@@ -14,6 +14,7 @@ import HomePage from '../components/home/HomePage';
 import { getProfile, logoutUser } from '../lib/auth';
 import { useTour } from '../components/tour/TourProvider';
 import { guides } from '../lib/guides';
+import Spinner from '../components/loading/Spinner';
 
 type View =
   | 'home'
@@ -91,15 +92,31 @@ export default function WelcomePage() {
     return (
       <main
         style={{
-          minHeight: '100vh',
-          backgroundColor: '#f5f7fa',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#ffffff',
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: 'column',
           justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          gap: '24px',
+          fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
         }}
       >
-        <p style={{ color: '#666', fontFamily: 'sans-serif' }}>
-          Cargando aplicación...
+        <Spinner />
+        <p
+          style={{
+            fontSize: '1.25rem',
+            color: '#222',
+            fontWeight: 500,
+            margin: 0,
+          }}
+        >
+          Preparando todo para vos...
         </p>
       </main>
     );
