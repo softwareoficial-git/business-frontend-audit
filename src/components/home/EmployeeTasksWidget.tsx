@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
+import SkeletonWidget from './SkeletonWidget';
 
 export default function EmployeeTasksWidget({ user }: { user: any }) {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -14,7 +15,6 @@ export default function EmployeeTasksWidget({ user }: { user: any }) {
   const fetchTasks = async () => {
     setLoading(true);
     try {
-      // Obtener tareas reales asignadas al empleado
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({
@@ -31,7 +31,8 @@ export default function EmployeeTasksWidget({ user }: { user: any }) {
     }
   };
 
-  if (loading) return <div>Cargando tus tareas pendientes reales...</div>;
+  if (loading)
+    return <SkeletonWidget title="Mis Tareas Operativas" height="150px" />;
 
   return (
     <div
@@ -40,9 +41,30 @@ export default function EmployeeTasksWidget({ user }: { user: any }) {
         background: 'var(--color-surface)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-soft)',
+        marginTop: '2rem',
+        position: 'relative',
       }}
     >
-      <h3>Mis Tareas Operativas</h3>
+      <div
+        style={{
+          position: 'absolute',
+          top: '-24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'var(--color-primary)',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '0.9rem',
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        Mis Tareas Operativas
+      </div>
+      <div style={{ marginTop: '0.5rem' }}></div>
       {tasks.length > 0 ? (
         <div style={{ display: 'grid', gap: 'var(--space-sm)' }}>
           {tasks.map((task: any, index: number) => (

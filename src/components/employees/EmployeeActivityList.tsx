@@ -42,7 +42,7 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
     return <div style={{ padding: 'var(--space-md)' }}>Cargando...</div>;
 
   return (
-    <div className="tickets-container">
+    <div className="ticket-container">
       {filteredTickets.length === 0 ? (
         <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
           No hay ventas registradas {userId ? 'para este empleado.' : '.'}

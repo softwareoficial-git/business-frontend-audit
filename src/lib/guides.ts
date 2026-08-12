@@ -70,6 +70,36 @@ export const guides: Record<string, GuideFlow> = {
         targetSelector: 'button.btn-primary',
         triggerEvent: 'click_checkout',
       },
+      {
+        id: 'sales_step4',
+        message: 'Ve a Empleados para ver el ticket.',
+        targetSelector: 'button[aria-label="Empleados"]',
+        triggerEvent: 'navigate_employees',
+      },
+      {
+        id: 'sales_step5',
+        message: 'Toca el ticket para ver los detalles.',
+        targetSelector: '.ticket-header',
+        triggerEvent: 'expand_ticket',
+      },
+      {
+        id: 'sales_step6',
+        message: '¡Aquí está el resumen del ticket!',
+        targetSelector: '.ticket-body',
+        triggerEvent: 'finish_sales_tour',
+      },
+      {
+        id: 'theme_step1',
+        message: 'Abre el menú para ver temas.',
+        targetSelector: 'button[aria-label="Menú"]',
+        triggerEvent: 'menu_opened',
+      },
+      {
+        id: 'theme_step2',
+        message: 'Aquí puedes cambiar el tema.',
+        targetSelector: '.theme-container',
+        triggerEvent: 'finish_theme_tour',
+      },
     ],
   },
 };

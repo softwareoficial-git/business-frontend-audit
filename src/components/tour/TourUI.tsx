@@ -37,8 +37,8 @@ export default function TourUI() {
         const rect = element.getBoundingClientRect();
 
         let targetPosition = {
-          top: rect.top + window.scrollY,
-          left: rect.left + window.scrollX,
+          top: rect.top,
+          left: rect.left,
           width: rect.width,
           height: rect.height,
         };
@@ -80,25 +80,46 @@ export default function TourUI() {
   const isNearRightEdge =
     position.left + position.width + tooltipWidth > window.innerWidth;
 
+  // Configuración individualizada por paso
+  const getPositionConfig = (stepId: string) => {
+    if (stepId === 'step1' && dockRect) {
+      return {
+        top: dockRect.top - 70,
+        left: dockRect.left + dockRect.width / 2,
+        transform: 'translateX(-50%)',
+      };
+    }
+    if (stepId === 'step2') {
+      // Agregar producto -> Izquierda
+      return {
+        top: position.top + position.height / 2,
+        left: position.left - 10,
+        transform: 'translateY(-50%) translateX(-100%)',
+      };
+    }
+    if (stepId === 'sales_step1' || stepId === 'sales_step2') {
+      // Ventas -> Derecha (excepto pasos 5 y 6)
+      return {
+        top: position.top + position.height / 2,
+        left: position.left + position.width + 10,
+        transform: 'translateY(-50%)',
+      };
+    }
+    // Por defecto -> Arriba (incluye theme_step1)
+    return {
+      top: position.top - 70,
+      left: position.left + position.width / 2,
+      transform: 'translateX(-50%)',
+    };
+  };
+
+  const config = getPositionConfig(currentStep.id);
+
   const tooltipStyle = {
-    position: 'absolute' as const,
-    // Lógica personalizada: Frase sobre el Dock si es paso 1
-    top:
-      currentStep.id === 'step1' && dockRect
-        ? dockRect.top + window.scrollY - 70 // Arriba del Dock
-        : currentStep.id === 'step2'
-          ? position.top + position.height / 2
-          : position.top - 70,
-    left:
-      currentStep.id === 'step1' && dockRect
-        ? dockRect.left + window.scrollX + dockRect.width / 2
-        : currentStep.id === 'step2'
-          ? position.left - 10
-          : position.left + position.width / 2,
-    transform:
-      currentStep.id === 'step2'
-        ? 'translateY(-50%) translateX(-100%)'
-        : 'translateX(-50%)',
+    position: 'fixed' as const,
+    top: config.top,
+    left: config.left,
+    transform: config.transform,
     backgroundColor: 'var(--color-primary)',
     color: 'white',
     padding: '8px 16px',
@@ -181,16 +202,18 @@ export default function TourUI() {
         </div>
       )}
 
-      {/* Spotlight: Apunta siempre al objetivo (position) */}
+      {/* Spotlight: Efecto original de resplandor */}
       <div
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: position.top - 4,
           left: position.left - 4,
           width: position.width + 8,
           height: position.height + 8,
           borderRadius:
-            currentStep.id === 'step1' || currentStep.id === 'step2'
+            currentStep.id === 'step1' ||
+            currentStep.id === 'step2' ||
+            currentStep.id === 'sales_step4'
               ? '50%'
               : 'var(--radius-md)',
           zIndex: 9999,

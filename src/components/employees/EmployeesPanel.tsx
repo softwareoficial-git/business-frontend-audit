@@ -49,16 +49,23 @@ export default function EmployeesPanel() {
       {/* Sidebar: Listado de empleados */}
       <aside className="employees-sidebar">
         <h2>Personal</h2>
-        
+
         {/* Nuevo formulario de creación */}
         <button
           onClick={() => setShowForm(!showForm)}
-          style={{ marginBottom: 'var(--space-sm)', padding: 'var(--space-sm)' }}
+          className="btn-primary"
+          style={{
+            marginBottom: 'var(--space-md)',
+            padding: 'var(--space-sm) var(--space-md)',
+            width: '100%',
+            fontWeight: 'bold',
+          }}
         >
           {showForm ? 'Cancelar' : '+ Nuevo Empleado'}
         </button>
         {showForm && (
           <CreateEmployeeForm
+            onClose={() => setShowForm(false)}
             onEmployeeCreated={() => {
               setShowForm(false);
               fetchEmployees();
@@ -96,8 +103,37 @@ export default function EmployeesPanel() {
       {/* Main: Detalle de empleado o Historial Global */}
       <main className="employees-main">
         {selectedEmployee ? (
-          <div className="employee-detail">
-            <h3>{selectedEmployee.name || selectedEmployee.username}</h3>
+          <div
+            className="employee-detail"
+            style={{
+              padding: 'var(--space-md)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow:
+                '0 0 20px 5px rgba(var(--color-primary-rgb, 37, 99, 235), 0.2)',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-surface)',
+              marginTop: '2rem',
+              position: 'relative',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: '-24px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                whiteSpace: 'nowrap',
+                boxShadow: 'var(--shadow-card)',
+              }}
+            >
+              {selectedEmployee.name || selectedEmployee.username}
+            </div>
 
             {/* Sistema de pestañas */}
             <div className="tabs">
@@ -147,8 +183,18 @@ export default function EmployeesPanel() {
             </div>
           </div>
         ) : (
-          <div className="employee-detail">
-            <h3>Actividad Reciente (Global)</h3>
+          <div
+            className="employee-detail"
+            style={{
+              padding: 'var(--space-md)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow:
+                '0 0 20px 5px rgba(var(--color-primary-rgb, 37, 99, 235), 0.2)',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-surface)',
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>Actividad Reciente (Global)</h3>
             <EmployeeActivityList userId={undefined} />
           </div>
         )}

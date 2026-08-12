@@ -5,8 +5,10 @@ import { apiClient } from '../../lib/api';
 
 export default function CreateEmployeeForm({
   onEmployeeCreated,
+  onClose,
 }: {
   onEmployeeCreated: () => void;
+  onClose?: () => void;
 }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -77,51 +79,160 @@ export default function CreateEmployeeForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
+    <div
+      onClick={onClose}
       style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1100,
         padding: '1rem',
-        background: 'var(--color-surface)',
-        borderRadius: '10px',
+        boxSizing: 'border-box',
       }}
     >
-      <h3>Nuevo Empleado</h3>
-      <input
-        type="text"
-        placeholder="Usuario"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        style={{ width: '100%', padding: '0.5rem', margin: '0.2rem 0' }}
-      />
-      {errors.username && (
-        <p style={{ color: 'red', fontSize: '0.8rem' }}>{errors.username}</p>
-      )}
-      <input
-        type="password"
-        placeholder="Contraseña"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: '100%', padding: '0.5rem', margin: '0.2rem 0' }}
-      />
-      {errors.password && (
-        <p style={{ color: 'red', fontSize: '0.8rem' }}>{errors.password}</p>
-      )}
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        style={{ width: '100%', padding: '0.5rem', margin: '0.2rem 0' }}
-      />
-      {errors.nombre && (
-        <p style={{ color: 'red', fontSize: '0.8rem' }}>{errors.nombre}</p>
-      )}
-      <button type="submit" disabled={loading} style={{ marginTop: '0.5rem' }}>
-        {loading ? 'Creando...' : 'Crear Empleado'}
-      </button>
-      {errors.global && (
-        <p style={{ color: 'red', marginTop: '0.5rem' }}>{errors.global}</p>
-      )}
-    </form>
+      <form
+        onSubmit={handleSubmit}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          padding: 'var(--space-md)',
+          borderRadius: 'var(--radius-lg)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-sm)',
+          width: '100%',
+          maxWidth: '400px',
+          margin: '0',
+          position: 'relative',
+          // Sombra de luz intensa en lugar de borde rígido
+          boxShadow:
+            '0 0 20px 5px rgba(var(--color-primary-rgb, 37, 99, 235), 0.3)',
+          border: '1px solid var(--color-border)',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: '-24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            whiteSpace: 'nowrap',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          Nuevo Empleado
+        </div>
+
+        <div style={{ marginTop: '1rem' }}></div>
+
+        <input
+          type="text"
+          placeholder="Usuario"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
+        />
+        {errors.username && (
+          <p
+            style={{
+              color: 'var(--color-error)',
+              fontSize: '0.8rem',
+              margin: 0,
+            }}
+          >
+            {errors.username}
+          </p>
+        )}
+
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
+        />
+        {errors.password && (
+          <p
+            style={{
+              color: 'var(--color-error)',
+              fontSize: '0.8rem',
+              margin: 0,
+            }}
+          >
+            {errors.password}
+          </p>
+        )}
+
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
+        />
+        {errors.nombre && (
+          <p
+            style={{
+              color: 'var(--color-error)',
+              fontSize: '0.8rem',
+              margin: 0,
+            }}
+          >
+            {errors.nombre}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-primary"
+          style={{ marginTop: '0.5rem', padding: '0.5rem' }}
+        >
+          {loading ? 'Creando...' : 'Crear Empleado'}
+        </button>
+        {errors.global && (
+          <p
+            style={{
+              color: 'var(--color-error)',
+              fontSize: '0.9rem',
+              textAlign: 'center',
+            }}
+          >
+            {errors.global}
+          </p>
+        )}
+      </form>
+    </div>
   );
 }

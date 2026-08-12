@@ -60,7 +60,12 @@ export default function Dock({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    if (!isMenuOpen) {
+      triggerEvent('menu_opened');
+    }
+  };
 
   const iconStyle = {
     width: '26.4px',
@@ -248,6 +253,7 @@ export default function Dock({
             </button>
 
             <div
+              className="theme-container"
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',

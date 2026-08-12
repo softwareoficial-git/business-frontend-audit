@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
+import SkeletonWidget from './SkeletonWidget';
 
 export default function SalesStatsWidget() {
   const [dailyStats, setDailyStats] = useState<any>(null);
@@ -49,7 +50,7 @@ export default function SalesStatsWidget() {
     }
   };
 
-  if (loading) return <div>Cargando datos...</div>;
+  if (loading) return <SkeletonWidget title="Ventas" height="150px" />;
 
   return (
     <div
@@ -58,9 +59,32 @@ export default function SalesStatsWidget() {
         background: 'var(--color-surface)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-soft)',
+        marginTop: '2rem',
+        position: 'relative',
       }}
     >
-      <h3>Ventas y Patrimonio</h3>
+      <div
+        style={{
+          position: 'absolute',
+          top: '-24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'var(--color-primary)',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '0.9rem',
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        Ventas y Patrimonio
+      </div>
+
+      <div style={{ marginTop: '0.5rem' }}></div>
+
       <div
         style={{
           marginBottom: 'var(--space-md)',
@@ -85,7 +109,10 @@ export default function SalesStatsWidget() {
             color: 'var(--color-primary)',
           }}
         >
-          ${patrimonio.toLocaleString('es-AR')}
+          $
+          {new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2 }).format(
+            patrimonio
+          )}
         </div>
       </div>
 
@@ -122,7 +149,10 @@ export default function SalesStatsWidget() {
                   color: 'var(--color-success)',
                 }}
               >
-                ${dailyStats.dailySalesTotal.toLocaleString('es-AR')}
+                $
+                {new Intl.NumberFormat('es-AR', {
+                  minimumFractionDigits: 2,
+                }).format(dailyStats.dailySalesTotal)}
               </div>
               <small>{dailyStats.totalTicketsToday} tickets</small>
             </>
@@ -154,7 +184,10 @@ export default function SalesStatsWidget() {
                   color: 'var(--color-success)',
                 }}
               >
-                ${monthlyStats.totalSales.toLocaleString('es-AR')}
+                $
+                {new Intl.NumberFormat('es-AR', {
+                  minimumFractionDigits: 2,
+                }).format(monthlyStats.totalSales)}
               </div>
               <small>{monthlyStats.totalTickets} tickets</small>
             </>

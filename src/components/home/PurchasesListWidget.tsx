@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
+import SkeletonWidget from './SkeletonWidget';
 
 export default function PurchasesListWidget() {
   const [items, setItems] = useState<any[]>([]);
@@ -42,7 +43,8 @@ export default function PurchasesListWidget() {
     window.open(url, '_blank');
   };
 
-  if (loading) return <div>Cargando sugerencias de compra...</div>;
+  if (loading)
+    return <SkeletonWidget title="Sugerencias de Compra" height="150px" />;
   if (items.length === 0) return null;
 
   return (
@@ -52,9 +54,30 @@ export default function PurchasesListWidget() {
         background: 'var(--color-surface)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-soft)',
+        marginTop: '2rem',
+        position: 'relative',
       }}
     >
-      <h3>Sugerencias de Compra</h3>
+      <div
+        style={{
+          position: 'absolute',
+          top: '-24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'var(--color-primary)',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '0.9rem',
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        Sugerencias de Compra
+      </div>
+      <div style={{ marginTop: '0.5rem' }}></div>
       <ul
         style={{
           listStyle: 'none',

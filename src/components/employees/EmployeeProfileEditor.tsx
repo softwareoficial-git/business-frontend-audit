@@ -68,21 +68,40 @@ export default function EmployeeProfileEditor({
   };
 
   return (
-    <div style={{ padding: 'var(--space-md)' }}>
-      <h4>Perfil de {employee.name}</h4>
-      <p>
-        <strong>ID:</strong> {employee.id}
-      </p>
-      <p>
-        <strong>Usuario:</strong> {employee.username}
-      </p>
-      <p>
-        <strong>Rol:</strong> {employee.role}
-      </p>
-      <p>
-        <strong>Fecha de Ingreso:</strong>{' '}
-        {new Date(employee.joinedAt).toLocaleDateString()}
-      </p>
+    <div
+      style={{
+        padding: 'var(--space-md)',
+        backgroundColor: 'var(--color-surface)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-soft)',
+      }}
+    >
+      <h4 style={{ margin: '0 0 var(--space-md) 0' }}>
+        Perfil de {employee.name}
+      </h4>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-xs)',
+          marginBottom: 'var(--space-md)',
+        }}
+      >
+        <p style={{ margin: 0 }}>
+          <strong>ID:</strong> {employee.id}
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Usuario:</strong> {employee.username}
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Rol:</strong> {employee.role}
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Fecha de Ingreso:</strong>{' '}
+          {new Date(employee.joinedAt).toLocaleDateString()}
+        </p>
+      </div>
 
       <div
         style={{
@@ -91,10 +110,13 @@ export default function EmployeeProfileEditor({
           paddingTop: 'var(--space-md)',
         }}
       >
-        <h5>Acciones de Seguridad</h5>
+        <h5 style={{ margin: '0 0 var(--space-sm) 0' }}>
+          Acciones de Seguridad
+        </h5>
         <button
           onClick={() => setShowPasswordInput(!showPasswordInput)}
-          style={{ marginRight: 'var(--space-sm)', padding: 'var(--space-sm)' }}
+          className="btn-secondary"
+          style={{ width: '100%', padding: '0.5rem', fontWeight: 'bold' }}
         >
           {showPasswordInput ? 'Cancelar' : 'Cambiar Contraseña'}
         </button>
@@ -105,6 +127,7 @@ export default function EmployeeProfileEditor({
               display: 'flex',
               gap: 'var(--space-sm)',
               marginTop: 'var(--space-sm)',
+              flexWrap: 'wrap',
             }}
           >
             <input
@@ -112,9 +135,20 @@ export default function EmployeeProfileEditor({
               placeholder="Nueva Contraseña"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              style={{ flexGrow: 1 }}
+              style={{
+                flex: '1 1 200px',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+                boxSizing: 'border-box',
+              }}
             />
-            <button onClick={handleChangePassword} disabled={loading}>
+            <button
+              onClick={handleChangePassword}
+              disabled={loading}
+              className="btn-primary"
+              style={{ padding: '0.5rem var(--space-md)' }}
+            >
               {loading ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
@@ -123,11 +157,12 @@ export default function EmployeeProfileEditor({
         <button
           onClick={handleDeleteEmployee}
           disabled={deleteLoading}
+          className="btn-danger"
           style={{
-            background: 'var(--color-error)',
-            color: 'white',
+            width: '100%',
             padding: 'var(--space-sm)',
             marginTop: 'var(--space-md)',
+            fontWeight: 'bold',
           }}
         >
           {deleteLoading ? 'Eliminando...' : 'Eliminar Empleado'}

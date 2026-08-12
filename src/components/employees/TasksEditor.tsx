@@ -17,9 +17,6 @@ export default function TasksEditor({ employee, onUpdate }: TasksEditorProps) {
     if (!taskName) return;
     setLoading(true);
     try {
-      // Usaremos set_goal para persistir la tarea, aunque técnicamente
-      // sería ideal crear un comando staff.assign_task en el futuro.
-      // Por ahora, añadiremos la tarea al objeto de metas del empleado.
       await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({
@@ -42,8 +39,18 @@ export default function TasksEditor({ employee, onUpdate }: TasksEditorProps) {
   };
 
   return (
-    <div style={{ padding: 'var(--space-md)' }}>
-      <h4>Tareas para {employee.name}</h4>
+    <div
+      style={{
+        padding: 'var(--space-md)',
+        backgroundColor: 'var(--color-surface)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-soft)',
+      }}
+    >
+      <h4 style={{ margin: '0 0 var(--space-md) 0' }}>
+        Tareas de {employee.name}
+      </h4>
       <div
         style={{
           display: 'flex',
@@ -55,20 +62,52 @@ export default function TasksEditor({ employee, onUpdate }: TasksEditorProps) {
           placeholder="Nombre de la tarea (ej: Prender luces)"
           value={taskName}
           onChange={(e) => setTaskName(e.target.value)}
+          style={{
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
         />
         <input
           placeholder="Detalles"
           value={taskDetails}
           onChange={(e) => setTaskDetails(e.target.value)}
+          style={{
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            boxSizing: 'border-box',
+          }}
         />
-        <button onClick={addTask} disabled={loading}>
+        <button
+          onClick={addTask}
+          disabled={loading}
+          className="btn-primary"
+          style={{ padding: '0.5rem', fontWeight: 'bold' }}
+        >
           {loading ? 'Asignando...' : 'Asignar Tarea'}
         </button>
       </div>
 
-      <div style={{ marginTop: 'var(--space-md)' }}>
-        <h5>Tareas Pendientes:</h5>
-        {/* Aquí listaremos las tareas filtradas del empleado */}
+      <div
+        style={{
+          marginTop: 'var(--space-md)',
+          borderTop: '1px solid var(--color-border)',
+          paddingTop: 'var(--space-md)',
+        }}
+      >
+        <h5 style={{ margin: '0 0 var(--space-sm) 0' }}>Tareas Pendientes:</h5>
+        <p
+          style={{
+            fontSize: '0.9rem',
+            color: 'var(--color-text-muted)',
+            textAlign: 'center',
+            margin: 'var(--space-sm) 0',
+          }}
+        >
+          No hay tareas pendientes asignadas.
+        </p>
       </div>
     </div>
   );

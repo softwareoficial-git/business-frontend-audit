@@ -108,6 +108,7 @@ export default function AddProductModal({
 
   return (
     <div
+      onClick={onClose}
       style={{
         position: 'fixed',
         top: 0,
@@ -119,10 +120,13 @@ export default function AddProductModal({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1100,
+        padding: '1rem',
+        boxSizing: 'border-box',
       }}
     >
       <form
         onSubmit={handleSubmit}
+        onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: 'var(--color-surface)',
           padding: 'var(--space-md)',
@@ -130,16 +134,40 @@ export default function AddProductModal({
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-sm)',
-          width: '90%',
-          maxWidth: '400px',
+          width: '100%',
+          maxWidth: '500px',
+          margin: '0',
+          position: 'relative',
+          boxShadow:
+            '0 0 20px 5px rgba(var(--color-primary-rgb, 37, 99, 235), 0.3)',
+          border: '1px solid var(--color-border)',
+          boxSizing: 'border-box',
         }}
       >
-        <h2 style={{ fontSize: '1.25rem', margin: '0 0 var(--space-sm) 0' }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '-24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            whiteSpace: 'nowrap',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
           {productToEdit ? 'Editar Producto' : 'Añadir Producto'}
-        </h2>
+        </div>
+
+        {/* Espaciado superior para compensar el título absoluto */}
+        <div style={{ marginTop: '1rem' }}></div>
 
         {/* Código con generador */}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <input
             placeholder="Código"
             value={product.code}
@@ -147,7 +175,7 @@ export default function AddProductModal({
             disabled={!!productToEdit}
             required
             style={{
-              flex: 1,
+              flex: '1 1 200px',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
@@ -195,6 +223,7 @@ export default function AddProductModal({
             display: 'flex',
             gap: '0.5rem',
             width: '100%',
+            flexWrap: 'wrap',
             boxSizing: 'border-box',
           }}
         >
@@ -207,12 +236,11 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: 1,
+              flex: '1 1 120px',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
               boxSizing: 'border-box',
-              minWidth: 0,
             }}
           />
           <input
@@ -224,12 +252,11 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: 1,
+              flex: '1 1 120px',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
               boxSizing: 'border-box',
-              minWidth: 0,
             }}
           />
         </div>
