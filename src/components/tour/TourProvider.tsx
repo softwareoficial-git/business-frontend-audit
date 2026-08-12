@@ -52,13 +52,18 @@ export function TourProvider({ children }: { children: ReactNode }) {
       setIsTourActive(true);
     }
   };
-
   const endTour = useCallback(() => {
     setIsTourActive(false);
+
+    // Persistir que el tour de ventas fue completado
+    if (currentFlow?.id === 'sales-guide') {
+      localStorage.setItem('salesTourCompleted', 'true');
+    }
+
     setCurrentFlow(null);
     setCurrentStepIndex(0);
     setShowExitConfirmation(false);
-  }, []);
+  }, [currentFlow]);
 
   const cancelExit = () => setShowExitConfirmation(false);
   const confirmExit = () => endTour();
@@ -77,17 +82,24 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
       // Lógica especial: al guardar, cambiar a ventas y redirigir
       if (eventName === 'product_saved') {
-        // Redirigir al panel de ventas
-        window.dispatchEvent(new CustomEvent('navigate_to_sales'));
+        // Verificar si el tour de ventas ya fue finalizado
+        const isSalesTourCompleted =
+          localStorage.getItem('salesTourCompleted') === 'true';
 
-        // Esperar a que la página cambie antes de activar el tour
-        const startTourHandler = () => {
-          setCurrentFlow(guides.salesTour);
-          setCurrentStepIndex(0);
-          setIsTourActive(true);
-          window.removeEventListener('start_sales_tour', startTourHandler);
-        };
-        window.addEventListener('start_sales_tour', startTourHandler);
+        // Solo redirigir y activar tour si no se ha completado
+        if (!isSalesTourCompleted) {
+          // Redirigir al panel de ventas
+          window.dispatchEvent(new CustomEvent('navigate_to_sales'));
+
+          // Esperar a que la página cambie antes de activar el tour
+          const startTourHandler = () => {
+            setCurrentFlow(guides.salesTour);
+            setCurrentStepIndex(0);
+            setIsTourActive(true);
+            window.removeEventListener('start_sales_tour', startTourHandler);
+          };
+          window.addEventListener('start_sales_tour', startTourHandler);
+        }
         return;
       }
 
