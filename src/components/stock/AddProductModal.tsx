@@ -26,9 +26,80 @@ export default function AddProductModal({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { startLoading, stopLoading } = useLoading();
 
+  const [compatEnabled, setCompatEnabled] = useState(false);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [allModels, setAllModels] = useState<string[]>([]);
+  const [modelInput, setModelInput] = useState('');
+  const [showModelSuggestions, setShowModelSuggestions] = useState(false);
+
+  // Configuración de conexiones dinámicas (adaptabilidad global multirrubro)
+  const [connectionFieldName, setConnectionFieldName] =
+    useState('Compatibilidad');
+  const [connectionKeys, setConnectionKeys] = useState<string[]>([
+    'Marca',
+    'Modelo',
+  ]);
+
   useEffect(() => {
     fetchAvailableProducts();
+    fetchAllModels();
+    fetchSettings();
+    if (productToEdit?.code) {
+      fetchProductCompatibilities();
+    }
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'settings.get', params: {} }),
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        if (result.data.connection_field_name) {
+          setConnectionFieldName(result.data.connection_field_name);
+        }
+        if (result.data.connection_keys) {
+          setConnectionKeys(result.data.connection_keys);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
+  const fetchAllModels = async () => {
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'compat.list_models', params: {} }),
+      });
+      const result = await response.json();
+      if (result.success) setAllModels(result.data || []);
+    } catch (error) {
+      console.error('Error fetching models:', error);
+    }
+  };
+
+  const fetchProductCompatibilities = async () => {
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({
+          cmd: 'compat.get_by_product',
+          params: { productCode: productToEdit.code },
+        }),
+      });
+      const result = await response.json();
+      if (result.success && result.data && result.data.length > 0) {
+        setCompatEnabled(true);
+        setSelectedModels(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching product compatibilities:', error);
+    }
+  };
 
   const fetchAvailableProducts = async () => {
     try {
@@ -51,6 +122,87 @@ export default function AddProductModal({
     c.toLowerCase().includes(product.category.toLowerCase())
   );
 
+  const [learnedAttributes, setLearnedAttributes] = useState<
+    { key: string; suggestions: string[] }[]
+  >([]);
+  const [activeSuggestField, setActiveSuggestField] = useState<{
+    index: number;
+    type: 'key' | 'value';
+  } | null>(null);
+
+  // Calcular todas las claves conocidas globalmente + Compatibilidad forzada dinámica + Claves de conexión
+  const allKnownKeys = Array.from(
+    new Set([
+      ...products.flatMap((p) => (p.metadata ? Object.keys(p.metadata) : [])),
+      connectionFieldName,
+      ...connectionKeys,
+    ])
+  );
+
+  const getLearnedAttributes = (categoryName: string) => {
+    if (!categoryName) return [];
+    const catProducts = products.filter(
+      (p) => p.category?.toLowerCase() === categoryName.toLowerCase()
+    );
+
+    const keyStats: Record<string, Set<string>> = {};
+
+    catProducts.forEach((p) => {
+      if (p.metadata && typeof p.metadata === 'object') {
+        Object.entries(p.metadata).forEach(([key, val]) => {
+          if (!keyStats[key]) {
+            keyStats[key] = new Set();
+          }
+          if (val) {
+            keyStats[key].add(String(val));
+          }
+        });
+      }
+    });
+
+    return Object.entries(keyStats).map(([key, valueSet]) => ({
+      key,
+      suggestions: Array.from(valueSet),
+    }));
+  };
+
+  useEffect(() => {
+    const attrs = getLearnedAttributes(product.category);
+    setLearnedAttributes(attrs);
+
+    // Detección automática de compatibilidad para la categoría usando el nombre de conexión dinámico
+    const categoryProducts = products.filter(
+      (p) => p.category?.toLowerCase() === product.category?.toLowerCase()
+    );
+    const hasCompat = categoryProducts.some(
+      (p) =>
+        p.metadata &&
+        Object.keys(p.metadata).some(
+          (k) => k.toLowerCase() === connectionFieldName.toLowerCase()
+        )
+    );
+    setCompatEnabled(hasCompat);
+
+    setMetadata((prev) => {
+      // 1. Obtener claves aprendidas para esta categoría
+      const learnedKeys = attrs.map((a) => a.key.toLowerCase());
+
+      // 2. Conservar valores ingresados manualmente que no sean de esta categoría (si el usuario los escribió)
+      const manualFields = prev.filter(
+        (m) =>
+          m.value.trim() !== '' && !learnedKeys.includes(m.key.toLowerCase())
+      );
+
+      // 3. Crear campos para atributos aprendidos (con valor vacío para rellenar)
+      const learnedFields = attrs.map((attr) => ({
+        key: attr.key,
+        value: '', // El usuario rellenará el valor
+      }));
+
+      return [...manualFields, ...learnedFields];
+    });
+  }, [product.category, products]);
+
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     productToEdit?.metadata
       ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
@@ -59,6 +211,306 @@ export default function AddProductModal({
         }))
       : []
   );
+
+  // Nueva UI para campos especiales nativos
+  const renderSpecialFields = () => {
+    if (!compatEnabled) return null;
+
+    return (
+      <div
+        style={{
+          marginTop: '0.5rem',
+          padding: '1rem',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--color-primary)',
+          backgroundColor: 'rgba(37, 99, 235, 0.05)',
+        }}
+      >
+        <label
+          style={{
+            fontSize: '0.9rem',
+            fontWeight: 700,
+            color: 'var(--color-primary)',
+            marginBottom: '0.5rem',
+            display: 'block',
+          }}
+        >
+          Funciones Especiales: {connectionFieldName}
+        </label>
+
+        {/* Chips de modelos seleccionados */}
+        {selectedModels.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.4rem',
+              padding: '0.25rem',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--color-background)',
+            }}
+          >
+            {selectedModels.map((m) => (
+              <span
+                key={m}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                  color: '#2563eb',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                }}
+              >
+                {m}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveModel(m)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#2563eb',
+                    cursor: 'pointer',
+                    padding: 0,
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Input predictivo */}
+        <div style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              placeholder="Escribe un modelo (ej: Samsung A13)"
+              value={modelInput}
+              onChange={(e) => {
+                setModelInput(e.target.value);
+                setShowModelSuggestions(true);
+              }}
+              onFocus={() => setShowModelSuggestions(true)}
+              onBlur={() =>
+                setTimeout(() => setShowModelSuggestions(false), 200)
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddModel(modelInput);
+                }
+              }}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+                boxSizing: 'border-box',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => handleAddModel(modelInput)}
+              className="btn-primary"
+              style={{ padding: '0.5rem var(--space-sm)' }}
+            >
+              +
+            </button>
+          </div>
+
+          {/* Sugerencias flotantes */}
+          {showModelSuggestions &&
+            modelInput &&
+            allModels.filter(
+              (m) =>
+                m.toLowerCase().includes(modelInput.toLowerCase()) &&
+                !selectedModels.includes(m)
+            ).length > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  zIndex: 100,
+                  maxHeight: '150px',
+                  overflowY: 'auto',
+                  boxShadow: 'var(--shadow-card)',
+                  padding: '0.25rem',
+                  boxSizing: 'border-box',
+                  marginTop: '2px',
+                }}
+              >
+                {allModels
+                  .filter(
+                    (m) =>
+                      m.toLowerCase().includes(modelInput.toLowerCase()) &&
+                      !selectedModels.includes(m)
+                  )
+                  .map((m) => (
+                    <div
+                      key={m}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleAddModel(m);
+                      }}
+                      style={{
+                        padding: '0.5rem',
+                        cursor: 'pointer',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '0.85rem',
+                        color: 'var(--color-text)',
+                        backgroundColor: 'var(--color-background)',
+                        marginBottom: '2px',
+                      }}
+                    >
+                      {m}
+                    </div>
+                  ))}
+              </div>
+            )}
+        </div>
+      </div>
+    );
+  };
+
+  // UI para renderizar solo metadatos genéricos (excluye función especial)
+  const renderMetadataFields = () => {
+    return metadata
+      .filter((m) => m.key.toLowerCase() !== connectionFieldName.toLowerCase())
+      .map((m, i) => {
+        const suggestionData = learnedAttributes.find(
+          (attr) => attr.key.toLowerCase() === m.key.toLowerCase()
+        );
+        const valueSuggestions = suggestionData
+          ? suggestionData.suggestions
+          : [];
+        const keySuggestions = allKnownKeys.filter((k) =>
+          k.toLowerCase().includes(m.key.toLowerCase())
+        );
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              gap: '0.5rem',
+              width: '100%',
+              marginTop: '0.5rem',
+            }}
+          >
+            <input
+              placeholder="Campo"
+              value={m.key}
+              onChange={(e) => {
+                handleMetadataChange(i, 'key', e.target.value);
+                setActiveSuggestField({ index: i, type: 'key' });
+              }}
+              onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+              }}
+            />
+            <input
+              placeholder="Valor"
+              value={m.value}
+              onChange={(e) => {
+                handleMetadataChange(i, 'value', e.target.value);
+                setActiveSuggestField({ index: i, type: 'value' });
+              }}
+              onFocus={() => setActiveSuggestField({ index: i, type: 'value' })}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+              }}
+            />
+
+            {/* Sugerencias de clave */}
+            {activeSuggestField?.index === i &&
+              activeSuggestField.type === 'key' &&
+              keySuggestions.length > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: '50%',
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    zIndex: 100,
+                    maxHeight: '100px',
+                    overflowY: 'auto',
+                  }}
+                >
+                  {keySuggestions.map((s) => (
+                    <div
+                      key={s}
+                      onClick={() => {
+                        handleMetadataChange(i, 'key', s);
+                        setActiveSuggestField(null);
+                      }}
+                      style={{ padding: '0.5rem', cursor: 'pointer' }}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            {/* Sugerencias de valor */}
+            {activeSuggestField?.index === i &&
+              activeSuggestField.type === 'value' &&
+              valueSuggestions.length > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    right: 0,
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    zIndex: 100,
+                    maxHeight: '100px',
+                    overflowY: 'auto',
+                  }}
+                >
+                  {valueSuggestions.map((s) => (
+                    <div
+                      key={s}
+                      onClick={() => {
+                        handleMetadataChange(i, 'value', s);
+                        setActiveSuggestField(null);
+                      }}
+                      style={{ padding: '0.5rem', cursor: 'pointer' }}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
+        );
+      });
+  };
 
   const addMetadataField = () =>
     setMetadata([...metadata, { key: '', value: '' }]);
@@ -69,8 +521,36 @@ export default function AddProductModal({
     value: string
   ) => {
     const newMetadata = [...metadata];
-    newMetadata[index][field] = value;
+
+    // Si la clave cambia al nombre configurado, activar módulo especial y limpiar el campo
+    if (
+      field === 'key' &&
+      value.toLowerCase() === connectionFieldName.toLowerCase()
+    ) {
+      setCompatEnabled(true);
+      // Eliminar este índice de metadata para que no se renderice doble
+      newMetadata.splice(index, 1);
+    } else {
+      newMetadata[index][field] = value;
+    }
+
     setMetadata(newMetadata);
+  };
+
+  const handleAddModel = (modelName: string) => {
+    const trimmed = modelName.trim();
+    if (trimmed && !selectedModels.includes(trimmed)) {
+      setSelectedModels([...selectedModels, trimmed]);
+      if (!allModels.includes(trimmed)) {
+        setAllModels([...allModels, trimmed]);
+      }
+    }
+    setModelInput('');
+    setShowModelSuggestions(false);
+  };
+
+  const handleRemoveModel = (modelName: string) => {
+    setSelectedModels(selectedModels.filter((m) => m !== modelName));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,7 +581,77 @@ export default function AddProductModal({
       price: Number(product.price),
       qty: Number(product.qty),
     };
+
+    // Guardar el producto primero
     await onAdd(productPayload);
+
+    // Sincronizar compatibilidades
+    try {
+      if (compatEnabled) {
+        const res = await apiClient('/execute', {
+          method: 'POST',
+          body: JSON.stringify({
+            cmd: 'compat.get_by_product',
+            params: { productCode: product.code },
+          }),
+        });
+        const result = await res.json();
+        const existingModels: string[] = result.success
+          ? result.data || []
+          : [];
+
+        const toLink = selectedModels.filter(
+          (m) => !existingModels.includes(m)
+        );
+        const toUnlink = existingModels.filter(
+          (m) => !selectedModels.includes(m)
+        );
+
+        for (const model of toLink) {
+          await apiClient('/execute', {
+            method: 'POST',
+            body: JSON.stringify({
+              cmd: 'compat.link',
+              params: { productCode: product.code, modelName: model },
+            }),
+          });
+        }
+
+        for (const model of toUnlink) {
+          await apiClient('/execute', {
+            method: 'POST',
+            body: JSON.stringify({
+              cmd: 'compat.unlink',
+              params: { productCode: product.code, modelName: model },
+            }),
+          });
+        }
+      } else {
+        // Si se deshabilita, quitar todos los enlaces de compatibilidad previos
+        const res = await apiClient('/execute', {
+          method: 'POST',
+          body: JSON.stringify({
+            cmd: 'compat.get_by_product',
+            params: { productCode: product.code },
+          }),
+        });
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          for (const model of result.data) {
+            await apiClient('/execute', {
+              method: 'POST',
+              body: JSON.stringify({
+                cmd: 'compat.unlink',
+                params: { productCode: product.code, modelName: model },
+              }),
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error al sincronizar compatibilidades:', error);
+    }
+
     stopLoading();
     onClose();
   };
@@ -321,44 +871,9 @@ export default function AddProductModal({
           )}
         </div>
 
-        {metadata.map((m, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-              width: '100%',
-              boxSizing: 'border-box',
-            }}
-          >
-            <input
-              placeholder="Campo"
-              value={m.key}
-              onChange={(e) => handleMetadataChange(i, 'key', e.target.value)}
-              style={{
-                flex: 1,
-                padding: '0.5rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--color-border)',
-                boxSizing: 'border-box',
-                minWidth: 0,
-              }}
-            />
-            <input
-              placeholder="Valor"
-              value={m.value}
-              onChange={(e) => handleMetadataChange(i, 'value', e.target.value)}
-              style={{
-                flex: 1,
-                padding: '0.5rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--color-border)',
-                boxSizing: 'border-box',
-                minWidth: 0,
-              }}
-            />
-          </div>
-        ))}
+        {renderSpecialFields()}
+
+        {renderMetadataFields()}
         <button
           type="button"
           onClick={addMetadataField}
