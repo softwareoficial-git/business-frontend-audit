@@ -78,7 +78,7 @@ export default function PublicStorePage({
         margin: '0 auto',
       }}
     >
-      {/* Banner y Perfil */}
+      // Banner y Perfil
       <div
         style={{
           height: '200px',
@@ -89,13 +89,13 @@ export default function PublicStorePage({
         }}
       >
         <ImageWithFallback
-          src={storeData.banner_url}
+          src={storeData.settings?.assets?.banner_url}
           alt="Banner"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
         <div style={{ position: 'absolute', bottom: '-40px', left: '2rem' }}>
           <ImageWithFallback
-            src={storeData.profile_url}
+            src={storeData.settings?.assets?.logo_url}
             alt="Logo"
             style={{
               width: '80px',
@@ -107,11 +107,14 @@ export default function PublicStorePage({
           />
         </div>
       </div>
-
       <div style={{ padding: '3rem 1rem 1rem' }}>
-        <h1 style={{ margin: '0' }}>{storeData.tenantName}</h1>
+        <h1 style={{ margin: '0' }}>
+          {storeData.settings?.store_info?.name || storeData.tenantName}
+        </h1>
+        {storeData.settings?.store_info?.description && (
+          <p>{storeData.settings.store_info.description}</p>
+        )}
       </div>
-
       {/* Buscador */}
       <div style={{ padding: '1rem' }}>
         <input
@@ -127,7 +130,6 @@ export default function PublicStorePage({
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-
       {/* Productos */}
       <div className="stock-grid">
         {filteredProducts.length === 0 ? (
