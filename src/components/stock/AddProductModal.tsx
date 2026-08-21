@@ -61,8 +61,10 @@ export default function AddProductModal({
     new Set(products.map((p) => p.category).filter(Boolean))
   );
 
-  const filteredCategories = categories.filter((c) =>
-    c.toLowerCase().includes(product.category.toLowerCase())
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(product.category.toLowerCase()) ||
+      p.category.toLowerCase().includes(product.category.toLowerCase())
   );
 
   const [learnedAttributes, setLearnedAttributes] = useState<
@@ -483,41 +485,46 @@ export default function AddProductModal({
               boxSizing: 'border-box',
             }}
           />
-          {showSuggestions && filteredCategories.length > 0 && (
+          {showSuggestions && filteredProducts.length > 0 && (
             <div
               style={{
                 position: 'absolute',
-                top: '-40px',
+                top: '100%',
                 left: 0,
                 right: 0,
-                display: 'flex',
-                overflowX: 'auto',
-                whiteSpace: 'nowrap',
                 backgroundColor: 'var(--color-surface)',
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-sm)',
-                zIndex: 10,
-                padding: '0.25rem',
-                gap: '0.5rem',
+                zIndex: 100,
+                maxHeight: '200px',
+                overflowY: 'auto',
                 boxShadow: 'var(--shadow-card)',
+                marginTop: '4px',
               }}
             >
-              {filteredCategories.map((cat) => (
+              {filteredProducts.map((p) => (
                 <div
-                  key={cat}
+                  key={p.code}
                   onClick={() => {
-                    setProduct({ ...product, category: cat });
+                    setProduct({
+                      ...product,
+                      category: p.category,
+                      name: p.name,
+                      price: p.price,
+                    });
                     setShowSuggestions(false);
                   }}
                   style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.5rem',
                     cursor: 'pointer',
-                    backgroundColor: 'var(--color-background)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.9rem',
+                    borderBottom: '1px solid #eee',
+                    fontSize: '0.85rem',
                   }}
                 >
-                  {cat}
+                  <div style={{ fontWeight: 'bold' }}>{p.name}</div>
+                  <div style={{ color: '#666', fontSize: '0.75rem' }}>
+                    {p.category} - ${p.price}
+                  </div>
                 </div>
               ))}
             </div>

@@ -37,8 +37,24 @@ export default function SearchBar({
           width: 'calc(100% - 2.7rem)',
         }}
       >
-        <span style={{ color: 'transparent' }}>{term}</span>
-        <span style={{ color: '#a0a0a0' }}>{displayPrediction}</span>
+        <span
+          style={{
+            color: 'transparent',
+            font: 'inherit',
+            fontSize: '0.9rem',
+          }}
+        >
+          {term}
+        </span>
+        <span
+          style={{
+            color: '#a0a0a0',
+            font: 'inherit',
+            fontSize: '0.9rem',
+          }}
+        >
+          {displayPrediction}
+        </span>
       </div>
       <input
         type="text"

@@ -263,26 +263,54 @@ export default function SalesPanel() {
                       setSearchTerm('');
                     }}
                     style={{
-                      padding: 'var(--space-md)',
+                      padding: 'var(--space-sm)',
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--color-border)',
                       background: 'var(--color-background)',
                       textAlign: 'left',
                       display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
                       color: 'var(--color-text)',
                       width: '100%',
                       cursor: stock <= 0 ? 'not-allowed' : 'pointer',
                       opacity: stock <= 0 ? 0.5 : 1,
                     }}
                   >
-                    <span style={{ fontWeight: 'bold' }}>
-                      {p.name} {stock <= 0 ? '(Agotado)' : ''}
-                    </span>
-                    <span style={{ color: 'var(--color-primary)' }}>
-                      ${p.price}
-                    </span>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                      }}
+                    >
+                      <span style={{ fontWeight: 'bold' }}>
+                        {p.name} {stock <= 0 ? '(Agotado)' : ''}
+                      </span>
+                      <span
+                        style={{
+                          color: 'var(--color-primary)',
+                          fontWeight: 600,
+                        }}
+                      >
+                        ${p.price}
+                      </span>
+                    </div>
+                    {/* Metadata Preview */}
+                    {p.metadata && Object.keys(p.metadata).length > 0 && (
+                      <div
+                        style={{
+                          fontSize: '0.75rem',
+                          color: '#666',
+                          marginTop: '2px',
+                        }}
+                      >
+                        {Object.entries(p.metadata)
+                          .slice(0, 2)
+                          .map(([key, val]) => `${key}: ${val}`)
+                          .join(' | ')}
+                      </div>
+                    )}
                   </button>
                 );
               })}
