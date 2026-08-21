@@ -434,6 +434,22 @@ export default function AddProductModal({
   ) => {
     const newMetadata = [...metadata];
     newMetadata[index][field] = value;
+
+    // Normalización: Si la clave cambia, verificamos duplicados
+    if (field === 'key') {
+      const normalizedKey = value.trim().toLowerCase();
+      // Si ya existe otra entrada con la misma clave (y no es el índice actual), la eliminamos
+      const duplicateIndex = newMetadata.findIndex(
+        (m, idx) =>
+          idx !== index && m.key.trim().toLowerCase() === normalizedKey
+      );
+
+      if (duplicateIndex > -1) {
+        // Combinar valores si es necesario, o simplemente eliminar el duplicado
+        newMetadata.splice(duplicateIndex, 1);
+      }
+    }
+
     setMetadata(newMetadata);
   };
 
