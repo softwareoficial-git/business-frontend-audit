@@ -162,47 +162,103 @@ export default function AddProductModal({
         k.toLowerCase().includes(m.key.toLowerCase())
       );
 
+      const values = m.value
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
+
+      const removeValue = (valToRemove: string) => {
+        const newVals = values.filter((v) => v !== valToRemove);
+        handleMetadataChange(i, 'value', newVals.join(', '));
+      };
+
       return (
-        <div
-          key={i}
-          style={{
-            position: 'relative',
-            display: 'flex',
-            gap: '0.5rem',
-            width: '100%',
-            marginTop: '0.5rem',
-          }}
-        >
-          <input
-            placeholder="Campo"
-            value={m.key}
-            onChange={(e) => {
-              handleMetadataChange(i, 'key', e.target.value);
-              setActiveSuggestField({ index: i, type: 'key' });
-            }}
-            onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
+        <div key={i} style={{ marginTop: '0.5rem', width: '100%' }}>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
+          >
+            <input
+              placeholder="Campo"
+              value={m.key}
+              onChange={(e) => {
+                handleMetadataChange(i, 'key', e.target.value);
+                setActiveSuggestField({ index: i, type: 'key' });
+              }}
+              onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+                boxSizing: 'border-box',
+              }}
+            />
+            <input
+              placeholder="Añadir valor (enter)..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const val = e.currentTarget.value.trim();
+                  if (val) {
+                    handleMetadataChange(
+                      i,
+                      'value',
+                      [...values, val].join(', ')
+                    );
+                    e.currentTarget.value = '';
+                  }
+                }
+              }}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Tags debajo */}
+          <div
             style={{
-              flex: 1,
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-border)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.3rem',
+              marginTop: '0.4rem',
             }}
-          />
-          <input
-            placeholder="Valor"
-            value={m.value}
-            onChange={(e) => {
-              handleMetadataChange(i, 'value', e.target.value);
-              setActiveSuggestField({ index: i, type: 'value' });
-            }}
-            onFocus={() => setActiveSuggestField({ index: i, type: 'value' })}
-            style={{
-              flex: 1,
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-border)',
-            }}
-          />
+          >
+            {values.map((val, vIndex) => (
+              <span
+                key={vIndex}
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'white',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                }}
+              >
+                {val}
+                <button
+                  type="button"
+                  onClick={() => removeValue(val)}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
 
           {/* Sugerencias de clave */}
           {activeSuggestField?.index === i &&
@@ -211,14 +267,12 @@ export default function AddProductModal({
               <div
                 style={{
                   position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: '50%',
                   backgroundColor: 'var(--color-surface)',
                   border: '1px solid var(--color-border)',
                   zIndex: 100,
                   maxHeight: '100px',
                   overflowY: 'auto',
+                  width: '90%',
                 }}
               >
                 {keySuggestions.map((s) => (
@@ -226,38 +280,6 @@ export default function AddProductModal({
                     key={s}
                     onClick={() => {
                       handleMetadataChange(i, 'key', s);
-                      setActiveSuggestField(null);
-                    }}
-                    style={{ padding: '0.5rem', cursor: 'pointer' }}
-                  >
-                    {s}
-                  </div>
-                ))}
-              </div>
-            )}
-
-          {/* Sugerencias de valor */}
-          {activeSuggestField?.index === i &&
-            activeSuggestField.type === 'value' &&
-            valueSuggestions.length > 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '50%',
-                  right: 0,
-                  backgroundColor: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  zIndex: 100,
-                  maxHeight: '100px',
-                  overflowY: 'auto',
-                }}
-              >
-                {valueSuggestions.map((s) => (
-                  <div
-                    key={s}
-                    onClick={() => {
-                      handleMetadataChange(i, 'value', s);
                       setActiveSuggestField(null);
                     }}
                     style={{ padding: '0.5rem', cursor: 'pointer' }}
