@@ -202,6 +202,7 @@ export default function AddProductModal({
           <div
             style={{
               display: 'flex',
+              flexDirection: 'column', // Force vertical stacking
               gap: '0.5rem',
               width: '100%',
               position: 'relative',
@@ -216,7 +217,7 @@ export default function AddProductModal({
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
               style={{
-                flex: 1,
+                width: '100%',
                 padding: '0.5rem',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
@@ -241,7 +242,7 @@ export default function AddProductModal({
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'value' })}
               style={{
-                flex: 1,
+                width: '100%',
                 padding: '0.5rem',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
