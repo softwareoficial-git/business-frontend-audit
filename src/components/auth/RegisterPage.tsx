@@ -275,7 +275,7 @@ export default function RegisterPage({
                       : '#888',
               }}
             >
-              URL de tu tienda: www.softwareoficial.com/{storeSlug}
+              www.softwareoficial.com/{storeSlug}
             </p>
           )}
           {errors.storeDisplayName && (
