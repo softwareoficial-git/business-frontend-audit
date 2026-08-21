@@ -215,6 +215,12 @@ export default function AddProductModal({
                 handleMetadataChange(i, 'key', e.target.value);
                 setActiveSuggestField({ index: i, type: 'key' });
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
               style={{
                 width: '100%',
@@ -229,6 +235,7 @@ export default function AddProductModal({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
+                  e.stopPropagation();
                   const val = e.currentTarget.value.trim();
                   if (val) {
                     handleMetadataChange(
