@@ -196,13 +196,13 @@ export const StoreSettingsPanel = () => {
         type="file"
         ref={logoInputRef}
         onChange={(e) => handleFileChange(e, 'logo')}
-        className="hidden"
+        style={{ display: 'none' }}
       />
       <input
         type="file"
         ref={bannerInputRef}
         onChange={(e) => handleFileChange(e, 'banner')}
-        className="hidden"
+        style={{ display: 'none' }}
       />
 
       {/* Formulario */}
