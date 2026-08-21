@@ -554,7 +554,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 120px',
+              flex: '1 1 100%', // Full width on very small screens
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
@@ -570,7 +570,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 120px',
+              flex: '1 1 100%', // Full width on very small screens
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
