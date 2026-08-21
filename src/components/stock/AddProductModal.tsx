@@ -9,10 +9,12 @@ export default function AddProductModal({
   onClose,
   onAdd,
   productToEdit,
+  products, // Recibir desde props
 }: {
   onClose: () => void;
   onAdd: (product: any) => void;
   productToEdit?: any;
+  products: any[]; // Definir tipo
 }) {
   const [product, setProduct] = useState({
     code: productToEdit?.code || '',
@@ -22,40 +24,10 @@ export default function AddProductModal({
     category: productToEdit?.category || '',
   });
 
-  const [products, setProducts] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { startLoading, stopLoading } = useLoading();
 
-  useEffect(() => {
-    fetchAvailableProducts();
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    // Keep to avoid errors, but it won't be used for compat logic anymore
-    try {
-      const response = await apiClient('/execute', {
-        method: 'POST',
-        body: JSON.stringify({ cmd: 'settings.get', params: {} }),
-      });
-      // result ignored
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-    }
-  };
-
-  const fetchAvailableProducts = async () => {
-    try {
-      const response = await apiClient('/execute', {
-        method: 'POST',
-        body: JSON.stringify({ cmd: 'stock.list', params: {} }),
-      });
-      const result = await response.json();
-      if (result.success) setProducts(result.data);
-    } catch (error) {
-      console.error('Error fetching stock:', error);
-    }
-  };
+  // No necesitamos fetchAvailableProducts aquí ahora
 
   const categories = Array.from(
     new Set(products.map((p) => p.category).filter(Boolean))

@@ -168,6 +168,7 @@ export default function StockPanel() {
               product={p}
               onUpdate={handleUpdate}
               onDelete={handleDelete}
+              products={products}
             />
           ))}
       </div>
@@ -200,6 +201,7 @@ export default function StockPanel() {
             setScannedCode(null);
           }}
           onAdd={handleAdd}
+          products={products}
           productToEdit={
             scannedCode && typeof scannedCode === 'object'
               ? scannedCode

@@ -7,10 +7,12 @@ export default function StockCard({
   product,
   onUpdate,
   onDelete,
+  products,
 }: {
   product: any;
   onUpdate: (product: any) => void;
   onDelete: (code: string) => void;
+  products: any[];
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -183,6 +185,7 @@ export default function StockCard({
             onUpdate(updatedProduct);
             setIsEditing(false);
           }}
+          products={products}
         />
       )}
     </>
