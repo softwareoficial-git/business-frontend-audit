@@ -32,15 +32,18 @@ export default function StockPanel() {
         const data =
           typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
         if (data.type === 'BARCODE_SCANNED') {
-          const code = data.code;
-          const existingProduct = products.find((p: any) => p.code === code);
+          const code = data.code.trim(); // Limpiar espacios
+          const existingProduct = products.find(
+            (p: any) => p.code.toLowerCase() === code.toLowerCase()
+          );
 
           if (existingProduct) {
             setScannedCode(existingProduct);
+            setIsModalOpen(true); // Abrir modal en modo edición
           } else {
             setScannedCode({ code });
+            setIsModalOpen(true); // Abrir modal en modo añadir
           }
-          setIsModalOpen(true);
         }
       } catch (e) {
         console.error('Error parsing message from RN:', e);
