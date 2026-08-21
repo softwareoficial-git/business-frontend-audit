@@ -219,6 +219,7 @@ export default function AddProductModal({
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   e.stopPropagation();
+                  e.currentTarget.blur();
                 }
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
@@ -244,6 +245,7 @@ export default function AddProductModal({
                       [...values, val].join(', ')
                     );
                     e.currentTarget.value = '';
+                    e.currentTarget.blur();
                   }
                 }
               }}
