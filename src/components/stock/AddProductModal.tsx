@@ -655,7 +655,19 @@ export default function AddProductModal({
           )}
         </div>
 
-        {renderMetadataFields()}
+        {/* Contenedor scrollable para metadatos (máx 3 visibles) */}
+        <div
+          style={{
+            maxHeight: '250px',
+            overflowY: 'auto',
+            border: '1px solid #eee',
+            padding: '0.5rem',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          {renderMetadataFields()}
+        </div>
+
         <button
           type="button"
           onClick={addMetadataField}
