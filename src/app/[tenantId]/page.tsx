@@ -30,6 +30,9 @@ export default function PublicStorePage({
         return res.json();
       })
       .then((data) => {
+        console.log('API Response Data:', data);
+        console.log('Banner URL:', data.settings?.assets?.banner_url);
+        console.log('Logo URL:', data.settings?.assets?.logo_url);
         setStoreData(data);
         setLoading(false);
       })
