@@ -18,6 +18,7 @@ interface DockProps {
       | 'game'
       | 'mercadopago'
       | 'help'
+      | 'store'
   ) => void;
   onOpenProfile: () => void;
   role: string;
@@ -45,6 +46,7 @@ export default function Dock({
       | 'game'
       | 'mercadopago'
       | 'help'
+      | 'store'
   ) => {
     setActivePanel(view);
     onNavigate(view);
@@ -207,6 +209,17 @@ export default function Dock({
             >
               <Icon name="user" style={menuIconStyle} />
               <span>Perfil</span>
+            </button>
+
+            <button
+              onClick={() => {
+                handleNavigate('store');
+                toggleMenu();
+              }}
+              style={menuButtonStyle}
+            >
+              <Icon name="shop" style={menuIconStyle} />
+              <span>Tienda</span>
             </button>
 
             {/* {role === 'DUEÑO' && (

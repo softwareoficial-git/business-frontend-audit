@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import Dock from '../components/Dock';
 import ArcadeGame from '../components/game/ArcadeGame';
 import StockPanel from '../components/stock/StockPanel';
@@ -11,6 +11,11 @@ import ProfilePanel from '../components/auth/ProfilePanel';
 import MercadoPagoConfigPanel from '../components/auth/MercadoPagoConfigPanel';
 import HelpSupportPanel from '../components/help/HelpSupportPanel';
 import HomePage from '../components/home/HomePage';
+const StoreSettingsPanel = lazy(() =>
+  import('../components/store/StoreSettingsPanel').then((m) => ({
+    default: m.StoreSettingsPanel,
+  }))
+);
 import { getProfile, logoutUser } from '../lib/auth';
 import { useTour } from '../components/tour/TourProvider';
 import { guides } from '../lib/guides';
@@ -27,7 +32,8 @@ type View =
   | 'register'
   | 'profile'
   | 'mercadopago'
-  | 'help';
+  | 'help'
+  | 'store';
 
 export default function WelcomePage() {
   const { startTour } = useTour();
@@ -136,6 +142,12 @@ export default function WelcomePage() {
       case 'profile':
         return (
           <ProfilePanel user={user} onUpdateUser={setUser} onClose={() => {}} />
+        );
+      case 'store':
+        return (
+          <Suspense fallback={<div>Cargando panel de tienda...</div>}>
+            <StoreSettingsPanel />
+          </Suspense>
         );
       case 'mercadopago':
         return <MercadoPagoConfigPanel tenantId={user.cliente_id} />;
