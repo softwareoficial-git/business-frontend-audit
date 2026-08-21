@@ -138,17 +138,27 @@ export default function AddProductModal({
   }, [product.category, products]);
 
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
-    productToEdit?.metadata
-      ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
+    () => {
+      if (!productToEdit) return [];
+
+      // Filtramos los campos base que NO son metadatos
+      const baseFields = [
+        'code',
+        'name',
+        'price',
+        'qty',
+        'category',
+        'metadata',
+      ];
+
+      return Object.entries(productToEdit)
+        .filter(([key]) => !baseFields.includes(key))
+        .map(([key, value]) => ({
           key,
           value:
-            value == null
-              ? ''
-              : typeof value === 'object'
-                ? JSON.stringify(value)
-                : String(value),
-        }))
-      : []
+            typeof value === 'object' ? JSON.stringify(value) : String(value),
+        }));
+    }
   );
 
   // Renderizado de metadatos genéricos
