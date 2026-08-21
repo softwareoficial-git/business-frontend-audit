@@ -106,8 +106,6 @@ export default function AddProductModal({
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     () => {
       if (!productToEdit) return [];
-
-      // Filtramos los campos base que NO son metadatos
       const baseFields = [
         'code',
         'name',
@@ -117,13 +115,39 @@ export default function AddProductModal({
         'metadata',
       ];
 
-      return Object.entries(productToEdit)
+      // 1. Campos aplanados (en la raíz)
+      const rootMetadata = Object.entries(productToEdit)
         .filter(([key]) => !baseFields.includes(key))
         .map(([key, value]) => ({
           key,
           value:
             typeof value === 'object' ? JSON.stringify(value) : String(value),
         }));
+
+      // 2. Campos anidados (en productToEdit.metadata)
+      const nestedMetadata =
+        productToEdit.metadata && typeof productToEdit.metadata === 'object'
+          ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
+              key,
+              value:
+                typeof value === 'object'
+                  ? JSON.stringify(value)
+                  : String(value),
+            }))
+          : [];
+
+      // Combinar ambos, evitando duplicados
+      const allMetadata = [...rootMetadata];
+      nestedMetadata.forEach((nm) => {
+        const existingIndex = allMetadata.findIndex((rm) => rm.key === nm.key);
+        if (existingIndex > -1) {
+          allMetadata[existingIndex] = nm;
+        } else {
+          allMetadata.push(nm);
+        }
+      });
+
+      return allMetadata;
     }
   );
 
