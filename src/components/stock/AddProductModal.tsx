@@ -129,7 +129,7 @@ export default function AddProductModal({
       });
       return newMetadata;
     });
-  }, [product.category]);
+  }, [product.category, products]);
 
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     productToEdit?.metadata

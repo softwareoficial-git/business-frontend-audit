@@ -39,12 +39,13 @@ export default function StockCard({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         {/* Fila 1: Título */}
-        <div style={{ width: '100%', textAlign: 'left' }}>
+        <div style={{ width: '100%' }}>
           <h3
             style={{
               margin: 0,
-              fontSize: '1rem',
-              fontWeight: 700,
+              fontSize: '0.95rem',
+              fontWeight: 800,
+              color: 'var(--color-text)',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -55,85 +56,75 @@ export default function StockCard({
           </h3>
         </div>
 
-        {/* Fila 2: Código */}
-        <div style={{ width: '100%', textAlign: 'left' }}>
-          <span
-            style={{
-              fontSize: '0.75rem',
-              color: 'var(--color-secondary)',
-              background: 'var(--color-border)',
-              padding: '0.1rem 0.4rem',
-              borderRadius: 'var(--radius-sm)',
-              display: 'inline-block',
-            }}
-          >
-            {product.code}
-          </span>
-        </div>
-
-        {/* Fila 3: Stock y Precio */}
+        {/* Fila 2: Código y Stock */}
         <div
           style={{
             width: '100%',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginTop: 'var(--space-xs)',
           }}
         >
-          <span style={{ fontSize: '0.85rem' }}>
-            Stock: <strong>{product.qty}</strong>
+          <span style={{ fontSize: '0.7rem', color: '#888' }}>
+            {product.code}
           </span>
-          <span
-            style={{
-              fontWeight: 'bold',
-              color: 'var(--color-primary)',
-              fontSize: '0.85rem',
-            }}
-          >
-            ${product.price}
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+            Stock: {product.qty}
           </span>
+        </div>
+
+        {/* Precio */}
+        <div
+          style={{
+            fontWeight: 700,
+            color: 'var(--color-primary)',
+            fontSize: '0.9rem',
+          }}
+        >
+          ${Number(product.price).toFixed(2)}
         </div>
 
         {isExpanded && (
           <div
             style={{
-              marginTop: 'var(--space-md)',
-              paddingTop: 'var(--space-md)',
-              borderTop: '1px solid var(--color-border)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--space-sm)',
+              marginTop: 'var(--space-sm)',
+              paddingTop: 'var(--space-sm)',
+              borderTop: '1px solid #eee',
+              fontSize: '0.8rem',
+              color: '#666',
             }}
           >
-            <ul
-              style={{
-                margin: 0,
-                paddingLeft: '1.2rem',
-                fontSize: '0.85rem',
-                color: 'var(--color-secondary)',
-              }}
-            >
-              <li style={{ marginBottom: '0.25rem' }}>
-                Categoría: <strong>{product.category || 'N/A'}</strong>
-              </li>
-              {Object.entries(product).map(([key, value]) => {
-                // Excluimos campos base que ya mostramos
-                if (['code', 'name', 'price', 'qty', 'category'].includes(key))
-                  return null;
-                return (
-                  <li
-                    key={key}
-                    style={{
-                      marginBottom: '0.25rem',
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    {key}: <strong>{String(value)}</strong>
-                  </li>
-                );
-              })}
-            </ul>
+            <div style={{ marginBottom: '0.25rem' }}>
+              Cat: <strong>{product.category || 'N/A'}</strong>
+            </div>
+            {Object.entries(product).map(([key, value]) => {
+              if (
+                [
+                  'code',
+                  'name',
+                  'price',
+                  'qty',
+                  'category',
+                  'metadata',
+                ].includes(key)
+              )
+                return null;
+              return (
+                <div key={key} style={{ marginBottom: '0.1rem' }}>
+                  {key}: <strong>{String(value)}</strong>
+                </div>
+              );
+            })}
+            {/* Metadatos como sub-detalles */}
+            {product.metadata &&
+              Object.entries(product.metadata).map(([key, value]) => (
+                <div
+                  key={key}
+                  style={{ marginBottom: '0.1rem', color: '#999' }}
+                >
+                  {key}: {String(value)}
+                </div>
+              ))}
 
             <div
               style={{
