@@ -229,7 +229,7 @@ export default function SalesPanel() {
       {/* Buscador */}
       <div className="search-area">
         <div style={{ position: 'relative' }}>
-          <SearchBar onSearch={setSearchTerm} />
+          <SearchBar onSearch={setSearchTerm} products={products} />
 
           {/* Resultados Flotantes */}
           {searchTerm && filteredProducts.length > 0 && (

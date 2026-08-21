@@ -26,52 +26,23 @@ export default function AddProductModal({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { startLoading, stopLoading } = useLoading();
 
-  // No longer using compat system
-  const [compatEnabled, setCompatEnabled] = useState(false);
-  const [selectedModels, setSelectedModels] = useState<string[]>([]);
-  const [allModels, setAllModels] = useState<string[]>([]);
-  const [modelInput, setModelInput] = useState('');
-  const [showModelSuggestions, setShowModelSuggestions] = useState(false);
-
-  // Configuración de conexiones dinámicas (adaptabilidad global multirrubro)
-  const [connectionFieldName, setConnectionFieldName] =
-    useState('Compatibilidad');
-  const [connectionKeys, setConnectionKeys] = useState<string[]>([
-    'Marca',
-    'Modelo',
-  ]);
-
   useEffect(() => {
     fetchAvailableProducts();
-    // fetchAllModels(); // REMOVED
     fetchSettings();
-    // if (productToEdit?.code) { // REMOVED
-    //   fetchProductCompatibilities();
-    // }
   }, []);
 
   const fetchSettings = async () => {
+    // Keep to avoid errors, but it won't be used for compat logic anymore
     try {
       const response = await apiClient('/execute', {
         method: 'POST',
         body: JSON.stringify({ cmd: 'settings.get', params: {} }),
       });
-      const result = await response.json();
-      if (result.success && result.data) {
-        if (result.data.connection_field_name) {
-          setConnectionFieldName(result.data.connection_field_name);
-        }
-        if (result.data.connection_keys) {
-          setConnectionKeys(result.data.connection_keys);
-        }
-      }
+      // result ignored
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
   };
-
-  // const fetchAllModels = async () => { ... } // REMOVED
-  // const fetchProductCompatibilities = async () => { ... } // REMOVED
 
   const fetchAvailableProducts = async () => {
     try {
@@ -102,12 +73,10 @@ export default function AddProductModal({
     type: 'key' | 'value';
   } | null>(null);
 
-  // Calcular todas las claves conocidas globalmente + Compatibilidad forzada dinámica + Claves de conexión
+  // Calcular todas las claves conocidas globalmente
   const allKnownKeys = Array.from(
     new Set([
       ...products.flatMap((p) => (p.metadata ? Object.keys(p.metadata) : [])),
-      connectionFieldName,
-      ...connectionKeys,
     ])
   );
 
@@ -144,19 +113,6 @@ export default function AddProductModal({
     const attrs = getLearnedAttributes(product.category);
     setLearnedAttributes(attrs);
 
-    // Detección automática de compatibilidad
-    const categoryProducts = products.filter(
-      (p) => p.category?.toLowerCase() === product.category?.toLowerCase()
-    );
-    const hasCompat = categoryProducts.some(
-      (p) =>
-        p.metadata &&
-        Object.keys(p.metadata).some(
-          (k) => k.toLowerCase() === connectionFieldName.toLowerCase()
-        )
-    );
-    setCompatEnabled(hasCompat);
-
     // ANCHOR METADATA: Fusionar valores actuales con la plantilla de la categoría
     setMetadata((prev) => {
       const newMetadata = [...prev];
@@ -179,7 +135,7 @@ export default function AddProductModal({
     productToEdit?.metadata
       ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
           key,
-          value: String(value),
+          value: Array.isArray(value) ? JSON.stringify(value) : String(value),
         }))
       : []
   );

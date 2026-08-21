@@ -8,6 +8,7 @@ import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 import SearchBar from '../sales/SearchBar';
 import { useTour } from '../tour/TourProvider';
+import { searchProducts } from '../../lib/searchUtils';
 
 const STOCK_STORAGE_KEY = 'stock_data';
 
@@ -131,11 +132,7 @@ export default function StockPanel() {
     setIsModalOpen(false);
   };
 
-  const filteredProducts = (products || []).filter(
-    (p: any) =>
-      p?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p?.code?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = searchProducts(products || [], searchTerm);
 
   return (
     <div
@@ -159,7 +156,7 @@ export default function StockPanel() {
           width: '100%',
         }}
       >
-        <SearchBar onSearch={setSearchTerm} />
+        <SearchBar onSearch={setSearchTerm} products={products} />
       </div>
 
       {/* Grid de tarjetas compacto */}
