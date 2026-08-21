@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { ImageWithFallback } from '../../components/ImageWithFallback';
 
 export default function PublicStorePage({
@@ -10,6 +10,7 @@ export default function PublicStorePage({
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     params.then((p) => setTenantId(p.tenantId));
@@ -18,7 +19,6 @@ export default function PublicStorePage({
   useEffect(() => {
     if (!tenantId) return;
 
-    // Determinamos si es un ID numérico o un nombre (slug)
     const isId = /^\d+$/.test(tenantId);
     const url = isId
       ? `https://business-logic-v2-production.up.railway.app/api/public/store/${tenantId}/products`
@@ -39,6 +39,16 @@ export default function PublicStorePage({
       });
   }, [tenantId]);
 
+  // Lógica de búsqueda en cliente
+  const filteredProducts = useMemo(() => {
+    if (!storeData?.data) return [];
+    return storeData.data.filter(
+      (p: any) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [storeData, searchTerm]);
+
   if (loading)
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -55,26 +65,68 @@ export default function PublicStorePage({
   return (
     <main
       style={{
-        padding: '2rem',
         fontFamily: 'system-ui, sans-serif',
         maxWidth: '1000px',
         margin: '0 auto',
+        paddingBottom: '3rem',
       }}
     >
-      <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '2.5rem', color: '#333' }}>
-          {storeData.tenantName}
-        </h1>
-      </header>
+      {/* Banner y Perfil */}
+      <div
+        style={{ height: '200px', background: '#ddd', position: 'relative' }}
+      >
+        <ImageWithFallback
+          src={storeData.banner_url}
+          alt="Banner"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div style={{ position: 'absolute', bottom: '-40px', left: '2rem' }}>
+          <ImageWithFallback
+            src={storeData.profile_url}
+            alt="Logo"
+            style={{
+              width: '100px',
+              height: '100px',
+              borderRadius: '50%',
+              border: '4px solid white',
+              background: 'white',
+            }}
+          />
+        </div>
+      </div>
 
+      <div style={{ padding: '4rem 2rem 2rem' }}>
+        <h1 style={{ margin: '0 0 0.5rem 0' }}>{storeData.tenantName}</h1>
+        <p style={{ color: '#666' }}>
+          Bienvenido a nuestra tienda. Mira nuestro stock disponible.
+        </p>
+      </div>
+
+      {/* Buscador */}
+      <div style={{ padding: '0 2rem 2rem' }}>
+        <input
+          type="text"
+          placeholder="Buscar productos..."
+          style={{
+            width: '100%',
+            padding: '1rem',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* Productos */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
           gap: '2rem',
+          padding: '0 2rem',
         }}
       >
-        {storeData.data.map((product: any) => (
+        {filteredProducts.map((product: any) => (
           <div
             key={product.id}
             style={{
@@ -101,7 +153,7 @@ export default function PublicStorePage({
                 ${product.price}
               </p>
               <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                Stock disponible: {product.qty}
+                Stock: {product.qty}
               </p>
             </div>
           </div>
