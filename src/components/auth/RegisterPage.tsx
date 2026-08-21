@@ -1,7 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { registerUser, loginUser } from '../../lib/auth';
+
+// Función auxiliar para slugificar (debe ser idéntica a la del backend)
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-') // Reemplazar espacios por guiones
+    .replace(/[^\w-]+/g, '') // Eliminar caracteres no-palabra (excepto guiones)
+    .replace(/--+/g, '-') // Reemplazar múltiples guiones por uno solo
+    .replace(/^-+/, '') // Eliminar guiones al inicio
+    .replace(/-+$/, ''); // Eliminar guiones al final
+}
+
+// Función debounce
+const debounce = (func: Function, delay: number) => {
+  let timeout: NodeJS.Timeout;
+  return function (...args: any[]) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  };
+};
 
 export default function RegisterPage({
   onNavigate,
@@ -12,21 +35,66 @@ export default function RegisterPage({
 }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [nombreCliente, setNombreCliente] = useState('');
+  const [storeDisplayName, setStoreDisplayName] = useState(''); // Nombre visible de la tienda
+  const [storeSlug, setStoreSlug] = useState(''); // Slug para la URL
+  const [isStoreNameAvailable, setIsStoreNameAvailable] = useState<
+    boolean | null
+  >(null);
+  const [storeNameCheckMessage, setStoreNameCheckMessage] = useState('');
+
   const [errors, setErrors] = useState<{
     username?: string;
     password?: string;
-    nombreCliente?: string;
+    storeDisplayName?: string;
     global?: string;
   }>({});
   const [loading, setLoading] = useState(false);
+
+  // Debounce para la verificación de disponibilidad del nombre
+  const debouncedCheckStoreName = useCallback(
+    debounce(async (slug: string) => {
+      if (slug.length < 3) {
+        setIsStoreNameAvailable(null);
+        setStoreNameCheckMessage('');
+        return;
+      }
+      setStoreNameCheckMessage('Verificando disponibilidad...');
+      try {
+        const response = await fetch(
+          `https://business-logic-v2-production.up.railway.app/api/public/store/check-name/${slug}`
+        );
+        const data = await response.json();
+        setIsStoreNameAvailable(data.isAvailable);
+        setStoreNameCheckMessage(data.message);
+      } catch (err) {
+        setIsStoreNameAvailable(false);
+        setStoreNameCheckMessage('Error al verificar disponibilidad.');
+        console.error('Error checking store name:', err);
+      }
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    if (storeSlug) {
+      debouncedCheckStoreName(storeSlug);
+    } else {
+      setIsStoreNameAvailable(null);
+      setStoreNameCheckMessage('');
+    }
+  }, [storeSlug, debouncedCheckStoreName]);
 
   const validate = () => {
     const newErrors: typeof errors = {};
     if (!username) newErrors.username = 'Falta este campo';
     if (password.length < 6)
       newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    if (!nombreCliente) newErrors.nombreCliente = 'Falta este campo';
+    if (!storeDisplayName) newErrors.storeDisplayName = 'Falta este campo';
+    if (!storeSlug || !isStoreNameAvailable) {
+      newErrors.storeDisplayName =
+        storeNameCheckMessage ||
+        'El nombre de tu tienda no es válido o está en uso.';
+    }
     return newErrors;
   };
 
@@ -41,7 +109,8 @@ export default function RegisterPage({
     }
 
     setLoading(true);
-    const result = await registerUser(username, password, nombreCliente);
+    // Enviamos el SLUG de la tienda como nombreCliente al backend
+    const result = await registerUser(username, password, storeSlug);
 
     if (result.success) {
       // Auto-login post-registro
@@ -106,6 +175,19 @@ export default function RegisterPage({
     boxSizing: 'border-box', // Importante para que el padding no afecte el ancho
   };
 
+  const storeUrlStyle: React.CSSProperties = {
+    fontSize: '0.75rem',
+    color:
+      isStoreNameAvailable === true
+        ? '#2ecc71'
+        : isStoreNameAvailable === false
+          ? '#e74c3c'
+          : '#888',
+    marginTop: '0.2rem',
+    marginBottom: '0.8rem',
+    wordBreak: 'break-all',
+  };
+
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
@@ -168,12 +250,21 @@ export default function RegisterPage({
           )}
           <input
             type="text"
-            placeholder="Nombre de Cliente"
-            value={nombreCliente}
-            onChange={(e) => setNombreCliente(e.target.value)}
+            placeholder="Nombre de tu Tienda Online"
+            value={storeDisplayName}
+            onChange={(e) => {
+              setStoreDisplayName(e.target.value);
+              setStoreSlug(slugify(e.target.value));
+            }}
             style={inputStyle}
           />
-          {errors.nombreCliente && (
+          {storeDisplayName && (
+            <p style={storeUrlStyle}>
+              URL de tu tienda: www.softwareoficial.com/{storeSlug}{' '}
+              {storeNameCheckMessage && `(${storeNameCheckMessage})`}
+            </p>
+          )}
+          {errors.storeDisplayName && (
             <p
               style={{
                 color: 'var(--color-error)',
@@ -181,10 +272,14 @@ export default function RegisterPage({
                 marginTop: '-0.4rem',
               }}
             >
-              {errors.nombreCliente}
+              {errors.storeDisplayName}
             </p>
           )}
-          <button type="submit" disabled={loading} className="btn-primary">
+          <button
+            type="submit"
+            disabled={loading || !isStoreNameAvailable}
+            className="btn-primary"
+          >
             {loading ? 'Registrando...' : 'Registrarse'}
           </button>
         </form>

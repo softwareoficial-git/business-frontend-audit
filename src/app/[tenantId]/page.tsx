@@ -126,38 +126,56 @@ export default function PublicStorePage({
           padding: '0 2rem',
         }}
       >
-        {filteredProducts.map((product: any) => (
+        {filteredProducts.length === 0 ? (
           <div
-            key={product.id}
             style={{
-              border: '1px solid #eee',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              textAlign: 'center',
+              gridColumn: '1 / -1',
+              padding: '2rem',
             }}
           >
-            <ImageWithFallback
-              src={product.image_url}
-              alt={product.name}
-              style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-            />
-            <div style={{ padding: '1rem' }}>
-              <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
-              <p
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: '1.2rem',
-                  color: '#2ecc71',
-                }}
-              >
-                ${product.price}
-              </p>
-              <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                Stock: {product.qty}
-              </p>
-            </div>
+            <p style={{ fontSize: '1.2rem', color: '#888' }}>
+              ¡Aún no hay productos en esta tienda!
+            </p>
+            <p style={{ color: '#aaa' }}>
+              Carga algunos desde tu panel administrativo para que aparezcan
+              aquí.
+            </p>
           </div>
-        ))}
+        ) : (
+          filteredProducts.map((product: any) => (
+            <div
+              key={product.id}
+              style={{
+                border: '1px solid #eee',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              }}
+            >
+              <ImageWithFallback
+                src={product.image_url}
+                alt={product.name}
+                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+              />
+              <div style={{ padding: '1rem' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
+                <p
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: '1.2rem',
+                    color: '#2ecc71',
+                  }}
+                >
+                  ${product.price}
+                </p>
+                <p style={{ fontSize: '0.9rem', color: '#666' }}>
+                  Stock: {product.qty}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </main>
   );
