@@ -174,9 +174,7 @@ export default function AddProductModal({
 
       return (
         <div key={i} style={{ marginTop: '0.5rem', width: '100%' }}>
-          <div
-            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
-          >
+          <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
             <input
               placeholder="Campo"
               value={m.key}
@@ -186,7 +184,7 @@ export default function AddProductModal({
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
               style={{
-                width: '100%',
+                flex: 1,
                 padding: '0.5rem',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
@@ -210,7 +208,7 @@ export default function AddProductModal({
                 }
               }}
               style={{
-                width: '100%',
+                flex: 1,
                 padding: '0.5rem',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
