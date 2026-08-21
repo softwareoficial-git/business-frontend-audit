@@ -45,12 +45,30 @@ export default function AddProductModal({
     type: 'key' | 'value';
   } | null>(null);
 
-  // Calcular todas las claves conocidas globalmente
-  const allKnownKeys = Array.from(
-    new Set([
-      ...products.flatMap((p) => (p.metadata ? Object.keys(p.metadata) : [])),
-    ])
+  // Registro global de metadatos: todos los productos contribuyen a las sugerencias
+  const globalMetadataRegistry: Record<string, Set<string>> = products.reduce(
+    (acc, p) => {
+      if (p.metadata && typeof p.metadata === 'object') {
+        Object.entries(p.metadata as Record<string, any>).forEach(
+          ([key, val]) => {
+            if (!acc[key]) acc[key] = new Set();
+            if (val) {
+              const values = Array.isArray(val)
+                ? val
+                : String(val)
+                    .split(',')
+                    .map((v) => v.trim());
+              values.forEach((v) => acc[key].add(String(v)));
+            }
+          }
+        );
+      }
+      return acc;
+    },
+    {} as Record<string, Set<string>>
   );
+
+  const allKnownKeys = Object.keys(globalMetadataRegistry);
 
   const getLearnedAttributes = (categoryName: string) => {
     if (!categoryName) return [];
@@ -154,10 +172,8 @@ export default function AddProductModal({
   // Renderizado de metadatos genéricos
   const renderMetadataFields = () => {
     return metadata.map((m, i) => {
-      const suggestionData = learnedAttributes.find(
-        (attr) => attr.key.toLowerCase() === m.key.toLowerCase()
-      );
-      const valueSuggestions = suggestionData ? suggestionData.suggestions : [];
+      // Usamos el registro global para los valores, ignorando la categoría actual
+      const valueSuggestions = Array.from(globalMetadataRegistry[m.key] || []);
       const keySuggestions = allKnownKeys.filter((k) =>
         k.toLowerCase().includes(m.key.toLowerCase())
       );
@@ -242,14 +258,14 @@ export default function AddProductModal({
               >
                 {keySuggestions.map((s) => (
                   <div
-                    key={s}
+                    key={s as string}
                     onClick={() => {
-                      handleMetadataChange(i, 'key', s);
+                      handleMetadataChange(i, 'key', s as string);
                       setActiveSuggestField(null);
                     }}
                     style={{ padding: '0.5rem', cursor: 'pointer' }}
                   >
-                    {s}
+                    {s as string}
                   </div>
                 ))}
               </div>
@@ -273,18 +289,18 @@ export default function AddProductModal({
               >
                 {valueSuggestions.map((s) => (
                   <div
-                    key={s}
+                    key={s as string}
                     onClick={() => {
                       handleMetadataChange(
                         i,
                         'value',
-                        [...values, s].join(', ')
+                        [...values, s as string].join(', ')
                       );
                       setActiveSuggestField(null);
                     }}
                     style={{ padding: '0.5rem', cursor: 'pointer' }}
                   >
-                    {s}
+                    {s as string}
                   </div>
                 ))}
               </div>
