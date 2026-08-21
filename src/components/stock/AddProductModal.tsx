@@ -167,10 +167,12 @@ export default function AddProductModal({
   };
 
   useEffect(() => {
+    if (!product.category) return;
+
     const attrs = getLearnedAttributes(product.category);
     setLearnedAttributes(attrs);
 
-    // Detección automática de compatibilidad para la categoría usando el nombre de conexión dinámico
+    // Detección automática de compatibilidad
     const categoryProducts = products.filter(
       (p) => p.category?.toLowerCase() === product.category?.toLowerCase()
     );
@@ -183,25 +185,23 @@ export default function AddProductModal({
     );
     setCompatEnabled(hasCompat);
 
+    // ANCHOR METADATA: Fusionar valores actuales con la plantilla de la categoría
     setMetadata((prev) => {
-      // 1. Obtener claves aprendidas para esta categoría
-      const learnedKeys = attrs.map((a) => a.key.toLowerCase());
+      const newMetadata = [...prev];
 
-      // 2. Conservar valores ingresados manualmente que no sean de esta categoría (si el usuario los escribió)
-      const manualFields = prev.filter(
-        (m) =>
-          m.value.trim() !== '' && !learnedKeys.includes(m.key.toLowerCase())
-      );
-
-      // 3. Crear campos para atributos aprendidos (con valor vacío para rellenar)
-      const learnedFields = attrs.map((attr) => ({
-        key: attr.key,
-        value: '', // El usuario rellenará el valor
-      }));
-
-      return [...manualFields, ...learnedFields];
+      // Asegurar que existan todos los campos de la "plantilla" de la categoría
+      attrs.forEach((attr) => {
+        const exists = newMetadata.find(
+          (m) => m.key.toLowerCase() === attr.key.toLowerCase()
+        );
+        if (!exists) {
+          // Añadimos el campo de la plantilla si no está presente
+          newMetadata.push({ key: attr.key, value: '' });
+        }
+      });
+      return newMetadata;
     });
-  }, [product.category, products]);
+  }, [product.category]);
 
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     productToEdit?.metadata
