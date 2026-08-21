@@ -21,7 +21,11 @@ export const StoreSettingsPanel = () => {
     });
     const result = await response.json();
     if (result.success && result.data) {
-      setSettings(result.data);
+      setSettings((prev) => ({
+        store_info: { ...prev.store_info, ...result.data.store_info },
+        assets: { ...prev.assets, ...result.data.assets },
+        themes: { ...prev.themes, ...result.data.themes },
+      }));
     }
     setLoading(false);
   };
