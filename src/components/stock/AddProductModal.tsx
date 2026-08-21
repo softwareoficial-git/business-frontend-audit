@@ -539,9 +539,9 @@ export default function AddProductModal({
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column', // Force vertical stacking
             gap: '0.5rem',
             width: '100%',
-            flexWrap: 'wrap',
             boxSizing: 'border-box',
           }}
         >
@@ -554,7 +554,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 100%', // Full width on very small screens
+              width: '100%',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
@@ -570,7 +570,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 100%', // Full width on very small screens
+              width: '100%',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
