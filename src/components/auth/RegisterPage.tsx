@@ -89,12 +89,17 @@ export default function RegisterPage({
     if (!username) newErrors.username = 'Falta este campo';
     if (password.length < 6)
       newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    if (!storeDisplayName) newErrors.storeDisplayName = 'Falta este campo';
-    if (!storeSlug || !isStoreNameAvailable) {
+    if (!storeDisplayName)
+      newErrors.storeDisplayName = 'El nombre de tu tienda es obligatorio.';
+
+    // Solo si el slug no está vacío y la verificación ya se realizó (no es null)
+    if (storeSlug && isStoreNameAvailable === false) {
+      newErrors.storeDisplayName = 'Nombre de tienda ya en uso. Prueba otro.';
+    } else if (!storeSlug || storeSlug.length < 3) {
       newErrors.storeDisplayName =
-        storeNameCheckMessage ||
-        'El nombre de tu tienda no es válido o está en uso.';
+        'El nombre de tu tienda debe tener al menos 3 caracteres válidos para la URL.';
     }
+
     return newErrors;
   };
 
@@ -259,9 +264,18 @@ export default function RegisterPage({
             style={inputStyle}
           />
           {storeDisplayName && (
-            <p style={storeUrlStyle}>
-              URL de tu tienda: www.softwareoficial.com/{storeSlug}{' '}
-              {storeNameCheckMessage && `(${storeNameCheckMessage})`}
+            <p
+              style={{
+                ...storeUrlStyle,
+                color:
+                  isStoreNameAvailable === true
+                    ? '#2ecc71'
+                    : isStoreNameAvailable === false
+                      ? '#e74c3c'
+                      : '#888',
+              }}
+            >
+              URL de tu tienda: www.softwareoficial.com/{storeSlug}
             </p>
           )}
           {errors.storeDisplayName && (

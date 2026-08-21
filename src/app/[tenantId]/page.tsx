@@ -39,14 +39,21 @@ export default function PublicStorePage({
       });
   }, [tenantId]);
 
-  // Lógica de búsqueda en cliente
+  // Lógica de búsqueda mejorada
   const filteredProducts = useMemo(() => {
     if (!storeData?.data) return [];
-    return storeData.data.filter(
-      (p: any) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const term = searchTerm.toLowerCase();
+
+    return storeData.data.filter((p: any) => {
+      const inName = p.name?.toLowerCase().includes(term);
+      const inCategory = p.category?.toLowerCase().includes(term);
+      const metaValues = Object.values(p.metadata || {})
+        .join(' ')
+        .toLowerCase();
+      const inMetadata = metaValues.includes(term);
+
+      return inName || inCategory || inMetadata;
+    });
   }, [storeData, searchTerm]);
 
   if (loading)
@@ -65,15 +72,21 @@ export default function PublicStorePage({
   return (
     <main
       style={{
-        fontFamily: 'system-ui, sans-serif',
+        padding: '1rem',
+        fontFamily: 'var(--font-family)',
         maxWidth: '1000px',
         margin: '0 auto',
-        paddingBottom: '3rem',
       }}
     >
       {/* Banner y Perfil */}
       <div
-        style={{ height: '200px', background: '#ddd', position: 'relative' }}
+        style={{
+          height: '200px',
+          background: '#ddd',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
       >
         <ImageWithFallback
           src={storeData.banner_url}
@@ -85,94 +98,72 @@ export default function PublicStorePage({
             src={storeData.profile_url}
             alt="Logo"
             style={{
-              width: '100px',
-              height: '100px',
+              width: '80px',
+              height: '80px',
               borderRadius: '50%',
-              border: '4px solid white',
-              background: 'white',
+              border: '4px solid var(--color-surface)',
+              background: 'var(--color-surface)',
             }}
           />
         </div>
       </div>
 
-      <div style={{ padding: '4rem 2rem 2rem' }}>
-        <h1 style={{ margin: '0 0 0.5rem 0' }}>{storeData.tenantName}</h1>
-        <p style={{ color: '#666' }}>
-          Bienvenido a nuestra tienda. Mira nuestro stock disponible.
-        </p>
+      <div style={{ padding: '3rem 1rem 1rem' }}>
+        <h1 style={{ margin: '0' }}>{storeData.tenantName}</h1>
       </div>
 
       {/* Buscador */}
-      <div style={{ padding: '0 2rem 2rem' }}>
+      <div style={{ padding: '1rem' }}>
         <input
           type="text"
           placeholder="Buscar productos..."
+          className="card"
           style={{
             width: '100%',
-            padding: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
+            padding: '0.8rem',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-md)',
           }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
       {/* Productos */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: '2rem',
-          padding: '0 2rem',
-        }}
-      >
+      <div className="stock-grid">
         {filteredProducts.length === 0 ? (
           <div
+            className="card"
             style={{
               textAlign: 'center',
-              gridColumn: '1 / -1',
               padding: '2rem',
+              gridColumn: '1 / -1',
             }}
           >
-            <p style={{ fontSize: '1.2rem', color: '#888' }}>
-              ¡Aún no hay productos en esta tienda!
-            </p>
-            <p style={{ color: '#aaa' }}>
-              Carga algunos desde tu panel administrativo para que aparezcan
-              aquí.
-            </p>
+            <p>¡Aún no hay productos en esta tienda!</p>
           </div>
         ) : (
           filteredProducts.map((product: any) => (
-            <div
-              key={product.id}
-              style={{
-                border: '1px solid #eee',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              }}
-            >
+            <div key={product.id} className="card masonry-item">
               <ImageWithFallback
                 src={product.image_url}
                 alt={product.name}
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                style={{
+                  width: '100%',
+                  height: '150px',
+                  objectFit: 'cover',
+                  borderRadius: 'var(--radius-md)',
+                  marginBottom: '1rem',
+                }}
               />
-              <div style={{ padding: '1rem' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
-                <p
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: '1.2rem',
-                    color: '#2ecc71',
-                  }}
-                >
-                  ${product.price}
-                </p>
-                <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                  Stock: {product.qty}
-                </p>
-              </div>
+              <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
+              <p style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                ${product.price}
+              </p>
+              <p
+                style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
+              >
+                Stock: {product.qty}
+              </p>
             </div>
           ))
         )}
