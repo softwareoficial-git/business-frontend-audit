@@ -185,19 +185,30 @@ export default function SalesPanel() {
 
   const filteredProducts = searchTerm
     ? products.filter((p) => {
+        if (!p) return false; // Defensive check
         const term = searchTerm.toLowerCase();
+
+        const name = p.name || '';
+        const category = p.category || '';
+        const code = p.code || '';
+
         const matchesNameOrCode =
-          (p?.name?.toLowerCase() || '').includes(term) ||
-          (p?.code?.toLowerCase() || '').includes(term);
+          name.toLowerCase().includes(term) ||
+          code.toLowerCase().includes(term);
 
         // Buscar también en los valores de los metadatos
-        const matchesMetadata = p.metadata
-          ? Object.values(p.metadata).some((val) =>
-              String(val).toLowerCase().includes(term)
-            )
-          : false;
+        const matchesMetadata =
+          p.metadata && typeof p.metadata === 'object'
+            ? Object.values(p.metadata).some((val) =>
+                String(val).toLowerCase().includes(term)
+              )
+            : false;
 
-        return matchesNameOrCode || matchesMetadata;
+        return (
+          matchesNameOrCode ||
+          category.toLowerCase().includes(term) ||
+          matchesMetadata
+        );
       })
     : [];
 
