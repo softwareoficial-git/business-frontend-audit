@@ -5,13 +5,19 @@ import { ImageWithFallback } from '../../components/ImageWithFallback';
 export default function PublicStorePage({
   params,
 }: {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
-  const { tenantId } = params;
+  const [tenantId, setTenantId] = useState<string | null>(null);
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    params.then((p) => setTenantId(p.tenantId));
+  }, [params]);
+
+  useEffect(() => {
+    if (!tenantId) return;
+
     // Determinamos si es un ID numérico o un nombre (slug)
     const isId = /^\d+$/.test(tenantId);
     const url = isId
@@ -19,7 +25,10 @@ export default function PublicStorePage({
       : `https://business-logic-v2-production.up.railway.app/api/public/store/name/${tenantId}/products`;
 
     fetch(url)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Tienda no encontrada');
+        return res.json();
+      })
       .then((data) => {
         setStoreData(data);
         setLoading(false);
