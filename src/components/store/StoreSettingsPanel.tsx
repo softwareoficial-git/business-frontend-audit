@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { apiClient } from '../../lib/api';
 
 const CLOUD_NAME = 'bvhc9tnp';
@@ -11,11 +11,13 @@ export const StoreSettingsPanel = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
   } | null>(null);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchSettings();
@@ -42,8 +44,7 @@ export const StoreSettingsPanel = () => {
   };
 
   const uploadToCloudinary = async (file: File) => {
-    setUploading(true);
-    setMessage({ type: 'success', text: 'Subiendo imagen a la nube...' });
+    setMessage({ type: 'success', text: 'Subiendo imagen...' });
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
@@ -62,12 +63,10 @@ export const StoreSettingsPanel = () => {
     } catch (e) {
       setMessage({ type: 'error', text: 'Error subiendo imagen' });
       return null;
-    } finally {
-      setUploading(false);
     }
   };
 
-  const handleImageChange = async (
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'logo' | 'banner'
   ) => {
@@ -93,10 +92,7 @@ export const StoreSettingsPanel = () => {
       });
       const result = await response.json();
       if (result.success) {
-        setMessage({
-          type: 'success',
-          text: '¡Cambios guardados correctamente en el servidor!',
-        });
+        setMessage({ type: 'success', text: 'Tienda actualizada' });
       } else {
         throw new Error(result.message || 'Error al guardar');
       }
@@ -106,36 +102,10 @@ export const StoreSettingsPanel = () => {
     setSaving(false);
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '0.8rem',
-    margin: '0.5rem 0',
-    borderRadius: 'var(--radius-md)',
-    border: '1px solid var(--color-border)',
-    backgroundColor: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    outline: 'none',
-    boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.05)',
-  };
-
-  const cardStyle: React.CSSProperties = {
-    background: 'var(--color-background)',
-    padding: '2rem',
-    borderRadius: 'var(--radius-lg)',
-    boxShadow: 'var(--shadow-card)',
-    maxWidth: '600px',
-    margin: '0 auto',
-    color: 'var(--color-text)',
-  };
-
-  if (loading) return <div style={cardStyle}>Cargando panel...</div>;
+  if (loading) return <div className="p-4">Cargando...</div>;
 
   return (
-    <div style={cardStyle}>
-      <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-        Editar Tienda
-      </h2>
-
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem' }}>
       {message && (
         <div
           style={{
@@ -150,52 +120,101 @@ export const StoreSettingsPanel = () => {
         </div>
       )}
 
-      {/* Imágenes */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold' }}>Logo (Perfil)</label>
-            <input type="file" onChange={(e) => handleImageChange(e, 'logo')} />
-            {settings.assets.logo_url && (
-              <img
-                src={settings.assets.logo_url}
-                style={{
-                  width: '100px',
-                  height: '100px',
-                  borderRadius: '50%',
-                  marginTop: '10px',
-                  border: '2px solid var(--color-border)',
-                }}
-              />
-            )}
-          </div>
-          <div style={{ flex: 2 }}>
-            <label style={{ fontWeight: 'bold' }}>Banner</label>
-            <input
-              type="file"
-              onChange={(e) => handleImageChange(e, 'banner')}
-            />
-            {settings.assets.banner_url && (
-              <img
-                src={settings.assets.banner_url}
-                style={{
-                  width: '100%',
-                  height: '100px',
-                  borderRadius: '8px',
-                  marginTop: '10px',
-                  border: '2px solid var(--color-border)',
-                }}
-              />
-            )}
-          </div>
+      {/* Estructura espejo de la tienda pública */}
+      <div
+        style={{
+          position: 'relative',
+          height: '200px',
+          borderRadius: '15px',
+          overflow: 'hidden',
+          cursor: 'pointer',
+        }}
+        onClick={() => bannerInputRef.current?.click()}
+      >
+        <img
+          src={settings.assets.banner_url || '/placeholder-banner.png'}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '10px',
+            left: '10px',
+            background: 'rgba(0,0,0,0.5)',
+            color: 'white',
+            padding: '5px 10px',
+            borderRadius: '5px',
+          }}
+        >
+          Editar Banner
         </div>
       </div>
 
-      {/* Detalles */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ fontWeight: 'bold' }}>Nombre de la Tienda</label>
+      <div
+        style={{
+          position: 'relative',
+          width: '80px',
+          height: '80px',
+          marginTop: '-40px',
+          marginLeft: '2rem',
+          cursor: 'pointer',
+        }}
+        onClick={() => logoInputRef.current?.click()}
+      >
+        <img
+          src={settings.assets.logo_url || '/placeholder-logo.png'}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            border: '4px solid white',
+            objectFit: 'cover',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0,0,0,0.3)',
+            borderRadius: '50%',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '10px',
+          }}
+        >
+          Editar
+        </div>
+      </div>
+
+      {/* Inputs invisibles */}
+      <input
+        type="file"
+        ref={logoInputRef}
+        onChange={(e) => handleFileChange(e, 'logo')}
+        className="hidden"
+      />
+      <input
+        type="file"
+        ref={bannerInputRef}
+        onChange={(e) => handleFileChange(e, 'banner')}
+        className="hidden"
+      />
+
+      {/* Formulario */}
+      <div style={{ marginTop: '3rem' }}>
         <input
-          style={inputStyle}
+          style={{
+            width: '100%',
+            padding: '1rem',
+            marginBottom: '1rem',
+            borderRadius: '10px',
+            border: '1px solid #ccc',
+          }}
           value={settings.store_info.name}
           onChange={(e) =>
             setSettings({
@@ -203,23 +222,16 @@ export const StoreSettingsPanel = () => {
               store_info: { ...settings.store_info, name: e.target.value },
             })
           }
+          placeholder="Nombre de la tienda"
         />
-
-        <label style={{ fontWeight: 'bold' }}>WhatsApp</label>
-        <input
-          style={inputStyle}
-          value={settings.store_info.whatsapp}
-          onChange={(e) =>
-            setSettings({
-              ...settings,
-              store_info: { ...settings.store_info, whatsapp: e.target.value },
-            })
-          }
-        />
-
-        <label style={{ fontWeight: 'bold' }}>Descripción</label>
         <textarea
-          style={{ ...inputStyle, height: '100px' }}
+          style={{
+            width: '100%',
+            padding: '1rem',
+            marginBottom: '1rem',
+            borderRadius: '10px',
+            border: '1px solid #ccc',
+          }}
           value={settings.store_info.description}
           onChange={(e) =>
             setSettings({
@@ -230,23 +242,12 @@ export const StoreSettingsPanel = () => {
               },
             })
           }
+          placeholder="Descripción"
         />
+        <button className="btn-primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Guardando...' : 'Guardar Cambios'}
+        </button>
       </div>
-
-      <button
-        onClick={handleSave}
-        disabled={saving || uploading}
-        className="btn-primary"
-        style={{
-          width: '100%',
-          padding: '1rem',
-          borderRadius: 'var(--radius-md)',
-          cursor: saving || uploading ? 'not-allowed' : 'pointer',
-          fontWeight: 'bold',
-        }}
-      >
-        {saving ? 'Guardando...' : 'Guardar Cambios'}
-      </button>
     </div>
   );
 };
