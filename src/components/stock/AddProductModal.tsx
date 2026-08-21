@@ -61,14 +61,8 @@ export default function AddProductModal({
     new Set(products.map((p) => p.category).filter(Boolean))
   );
 
-  const filteredProducts = products.filter(
-    (p) =>
-      (p?.name || '')
-        .toLowerCase()
-        .includes((product.category || '').toLowerCase()) ||
-      (p?.category || '')
-        .toLowerCase()
-        .includes((product.category || '').toLowerCase())
+  const filteredCategories = categories.filter((c) =>
+    c.toLowerCase().includes(product.category.toLowerCase())
   );
 
   const [learnedAttributes, setLearnedAttributes] = useState<
@@ -504,7 +498,7 @@ export default function AddProductModal({
               boxSizing: 'border-box',
             }}
           />
-          {showSuggestions && filteredProducts.length > 0 && (
+          {showSuggestions && filteredCategories.length > 0 && (
             <div
               style={{
                 position: 'absolute',
@@ -521,16 +515,11 @@ export default function AddProductModal({
                 marginTop: '4px',
               }}
             >
-              {filteredProducts.map((p) => (
+              {filteredCategories.map((cat) => (
                 <div
-                  key={p.code}
+                  key={cat}
                   onClick={() => {
-                    setProduct({
-                      ...product,
-                      category: p.category,
-                      name: p.name,
-                      price: p.price,
-                    });
+                    setProduct({ ...product, category: cat });
                     setShowSuggestions(false);
                   }}
                   style={{
@@ -540,10 +529,7 @@ export default function AddProductModal({
                     fontSize: '0.85rem',
                   }}
                 >
-                  <div style={{ fontWeight: 'bold' }}>{p.name}</div>
-                  <div style={{ color: '#666', fontSize: '0.75rem' }}>
-                    {p.category} - ${p.price}
-                  </div>
+                  {cat}
                 </div>
               ))}
             </div>
