@@ -364,6 +364,26 @@ export default function SalesPanel() {
               >
                 {p.name} {stock <= 0 ? '(Agotado)' : ''}
               </span>
+
+              {/* Metadata Preview */}
+              {p.metadata && Object.keys(p.metadata).length > 0 && (
+                <div
+                  style={{
+                    fontSize: '0.65rem',
+                    color: '#888',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    marginTop: '2px',
+                  }}
+                >
+                  {Object.entries(p.metadata)
+                    .slice(0, 1)
+                    .map(([key, val]) => `${key}: ${val}`)
+                    .join(' | ')}
+                </div>
+              )}
+
               <div
                 style={{
                   display: 'flex',
@@ -377,7 +397,7 @@ export default function SalesPanel() {
                 <span
                   style={{ fontWeight: 800, color: 'var(--color-primary)' }}
                 >
-                  ${p.price.toFixed(0)}
+                  ${Number(p.price).toFixed(0)}
                 </span>
               </div>
             </button>

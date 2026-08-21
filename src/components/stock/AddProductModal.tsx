@@ -137,7 +137,12 @@ export default function AddProductModal({
     productToEdit?.metadata
       ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
           key,
-          value: Array.isArray(value) ? JSON.stringify(value) : String(value),
+          value:
+            value == null
+              ? ''
+              : typeof value === 'object'
+                ? JSON.stringify(value)
+                : String(value),
         }))
       : []
   );
