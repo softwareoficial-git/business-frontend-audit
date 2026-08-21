@@ -124,6 +124,7 @@ export default function AddProductModal({
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     () => {
       if (!productToEdit) return [];
+
       const baseFields = [
         'code',
         'name',
@@ -168,6 +169,48 @@ export default function AddProductModal({
       return allMetadata;
     }
   );
+
+  useEffect(() => {
+    if (!productToEdit) return;
+
+    const baseFields = ['code', 'name', 'price', 'qty', 'category', 'metadata'];
+
+    const rootMetadata = Object.entries(productToEdit)
+      .filter(([key]) => !baseFields.includes(key))
+      .map(([key, value]) => ({
+        key,
+        value:
+          typeof value === 'object' ? JSON.stringify(value) : String(value),
+      }));
+
+    const nestedMetadata =
+      productToEdit.metadata && typeof productToEdit.metadata === 'object'
+        ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
+            key,
+            value:
+              typeof value === 'object' ? JSON.stringify(value) : String(value),
+          }))
+        : [];
+
+    const allMetadata = [...rootMetadata];
+    nestedMetadata.forEach((nm) => {
+      const existingIndex = allMetadata.findIndex((rm) => rm.key === nm.key);
+      if (existingIndex > -1) {
+        allMetadata[existingIndex] = nm;
+      } else {
+        allMetadata.push(nm);
+      }
+    });
+
+    setMetadata(allMetadata);
+    setProduct({
+      code: productToEdit.code || '',
+      name: productToEdit.name || '',
+      price: productToEdit.price || '',
+      qty: productToEdit.qty || '',
+      category: productToEdit.category || '',
+    });
+  }, [productToEdit]);
 
   // Renderizado de metadatos genéricos
   const renderMetadataFields = () => {
