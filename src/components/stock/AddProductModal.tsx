@@ -174,7 +174,14 @@ export default function AddProductModal({
 
       return (
         <div key={i} style={{ marginTop: '0.5rem', width: '100%' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              width: '100%',
+              position: 'relative',
+            }}
+          >
             <input
               placeholder="Campo"
               value={m.key}
@@ -207,6 +214,7 @@ export default function AddProductModal({
                   }
                 }
               }}
+              onFocus={() => setActiveSuggestField({ index: i, type: 'value' })}
               style={{
                 flex: 1,
                 padding: '0.5rem',
@@ -216,6 +224,71 @@ export default function AddProductModal({
               }}
             />
           </div>
+
+          {/* Sugerencias de clave */}
+          {activeSuggestField?.index === i &&
+            activeSuggestField.type === 'key' &&
+            keySuggestions.length > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  zIndex: 100,
+                  maxHeight: '100px',
+                  overflowY: 'auto',
+                  width: '45%',
+                }}
+              >
+                {keySuggestions.map((s) => (
+                  <div
+                    key={s}
+                    onClick={() => {
+                      handleMetadataChange(i, 'key', s);
+                      setActiveSuggestField(null);
+                    }}
+                    style={{ padding: '0.5rem', cursor: 'pointer' }}
+                  >
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
+
+          {/* Sugerencias de valor */}
+          {activeSuggestField?.index === i &&
+            activeSuggestField.type === 'value' &&
+            valueSuggestions.length > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  zIndex: 100,
+                  maxHeight: '100px',
+                  overflowY: 'auto',
+                  width: '45%',
+                  right: 0,
+                }}
+              >
+                {valueSuggestions.map((s) => (
+                  <div
+                    key={s}
+                    onClick={() => {
+                      handleMetadataChange(
+                        i,
+                        'value',
+                        [...values, s].join(', ')
+                      );
+                      setActiveSuggestField(null);
+                    }}
+                    style={{ padding: '0.5rem', cursor: 'pointer' }}
+                  >
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
 
           {/* Tags debajo */}
           <div
