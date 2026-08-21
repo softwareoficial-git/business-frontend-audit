@@ -170,55 +170,21 @@ export default function AddProductModal({
     }
   );
 
-  useEffect(() => {
-    if (!productToEdit) return;
-
-    const baseFields = ['code', 'name', 'price', 'qty', 'category', 'metadata'];
-
-    const rootMetadata = Object.entries(productToEdit)
-      .filter(([key]) => !baseFields.includes(key))
-      .map(([key, value]) => ({
-        key,
-        value:
-          typeof value === 'object' ? JSON.stringify(value) : String(value),
-      }));
-
-    const nestedMetadata =
-      productToEdit.metadata && typeof productToEdit.metadata === 'object'
-        ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
-            key,
-            value:
-              typeof value === 'object' ? JSON.stringify(value) : String(value),
-          }))
-        : [];
-
-    const allMetadata = [...rootMetadata];
-    nestedMetadata.forEach((nm) => {
-      const existingIndex = allMetadata.findIndex((rm) => rm.key === nm.key);
-      if (existingIndex > -1) {
-        allMetadata[existingIndex] = nm;
-      } else {
-        allMetadata.push(nm);
-      }
-    });
-
-    setMetadata(allMetadata);
-    setProduct({
-      code: productToEdit.code || '',
-      name: productToEdit.name || '',
-      price: productToEdit.price || '',
-      qty: productToEdit.qty || '',
-      category: productToEdit.category || '',
-    });
-  }, [productToEdit]);
-
   // Renderizado de metadatos genéricos
   const renderMetadataFields = () => {
     return metadata.map((m, i) => {
-      // Usamos el registro global para los valores, ignorando la categoría actual
-      const valueSuggestions = Array.from(globalMetadataRegistry[m.key] || []);
+      // Normalizar la clave para la búsqueda en el registro
+      const normalizedKey = m.key.trim().toLowerCase();
+      // Buscar en el registro normalizando también las claves del registro
+      const keyFound = Object.keys(globalMetadataRegistry).find(
+        (k) => k.toLowerCase() === normalizedKey
+      );
+      const valueSuggestions = keyFound
+        ? Array.from(globalMetadataRegistry[keyFound] || [])
+        : [];
+
       const keySuggestions = allKnownKeys.filter((k) =>
-        k.toLowerCase().includes(m.key.toLowerCase())
+        k.toLowerCase().includes(normalizedKey)
       );
 
       const values = m.value
@@ -389,36 +355,6 @@ export default function AddProductModal({
               </span>
             ))}
           </div>
-
-          {/* Sugerencias de clave */}
-          {activeSuggestField?.index === i &&
-            activeSuggestField.type === 'key' &&
-            keySuggestions.length > 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  backgroundColor: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  zIndex: 100,
-                  maxHeight: '100px',
-                  overflowY: 'auto',
-                  width: '90%',
-                }}
-              >
-                {keySuggestions.map((s) => (
-                  <div
-                    key={s}
-                    onClick={() => {
-                      handleMetadataChange(i, 'key', s);
-                      setActiveSuggestField(null);
-                    }}
-                    style={{ padding: '0.5rem', cursor: 'pointer' }}
-                  >
-                    {s}
-                  </div>
-                ))}
-              </div>
-            )}
         </div>
       );
     });
@@ -477,7 +413,7 @@ export default function AddProductModal({
 
     const productPayload = {
       ...product,
-      ...metaObj,
+      metadata: metaObj, // Enviar como objeto anidado 'metadata'
       price: Number(product.price),
       qty: Number(product.qty),
     };
