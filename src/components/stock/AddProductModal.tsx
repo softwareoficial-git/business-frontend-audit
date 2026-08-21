@@ -202,7 +202,8 @@ export default function AddProductModal({
           <div
             style={{
               display: 'flex',
-              flexDirection: 'column', // Force vertical stacking
+              flexDirection: 'row',
+              flexWrap: 'wrap',
               gap: '0.5rem',
               width: '100%',
               position: 'relative',
@@ -224,7 +225,7 @@ export default function AddProductModal({
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
               style={{
-                width: '100%',
+                flex: '1 1 150px',
                 padding: '0.5rem',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
@@ -245,13 +246,20 @@ export default function AddProductModal({
                       [...values, val].join(', ')
                     );
                     e.currentTarget.value = '';
-                    e.currentTarget.blur();
                   }
+                  e.currentTarget.blur();
+                }
+              }}
+              onBlur={(e) => {
+                const val = e.currentTarget.value.trim();
+                if (val) {
+                  handleMetadataChange(i, 'value', [...values, val].join(', '));
+                  e.currentTarget.value = '';
                 }
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'value' })}
               style={{
-                width: '100%',
+                flex: '1 1 150px',
                 padding: '0.5rem',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
@@ -549,7 +557,8 @@ export default function AddProductModal({
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column', // Force vertical stacking
+            flexDirection: 'row',
+            flexWrap: 'wrap',
             gap: '0.5rem',
             width: '100%',
             boxSizing: 'border-box',
@@ -564,7 +573,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              width: '100%',
+              flex: '1 1 150px',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
@@ -580,7 +589,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              width: '100%',
+              flex: '1 1 150px',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
