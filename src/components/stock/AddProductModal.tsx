@@ -63,8 +63,12 @@ export default function AddProductModal({
 
   const filteredProducts = products.filter(
     (p) =>
-      p.name.toLowerCase().includes(product.category.toLowerCase()) ||
-      p.category.toLowerCase().includes(product.category.toLowerCase())
+      (p?.name || '')
+        .toLowerCase()
+        .includes((product.category || '').toLowerCase()) ||
+      (p?.category || '')
+        .toLowerCase()
+        .includes((product.category || '').toLowerCase())
   );
 
   const [learnedAttributes, setLearnedAttributes] = useState<
