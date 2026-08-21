@@ -12,9 +12,13 @@ export default function PublicStorePage({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(
-      `https://business-logic-v2-production.up.railway.app/api/public/store/${tenantId}/products`
-    )
+    // Determinamos si es un ID numérico o un nombre (slug)
+    const isId = /^\d+$/.test(tenantId);
+    const url = isId
+      ? `https://business-logic-v2-production.up.railway.app/api/public/store/${tenantId}/products`
+      : `https://business-logic-v2-production.up.railway.app/api/public/store/name/${tenantId}/products`;
+
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setStoreData(data);
