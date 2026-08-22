@@ -66,12 +66,26 @@ export const CartFloatingWidget = ({
     const formatItem = (item: any) => {
       const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
 
-      // Truncar título a 28 caracteres
-      let title = item.name;
-      if (title.length > MAX_WIDTH) {
-        title = title.substring(0, MAX_WIDTH - 3) + '...';
+      // 1. Título
+      let title =
+        item.name.length > MAX_WIDTH
+          ? item.name.substring(0, MAX_WIDTH - 3) + '...'
+          : item.name;
+
+      // 2. Metadatos
+      let metaLines = '';
+      if (item.metadata) {
+        metaLines = Object.entries(item.metadata)
+          .map(([k, v]) => {
+            const line = `${k}: ${v}`;
+            return line.length > MAX_WIDTH
+              ? line.substring(0, MAX_WIDTH - 3) + '...'
+              : line;
+          })
+          .join('%0a');
       }
 
+      // 3. Categoría y Precio
       const category = item.category
         ? item.category.split('/').pop()
         : 'Sin cat';
@@ -82,8 +96,9 @@ export const CartFloatingWidget = ({
       const padding = ' '.repeat(
         Math.max(0, MAX_WIDTH - leftLine.length - priceStr.length)
       );
+      const footerLine = `${leftLine}${padding}${priceStr}`;
 
-      return `${title}%0a${leftLine}${padding}${priceStr}`;
+      return `${title}${metaLines ? '%0a' + metaLines : ''}%0a${footerLine}`;
     };
 
     const ticket = items.map(formatItem).join('%0a');
