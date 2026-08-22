@@ -218,7 +218,7 @@ export default function Dock({
               }}
               style={menuButtonStyle}
             >
-              <Icon name="shop" style={menuIconStyle} />
+              <Icon name="store" style={menuIconStyle} />
               <span>Tienda</span>
             </button>
 

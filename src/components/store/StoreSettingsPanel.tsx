@@ -105,12 +105,20 @@ export const StoreSettingsPanel = () => {
   if (loading) return <div className="p-4">Cargando...</div>;
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem' }}>
+    <div
+      style={{
+        maxWidth: '800px',
+        margin: '0 auto',
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
+      }}
+    >
       {message && (
         <div
           style={{
             padding: '1rem',
-            marginBottom: '1rem',
             borderRadius: '8px',
             background: message.type === 'success' ? '#d4edda' : '#f8d7da',
             color: message.type === 'success' ? '#155724' : '#721c24',
@@ -120,146 +128,128 @@ export const StoreSettingsPanel = () => {
         </div>
       )}
 
-      {/* Estructura espejo de la tienda pública */}
-      <div
-        style={{
-          position: 'relative',
-          height: '200px',
-          borderRadius: '15px',
-          overflow: 'hidden',
-          cursor: 'pointer',
-        }}
-        onClick={() => bannerInputRef.current?.click()}
-      >
-        <img
-          src={settings.assets.banner_url || '/placeholder-banner.png'}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
+      {/* Cabecera: Banner y Logo */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div
           style={{
-            position: 'absolute',
-            bottom: '10px',
-            left: '10px',
-            background: 'rgba(0,0,0,0.5)',
-            color: 'white',
-            padding: '5px 10px',
-            borderRadius: '5px',
+            position: 'relative',
+            height: '200px',
+            borderRadius: '15px',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            backgroundColor: '#eee',
           }}
+          onClick={() => bannerInputRef.current?.click()}
         >
-          Editar Banner
+          <img
+            src={settings.assets.banner_url || '/placeholder-banner.png'}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '10px',
+              background: 'rgba(0,0,0,0.5)',
+              color: 'white',
+              padding: '5px 10px',
+              borderRadius: '5px',
+            }}
+          >
+            Editar Banner
+          </div>
+        </div>
+
+        <div
+          style={{
+            width: '100px',
+            height: '100px',
+            marginTop: '-60px',
+            marginLeft: '1.5rem',
+            cursor: 'pointer',
+            position: 'relative',
+            border: '4px solid var(--color-background)',
+            borderRadius: '50%',
+            overflow: 'hidden',
+          }}
+          onClick={() => logoInputRef.current?.click()}
+        >
+          <img
+            src={settings.assets.logo_url || '/placeholder-logo.png'}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              width: '100%',
+              height: '100%',
+              background: 'rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+            }}
+          >
+            Editar
+          </div>
         </div>
       </div>
 
+      {/* Formulario con Grid Adaptativo */}
       <div
-        style={{
-          position: 'relative',
-          width: '80px',
-          height: '80px',
-          marginTop: '-40px',
-          marginLeft: '2rem',
-          cursor: 'pointer',
-        }}
-        onClick={() => logoInputRef.current?.click()}
-      >
-        <img
-          src={settings.assets.logo_url || '/placeholder-logo.png'}
-          style={{
-            width: '100%',
-            height: '100%',
-            borderRadius: '50%',
-            border: '4px solid white',
-            objectFit: 'cover',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(0,0,0,0.3)',
-            borderRadius: '50%',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '10px',
-          }}
-        >
-          Editar
-        </div>
-      </div>
-
-      {/* Inputs invisibles */}
-      <input
-        type="file"
-        ref={logoInputRef}
-        onChange={(e) => handleFileChange(e, 'logo')}
-        style={{ display: 'none' }}
-      />
-      <input
-        type="file"
-        ref={bannerInputRef}
-        onChange={(e) => handleFileChange(e, 'banner')}
-        style={{ display: 'none' }}
-      />
-
-      {/* Formulario */}
-      <div
-        style={{
-          marginTop: '3rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-        }}
+        style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}
       >
         <div className="card" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Información Básica</h3>
-          <input
-            style={{
-              width: '100%',
-              padding: '0.8rem',
-              marginBottom: '1rem',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-            }}
-            value={settings.store_info.name}
-            onChange={(e) =>
-              setSettings({
-                ...settings,
-                store_info: { ...settings.store_info, name: e.target.value },
-              })
-            }
-            placeholder="Nombre de la tienda"
-          />
-          <textarea
-            style={{
-              width: '100%',
-              padding: '0.8rem',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-            }}
-            value={settings.store_info.description}
-            onChange={(e) =>
-              setSettings({
-                ...settings,
-                store_info: {
-                  ...settings.store_info,
-                  description: e.target.value,
-                },
-              })
-            }
-            placeholder="Descripción corta de la tienda"
-          />
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          >
+            <input
+              style={{
+                width: '100%',
+                padding: '0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+              }}
+              value={settings.store_info.name}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  store_info: { ...settings.store_info, name: e.target.value },
+                })
+              }
+              placeholder="Nombre de la tienda"
+            />
+            <textarea
+              style={{
+                width: '100%',
+                padding: '0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                minHeight: '100px',
+              }}
+              value={settings.store_info.description}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  store_info: {
+                    ...settings.store_info,
+                    description: e.target.value,
+                  },
+                })
+              }
+              placeholder="Descripción corta de la tienda"
+            />
+          </div>
         </div>
 
         <div className="card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ marginBottom: '1rem' }}>Contacto y Redes</h3>
+          <h3 style={{ marginBottom: '1rem' }}>Contacto</h3>
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
               gap: '1rem',
             }}
           >
@@ -279,7 +269,7 @@ export const StoreSettingsPanel = () => {
                   },
                 })
               }
-              placeholder="WhatsApp: +5491123456789 (con código de país)"
+              placeholder="WhatsApp: +5491123456789"
             />
             <input
               style={{
@@ -304,7 +294,7 @@ export const StoreSettingsPanel = () => {
 
         <button
           className="btn-primary"
-          style={{ padding: '1rem', cursor: 'pointer' }}
+          style={{ padding: '1rem', cursor: 'pointer', fontWeight: 'bold' }}
           onClick={handleSave}
           disabled={saving}
         >
