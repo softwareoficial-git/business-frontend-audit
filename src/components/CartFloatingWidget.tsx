@@ -64,6 +64,12 @@ export const CartFloatingWidget = ({
     const MAX_WIDTH = 28;
 
     const formatItem = (item: any) => {
+      console.log(
+        'Formateando producto:',
+        item.name,
+        'Metadata:',
+        item.metadata
+      );
       const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
 
       // 1. Título (Negrita)
@@ -73,27 +79,41 @@ export const CartFloatingWidget = ({
           : item.name;
       title = `*${title}*`;
 
-      // 2. Metadatos (SIN Negrita, clave: valor)
+      // 2. Metadatos (SIN Negrita, clave: valor, omitir vacíos)
       let metaLines = '';
-      if (item.metadata) {
-        metaLines = Object.entries(item.metadata)
-          .map(([k, v]) => {
-            const line = `${k}: ${v}`;
-            return line.length > MAX_WIDTH
-              ? line.substring(0, MAX_WIDTH - 3) + '...'
-              : line;
-          })
-          .join('%0a');
+      let metadataObj = item.metadata;
+
+      // Intentar parsear si es cadena
+      if (typeof metadataObj === 'string') {
+        try {
+          metadataObj = JSON.parse(metadataObj.replace(/'/g, '"'));
+        } catch (e) {
+          metadataObj = null;
+        }
       }
 
+      if (metadataObj && typeof metadataObj === 'object') {
+        const filteredMeta = Object.entries(metadataObj).filter(
+          ([_, v]) =>
+            v !== null && v !== undefined && v.toString().trim() !== ''
+        );
+
+        if (filteredMeta.length > 0) {
+          metaLines = filteredMeta.map(([k, v]) => `${k}: ${v}`).join('%0a');
+        }
+      }
       // 3. Categoría y Precio (Negrita)
       const category = item.category
         ? item.category.split('/').pop()
         : 'Sin cat';
-      const leftLine = `(x${item.qty}) ${category}`.substring(
-        0,
-        MAX_WIDTH - priceStr.length
-      );
+      const leftPart = `(x${item.qty}) ${category}`;
+      const availableSpace = MAX_WIDTH - priceStr.length;
+
+      const leftLine =
+        leftPart.length > availableSpace
+          ? leftPart.substring(0, availableSpace - 3) + '...'
+          : leftPart;
+
       const padding = ' '.repeat(
         Math.max(0, MAX_WIDTH - leftLine.length - priceStr.length)
       );
@@ -104,6 +124,8 @@ export const CartFloatingWidget = ({
     };
 
     const ticket = items.map(formatItem).join('%0a');
+    // ...
+
     const totalLabel = 'Total:';
     const totalVal = `$${total.toFixed(2)}`;
     const totalLine = `${totalLabel}${' '.repeat(MAX_WIDTH - totalLabel.length - totalVal.length)}${totalVal}`;
