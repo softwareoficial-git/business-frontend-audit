@@ -178,10 +178,14 @@ function PublicStoreContent({
     return products.filter((p: any) => {
       const inName = p.name?.toLowerCase().includes(term);
       const inCategory = p.category?.toLowerCase().includes(term);
-      const metaValues = Object.values(p.metadata || {})
-        .join(' ')
-        .toLowerCase();
-      const inMetadata = metaValues.includes(term);
+
+      // Búsqueda robusta en metadatos (llaves y valores)
+      const inMetadata = Object.entries(p.metadata || {}).some(
+        ([k, v]) =>
+          k.toLowerCase().includes(term) ||
+          String(v).toLowerCase().includes(term)
+      );
+
       return inName || inCategory || inMetadata;
     });
   }, [products, searchTerm]);
