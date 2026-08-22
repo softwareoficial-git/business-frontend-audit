@@ -15,16 +15,34 @@ function PublicStoreContent({
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState<{
-    key: 'category' | 'metadata';
-    value: string;
-  } | null>(null);
+  const [activeFilters, setActiveFilters] = useState<
+    {
+      key: 'category' | 'metadata';
+      value: string;
+    }[]
+  >([]);
   const [viewMode, setViewMode] = useState<'large' | 'compact'>('large');
   const [expandedProducts, setExpandedProducts] = useState<
     Record<string, boolean>
   >({});
 
   const [products, setProducts] = useState<any[]>([]);
+
+  const toggleFilter = (filter: {
+    key: 'category' | 'metadata';
+    value: string;
+  }) => {
+    setActiveFilters((prev) => {
+      const exists = prev.find(
+        (f) => f.key === filter.key && f.value === filter.value
+      );
+      if (exists)
+        return prev.filter(
+          (f) => !(f.key === filter.key && f.value === filter.value)
+        );
+      return [...prev, filter];
+    });
+  };
 
   const availableFilters = useMemo(() => {
     if (!products)
@@ -72,14 +90,19 @@ function PublicStoreContent({
     let productsUrl = `${baseUrl}/name/${tenantId}/products`;
     const queryParams = new URLSearchParams();
 
-    if (activeFilter) {
-      if (activeFilter.key === 'category') {
-        queryParams.append('category', activeFilter.value);
-      } else if (activeFilter.key === 'metadata') {
-        const [metaKey, metaValue] = activeFilter.value.split(':');
-        queryParams.append(`metadata.${metaKey}`, metaValue);
-      }
-    }
+    // Agrupar filtros para enviarlos como arrays a la API
+    const groupedFilters: Record<string, string[]> = {};
+    activeFilters.forEach((f) => {
+      const paramKey =
+        f.key === 'category' ? 'category' : `metadata.${f.value.split(':')[0]}`;
+      const paramVal = f.key === 'category' ? f.value : f.value.split(':')[1];
+      if (!groupedFilters[paramKey]) groupedFilters[paramKey] = [];
+      groupedFilters[paramKey].push(paramVal);
+    });
+
+    Object.entries(groupedFilters).forEach(([key, values]) => {
+      values.forEach((v) => queryParams.append(key, v));
+    });
 
     if (queryParams.toString()) {
       productsUrl += `?${queryParams.toString()}`;
@@ -107,7 +130,7 @@ function PublicStoreContent({
         console.error('Error cargando la tienda:', err);
         setLoading(false);
       });
-  }, [tenantId, activeFilter]);
+  }, [tenantId, activeFilters]);
 
   const filteredProducts = useMemo(() => {
     if (!products) return [];
@@ -212,9 +235,10 @@ function PublicStoreContent({
         />
 
         <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-          {activeFilter && (
+          {activeFilters.map((f) => (
             <button
-              onClick={() => setActiveFilter(null)}
+              key={`${f.key}:${f.value}`}
+              onClick={() => toggleFilter(f)}
               style={{
                 padding: '0.3rem 0.6rem',
                 borderRadius: '10px',
@@ -222,13 +246,13 @@ function PublicStoreContent({
                 color: 'white',
               }}
             >
-              {activeFilter.value.split(':').pop()} ✕
+              {f.value.split(':').pop()} ✕
             </button>
-          )}
+          ))}
           {availableFilters.categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveFilter({ key: 'category', value: cat })}
+              onClick={() => toggleFilter({ key: 'category', value: cat })}
               style={{
                 padding: '0.3rem 0.6rem',
                 borderRadius: '10px',
@@ -243,7 +267,7 @@ function PublicStoreContent({
               <button
                 key={`${k}:${v}`}
                 onClick={() =>
-                  setActiveFilter({ key: 'metadata', value: `${k}:${v}` })
+                  toggleFilter({ key: 'metadata', value: `${k}:${v}` })
                 }
                 style={{
                   padding: '0.3rem 0.6rem',
@@ -300,10 +324,38 @@ function PublicStoreContent({
               />
               <h3>{product.name}</h3>
               <p>${product.price}</p>
+              {product.qty > 0 && (
+                <button
+                  style={{
+                    width: '100%',
+                    padding: '0.3rem',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md)',
+                    marginTop: '0.5rem',
+                    cursor: 'pointer',
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart({
+                      code: product.id,
+                      name: product.name,
+                      price: product.price,
+                      qty: product.qty,
+                    });
+                  }}
+                >
+                  Agregar
+                </button>
+              )}
             </div>
           ))}
         </div>
       </div>
+      <CartFloatingWidget
+        phoneNumber={storeData.settings?.store_info?.whatsapp || ''}
+      />
     </main>
   );
 }
