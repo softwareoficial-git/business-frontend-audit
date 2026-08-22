@@ -15,7 +15,7 @@ function PublicStoreContent({
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'grid-2' | 'grid-4'>('grid-2');
+  const [viewMode, setViewMode] = useState<'large' | 'compact'>('large');
   const [expandedProducts, setExpandedProducts] = useState<
     Record<string, boolean>
   >({});
@@ -200,7 +200,7 @@ function PublicStoreContent({
         />
         <button
           onClick={() =>
-            setViewMode((prev) => (prev === 'grid-2' ? 'grid-4' : 'grid-2'))
+            setViewMode((prev) => (prev === 'large' ? 'compact' : 'large'))
           }
           style={{
             padding: '0.5rem',
@@ -215,7 +215,7 @@ function PublicStoreContent({
             height: '40px',
           }}
         >
-          {viewMode === 'grid-2' ? (
+          {viewMode === 'large' ? (
             <svg
               width="20"
               height="20"
@@ -249,11 +249,13 @@ function PublicStoreContent({
         style={{
           display: 'grid',
           gridTemplateColumns:
-            viewMode === 'grid-2'
-              ? 'repeat(auto-fill, minmax(150px, 1fr))'
-              : 'repeat(auto-fill, minmax(100px, 1fr))',
-          gap: '10px',
+            viewMode === 'large'
+              ? 'repeat(auto-fit, minmax(180px, 1fr))'
+              : 'repeat(auto-fit, minmax(120px, 1fr))',
+          gap: '16px',
           padding: '0 10px',
+          maxWidth: '1200px',
+          margin: '0 auto',
         }}
       >
         {filteredProducts.length === 0 ? (
@@ -290,27 +292,31 @@ function PublicStoreContent({
                 alt={product.name}
                 style={{
                   width: '100%',
-                  height: '150px',
+                  height: viewMode === 'large' ? '150px' : '90px',
                   objectFit: 'cover',
                   borderRadius: 'var(--radius-md)',
-                  marginBottom: '1rem',
+                  marginBottom: '0.5rem',
                   filter: product.qty <= 0 ? 'grayscale(1)' : 'none',
                 }}
               />
               <div style={{ opacity: product.qty <= 0 ? 0.5 : 1 }}>
-                <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
-                <p
-                  style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}
-                >
-                  ${product.price}
-                </p>
-                <p
+                <h3
                   style={{
-                    fontSize: '0.9rem',
-                    color: 'var(--color-text-muted)',
+                    margin: '0 0 0.2rem 0',
+                    fontSize: viewMode === 'large' ? '1rem' : '0.85rem',
                   }}
                 >
-                  Stock: {product.qty}
+                  {product.name}
+                </h3>
+                <p
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'var(--color-primary)',
+                    margin: 0,
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  ${product.price}
                 </p>
               </div>
 
@@ -318,13 +324,14 @@ function PublicStoreContent({
                 <button
                   style={{
                     width: '100%',
-                    padding: '0.5rem',
+                    padding: '0.3rem',
                     backgroundColor: 'var(--color-primary)',
                     color: 'white',
                     border: 'none',
                     borderRadius: 'var(--radius-md)',
                     marginTop: '0.5rem',
                     cursor: 'pointer',
+                    fontSize: '0.8rem',
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -336,7 +343,7 @@ function PublicStoreContent({
                     });
                   }}
                 >
-                  Agregar
+                  {viewMode === 'large' ? 'Agregar' : '+'}
                 </button>
               )}
 
