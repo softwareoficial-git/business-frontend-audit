@@ -73,12 +73,12 @@ export const CartFloatingWidget = ({
           : item.name;
       title = `*${title}*`;
 
-      // 2. Metadatos (Negrita y clave: valor)
+      // 2. Metadatos (SIN Negrita, clave: valor)
       let metaLines = '';
       if (item.metadata) {
         metaLines = Object.entries(item.metadata)
           .map(([k, v]) => {
-            const line = `*${k}: ${v}*`;
+            const line = `${k}: ${v}`;
             return line.length > MAX_WIDTH
               ? line.substring(0, MAX_WIDTH - 3) + '...'
               : line;
@@ -97,6 +97,7 @@ export const CartFloatingWidget = ({
       const padding = ' '.repeat(
         Math.max(0, MAX_WIDTH - leftLine.length - priceStr.length)
       );
+
       const footerLine = `*${leftLine}${padding}${priceStr}*`;
 
       return `${title}${metaLines ? '%0a' + metaLines : ''}%0a${footerLine}`;
