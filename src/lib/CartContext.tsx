@@ -15,6 +15,7 @@ type CartItem = {
   qty: number; // Cantidad seleccionada
   stock: number; // Stock disponible
   category?: string;
+  metadata?: any;
 };
 
 type CartContextType = {
@@ -72,6 +73,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           qty: 1,
           stock: product.qty,
           category: product.category,
+          metadata: product.metadata,
         },
       ];
     });

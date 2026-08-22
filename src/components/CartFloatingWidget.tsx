@@ -66,18 +66,19 @@ export const CartFloatingWidget = ({
     const formatItem = (item: any) => {
       const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
 
-      // 1. Título
+      // 1. Título (Negrita)
       let title =
         item.name.length > MAX_WIDTH
           ? item.name.substring(0, MAX_WIDTH - 3) + '...'
           : item.name;
+      title = `*${title}*`;
 
-      // 2. Metadatos
+      // 2. Metadatos (Negrita y clave: valor)
       let metaLines = '';
       if (item.metadata) {
         metaLines = Object.entries(item.metadata)
           .map(([k, v]) => {
-            const line = `${k}: ${v}`;
+            const line = `*${k}: ${v}*`;
             return line.length > MAX_WIDTH
               ? line.substring(0, MAX_WIDTH - 3) + '...'
               : line;
@@ -85,7 +86,7 @@ export const CartFloatingWidget = ({
           .join('%0a');
       }
 
-      // 3. Categoría y Precio
+      // 3. Categoría y Precio (Negrita)
       const category = item.category
         ? item.category.split('/').pop()
         : 'Sin cat';
@@ -96,7 +97,7 @@ export const CartFloatingWidget = ({
       const padding = ' '.repeat(
         Math.max(0, MAX_WIDTH - leftLine.length - priceStr.length)
       );
-      const footerLine = `${leftLine}${padding}${priceStr}`;
+      const footerLine = `*${leftLine}${padding}${priceStr}*`;
 
       return `${title}${metaLines ? '%0a' + metaLines : ''}%0a${footerLine}`;
     };
