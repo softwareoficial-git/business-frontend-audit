@@ -5,6 +5,7 @@ import { TourProvider } from '../components/tour/TourProvider';
 import TourUI from '../components/tour/TourUI';
 import { LoadingProvider } from '../components/loading/LoadingProvider';
 import VersionChecker from '../components/VersionChecker';
+import { CartProvider } from '../lib/CartContext';
 
 export const metadata = {
   title: 'Software Oficial | CRM y Gestión Empresarial de Alto Rendimiento',
@@ -77,7 +78,7 @@ export default function RootLayout({
               <TourUI />
               <LoadingProvider>
                 <VersionChecker />
-                {children}
+                <CartProvider>{children}</CartProvider>
               </LoadingProvider>
             </TourProvider>
           </ToastProvider>

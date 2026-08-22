@@ -2,7 +2,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { ImageWithFallback } from '../../components/ImageWithFallback';
 import Icon from '../../components/Icon';
-import { CartProvider } from '../../lib/CartContext';
+import { CartProvider, useCart } from '../../lib/CartContext';
+import { CartFloatingWidget } from '../../components/CartFloatingWidget';
 
 function PublicStoreContent({
   params,
@@ -232,11 +233,16 @@ function PublicStoreContent({
               />
               <div style={{ opacity: product.qty <= 0 ? 0.5 : 1 }}>
                 <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
-                <p style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                <p
+                  style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}
+                >
                   ${product.price}
                 </p>
                 <p
-                  style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
+                  style={{
+                    fontSize: '0.9rem',
+                    color: 'var(--color-text-muted)',
+                  }}
                 >
                   Stock: {product.qty}
                 </p>
@@ -252,11 +258,16 @@ function PublicStoreContent({
                     border: 'none',
                     borderRadius: 'var(--radius-md)',
                     marginTop: '0.5rem',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    addToCart({ code: product.id, name: product.name, price: product.price, qty: product.qty });
+                    addToCart({
+                      code: product.id,
+                      name: product.name,
+                      price: product.price,
+                      qty: product.qty,
+                    });
                   }}
                 >
                   Agregar
@@ -286,7 +297,9 @@ function PublicStoreContent({
           ))
         )}
       </div>
-      <CartFloatingWidget phoneNumber={storeData.settings?.store_info?.whatsapp || ''} />
+      <CartFloatingWidget
+        phoneNumber={storeData.settings?.store_info?.whatsapp || ''}
+      />
     </main>
   );
 }
@@ -302,4 +315,3 @@ export default function PublicStorePage({
     </CartProvider>
   );
 }
-
