@@ -43,7 +43,7 @@ function PublicStoreContent({
       return [...prev, filter];
     });
   };
-
+  // Extraer categorías y etiquetas de metadata únicas (necesario para la UI)
   const availableFilters = useMemo(() => {
     if (!products)
       return {
@@ -55,11 +55,34 @@ function PublicStoreContent({
     const metadataTags: Record<string, Set<string>> = {};
 
     products.forEach((p: any) => {
-      if (p.category) categories.add(p.category);
+      // Solo añadir si no está ya seleccionado
+      if (
+        p.category &&
+        !activeFilters.some(
+          (f) => f.key === 'category' && f.value === p.category
+        )
+      ) {
+        categories.add(p.category);
+      }
       if (p.metadata) {
         Object.entries(p.metadata).forEach(([key, value]) => {
+          // Separar valores complejos por coma
+          const rawValues = String(value)
+            .split(',')
+            .map((v) => v.trim());
+
           if (!metadataTags[key]) metadataTags[key] = new Set();
-          metadataTags[key].add(String(value));
+
+          rawValues.forEach((v) => {
+            if (
+              v &&
+              !activeFilters.some(
+                (f) => f.key === 'metadata' && f.value === `${key}:${v}`
+              )
+            ) {
+              metadataTags[key].add(v);
+            }
+          });
         });
       }
     });
@@ -70,7 +93,7 @@ function PublicStoreContent({
         Object.entries(metadataTags).map(([k, v]) => [k, Array.from(v)])
       ),
     };
-  }, [products]);
+  }, [products, activeFilters]);
 
   const toggleExpand = (productId: string) => {
     setExpandedProducts((prev) => ({ ...prev, [productId]: !prev[productId] }));
