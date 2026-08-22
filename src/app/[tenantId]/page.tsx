@@ -75,30 +75,32 @@ function PublicStoreContent({
       }
     });
 
-    // Metadata solo de los productos filtrados por las categorías activas
-    filteredByCat.forEach((p: any) => {
-      if (p.metadata) {
-        Object.entries(p.metadata).forEach(([key, value]) => {
-          // Separar valores complejos por coma
-          const rawValues = String(value)
-            .split(',')
-            .map((v) => v.trim());
+    // Metadata solo disponible SI hay al menos una categoría seleccionada
+    if (activeCategories.length > 0) {
+      filteredByCat.forEach((p: any) => {
+        if (p.metadata) {
+          Object.entries(p.metadata).forEach(([key, value]) => {
+            // Separar valores complejos por coma
+            const rawValues = String(value)
+              .split(',')
+              .map((v) => v.trim());
 
-          if (!metadataTags[key]) metadataTags[key] = new Set();
+            if (!metadataTags[key]) metadataTags[key] = new Set();
 
-          rawValues.forEach((v) => {
-            if (
-              v &&
-              !activeFilters.some(
-                (f) => f.key === 'metadata' && f.value === `${key}:${v}`
-              )
-            ) {
-              metadataTags[key].add(v);
-            }
+            rawValues.forEach((v) => {
+              if (
+                v &&
+                !activeFilters.some(
+                  (f) => f.key === 'metadata' && f.value === `${key}:${v}`
+                )
+              ) {
+                metadataTags[key].add(v);
+              }
+            });
           });
-        });
-      }
-    });
+        }
+      });
+    }
 
     return {
       categories: Array.from(categories),
