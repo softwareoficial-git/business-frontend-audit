@@ -175,8 +175,6 @@ export const CartFloatingWidget = ({
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
           >
-            // ... inside the Checkout (view === 'checkout') part of the render
-            logic
             <div
               style={{
                 backgroundColor: '#DCF8C6',
