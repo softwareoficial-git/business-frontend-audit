@@ -57,53 +57,50 @@ export const CartFloatingWidget = ({
 
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
+  if (items.length === 0) return null;
+
   const generateWhatsAppLink = () => {
     const phone = phoneNumber.replace(/[^0-9]/g, '');
     const ticket = items
       .map((i) => `* ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}`)
       .join('%0a');
-    const message = `*Nuevo Pedido*%0a%0a${ticket}%0a%0aTotal: $${total.toFixed(
-      2
-    )}%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${
-      shippingOption === 'envio' ? 'Sí' : 'No'
-    }`;
+    const message = `*Nuevo Pedido*%0a%0a${ticket}%0a%0aTotal: $${total.toFixed(2)}%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
     return `https://wa.me/${phone}?text=${message}`;
   };
-
-  if (items.length === 0) return null;
 
   return (
     <div
       style={{
         position: 'fixed',
-        bottom: '0',
-        left: '0',
-        right: '0',
-        backgroundColor: 'var(--color-surface)',
-        borderTop: '1px solid var(--color-border)',
-        boxShadow: '0 -4px 12px rgba(0,0,0,0.15)',
+        bottom: '20px',
+        right: '20px',
         zIndex: 1000,
+        width: '90%',
+        maxWidth: '400px',
+        backgroundColor: 'var(--color-surface)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+        border: '1px solid var(--color-border)',
         transition: 'transform 0.3s ease-out',
         transform: isExpanded
           ? 'translateY(0)'
           : 'translateY(calc(100% - 60px))',
-        height: '80vh',
-        borderTopLeftRadius: '15px',
-        borderTopRightRadius: '15px',
-        padding: '0 1rem',
+        maxHeight: '80vh',
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
-      {/* Barra de control (ASA) */}
+      {/* Barra de control */}
       <div
         style={{
           height: '60px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          padding: '0 1rem',
           cursor: 'pointer',
-          flexShrink: 0,
+          backgroundColor: 'var(--color-background)',
         }}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -114,8 +111,8 @@ export const CartFloatingWidget = ({
         <HandleIcon expanded={isExpanded} />
       </div>
 
-      {/* Contenido expandido */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
+      {/* Contenido */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
         {view === 'cart' ? (
           <>
             {items.map((item) => (
@@ -171,18 +168,33 @@ export const CartFloatingWidget = ({
                 fontWeight: 'bold',
               }}
             >
-              Ir a Finalizar ($ {total.toFixed(2)})
+              Finalizar Compra ($ {total.toFixed(2)})
             </button>
           </>
         ) : (
           <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-              marginTop: '1rem',
-            }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
           >
+            // ... inside the Checkout (view === 'checkout') part of the render
+            logic
+            <div
+              style={{
+                backgroundColor: '#DCF8C6',
+                padding: '1rem',
+                borderRadius: '10px',
+                fontSize: '0.85rem',
+                marginBottom: '1rem',
+                whiteSpace: 'pre-line',
+                color: '#333',
+                fontFamily: 'monospace',
+              }}
+            >
+              {generateWhatsAppLink()
+                .split('text=')[1]
+                .replace(/%0a/g, '\n')
+                .replace(/\*/g, '')
+                .replace(/%20/g, ' ')}
+            </div>
             <select
               value={paymentMethod || ''}
               onChange={(e) => setPaymentMethod(e.target.value as any)}
@@ -226,7 +238,7 @@ export const CartFloatingWidget = ({
                 borderRadius: 'var(--radius-md)',
               }}
             >
-              Volver al carrito
+              Volver
             </button>
           </div>
         )}
