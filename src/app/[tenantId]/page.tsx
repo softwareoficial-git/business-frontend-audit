@@ -51,11 +51,20 @@ function PublicStoreContent({
         metadataTags: {} as Record<string, Set<string>>,
       };
 
+    // 1. Filtrar productos por categorías seleccionadas previamente
+    const activeCategories = activeFilters
+      .filter((f) => f.key === 'category')
+      .map((f) => f.value);
+    const filteredByCat =
+      activeCategories.length > 0
+        ? products.filter((p) => activeCategories.includes(p.category))
+        : products;
+
     const categories = new Set<string>();
     const metadataTags: Record<string, Set<string>> = {};
 
     products.forEach((p: any) => {
-      // Solo añadir si no está ya seleccionado
+      // Categorías principales siempre disponibles
       if (
         p.category &&
         !activeFilters.some(
@@ -64,6 +73,10 @@ function PublicStoreContent({
       ) {
         categories.add(p.category);
       }
+    });
+
+    // Metadata solo de los productos filtrados por las categorías activas
+    filteredByCat.forEach((p: any) => {
       if (p.metadata) {
         Object.entries(p.metadata).forEach(([key, value]) => {
           // Separar valores complejos por coma
@@ -251,11 +264,70 @@ function PublicStoreContent({
       >
         <input
           type="text"
-          placeholder="Buscar productos..."
+          placeholder="Buscar productos o etiquetas..."
           className="card"
           style={{ padding: '0.8rem', borderRadius: 'var(--radius-md)' }}
           onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchTerm}
         />
+
+        {/* Sugerencias horizontales */}
+        {searchTerm.length >= 2 && (
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              overflowX: 'auto',
+              paddingBottom: '0.5rem',
+            }}
+          >
+            {availableFilters.categories
+              .filter((c) => c.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((c) => (
+                <button
+                  key={c}
+                  onClick={() => {
+                    toggleFilter({ key: 'category', value: c });
+                    setSearchTerm('');
+                  }}
+                  style={{
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '15px',
+                    background: 'var(--color-secondary)',
+                    color: 'white',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {c.split('/').pop()}
+                </button>
+              ))}
+            {Object.entries(availableFilters.metadataTags).flatMap(
+              ([k, vals]) =>
+                vals
+                  .filter((v) =>
+                    v.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((v) => (
+                    <button
+                      key={`${k}:${v}`}
+                      onClick={() => {
+                        toggleFilter({ key: 'metadata', value: `${k}:${v}` });
+                        setSearchTerm('');
+                      }}
+                      style={{
+                        padding: '0.3rem 0.6rem',
+                        borderRadius: '15px',
+                        background: 'var(--color-secondary)',
+                        color: 'white',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {v}
+                    </button>
+                  ))
+            )}
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
           {activeFilters.map((f) => (
@@ -272,6 +344,7 @@ function PublicStoreContent({
               {f.value.split(':').pop()} ✕
             </button>
           ))}
+          {/* ... [Botones de categorías] */}
           {availableFilters.categories.map((cat) => (
             <button
               key={cat}
