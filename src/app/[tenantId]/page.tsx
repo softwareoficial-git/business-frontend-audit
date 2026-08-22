@@ -24,10 +24,8 @@ function PublicStoreContent({
     Record<string, boolean>
   >({});
 
-  // Lista de productos filtrados por la API
   const [products, setProducts] = useState<any[]>([]);
 
-  // Extraer categorías y etiquetas de metadata únicas (necesario para la UI)
   const availableFilters = useMemo(() => {
     if (!products)
       return {
@@ -64,7 +62,6 @@ function PublicStoreContent({
     params.then((p) => setTenantId(p.tenantId));
   }, [params]);
 
-  // Efecto para cargar productos cuando cambia el filtro o el tenant
   useEffect(() => {
     if (!tenantId) return;
 
@@ -72,7 +69,6 @@ function PublicStoreContent({
     const baseUrl =
       'https://business-logic-v2-production.up.railway.app/api/public/store';
 
-    // Construir la URL con filtros si existen
     let productsUrl = `${baseUrl}/name/${tenantId}/products`;
     const queryParams = new URLSearchParams();
 
@@ -96,12 +92,10 @@ function PublicStoreContent({
       fetch(productsUrl).then((res) => res.json()),
     ])
       .then(([details, productsResponse]) => {
-        // Asumimos que la API devuelve los productos en 'data'
         setProducts(productsResponse.data || []);
-
         if (!storeData) {
           setStoreData({
-            success: true, // Asegurar que la validación pase
+            success: true,
             settings: details.settings,
             store_info: details.store_info,
             tenantName: details.tenantName || productsResponse.tenantName,
@@ -115,7 +109,6 @@ function PublicStoreContent({
       });
   }, [tenantId, activeFilter]);
 
-  // Lógica de búsqueda (ahora solo sobre los productos ya filtrados por la API)
   const filteredProducts = useMemo(() => {
     if (!products) return [];
     const term = searchTerm.toLowerCase();
@@ -128,12 +121,11 @@ function PublicStoreContent({
         .join(' ')
         .toLowerCase();
       const inMetadata = metaValues.includes(term);
-
       return inName || inCategory || inMetadata;
     });
   }, [products, searchTerm]);
 
-  if (loading)
+  if (loading && !products.length)
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
         Cargando tienda...
@@ -201,47 +193,8 @@ function PublicStoreContent({
             {storeData.settings.store_info.description}
           </p>
         )}
-
-        {/* Sección de Contacto */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '1.5rem',
-            flexWrap: 'wrap',
-            marginBottom: '2rem',
-          }}
-        >
-          {storeData.settings?.store_info?.whatsapp && (
-            <a
-              href={`https://wa.me/${storeData.settings.store_info.whatsapp.replace(/[^0-9]/g, '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                textDecoration: 'none',
-                color: '#25D366',
-              }}
-            >
-              <Icon
-                name="whatsapp"
-                style={{ width: '20px', height: '20px', color: '#25D366' }}
-              />
-              {storeData.settings.store_info.whatsapp}
-            </a>
-          )}
-
-          {storeData.settings?.store_info?.address && (
-            <div
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <span>📍</span> {storeData.settings.store_info.address}
-            </div>
-          )}
-        </div>
       </div>
-      {/* Buscador y Selector de Vista */}
+
       <div
         style={{
           padding: '1rem',
@@ -250,69 +203,14 @@ function PublicStoreContent({
           flexDirection: 'column',
         }}
       >
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            className="card"
-            style={{
-              flex: 1,
-              padding: '0.8rem',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-            }}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setActiveFilter(null); // Reset filtro si busca
-            }}
-          />
-          <button
-            onClick={() =>
-              setViewMode((prev) => (prev === 'large' ? 'compact' : 'large'))
-            }
-            style={{
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              backgroundColor: 'var(--color-background)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-            }}
-          >
-            {viewMode === 'large' ? (
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="3" width="7" height="7" />
-                <rect x="14" y="3" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" />
-                <rect x="14" y="14" width="7" height="7" />
-              </svg>
-            ) : (
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="3" width="18" height="18" />
-              </svg>
-            )}
-          </button>
-        </div>
+        <input
+          type="text"
+          placeholder="Buscar productos..."
+          className="card"
+          style={{ padding: '0.8rem', borderRadius: 'var(--radius-md)' }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
-        {/* Botones de Filtros */}
         <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
           {activeFilter && (
             <button
@@ -320,11 +218,8 @@ function PublicStoreContent({
               style={{
                 padding: '0.3rem 0.6rem',
                 borderRadius: '10px',
-                border: '1px solid var(--color-primary)',
                 background: 'var(--color-primary)',
                 color: 'white',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
               }}
             >
               {activeFilter.value.split(':').pop()} ✕
@@ -338,12 +233,6 @@ function PublicStoreContent({
                 padding: '0.3rem 0.6rem',
                 borderRadius: '10px',
                 border: '1px solid var(--color-border)',
-                background:
-                  activeFilter?.value === cat
-                    ? 'var(--color-primary-light)'
-                    : 'var(--color-background)',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
               }}
             >
               {cat.split('/').pop()}
@@ -360,12 +249,6 @@ function PublicStoreContent({
                   padding: '0.3rem 0.6rem',
                   borderRadius: '10px',
                   border: '1px solid var(--color-border)',
-                  background:
-                    activeFilter?.value === `${k}:${v}`
-                      ? 'var(--color-primary-light)'
-                      : 'var(--color-background)',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
                 }}
               >
                 {v}
@@ -375,134 +258,52 @@ function PublicStoreContent({
         </div>
       </div>
 
-      {/* Productos */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns:
-            viewMode === 'large'
-              ? 'repeat(auto-fit, minmax(200px, 1fr))'
-              : 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: '24px',
-          padding: '0 20px',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          marginBottom: '80px',
-        }}
-      >
-        {filteredProducts.length === 0 ? (
+      <div style={{ position: 'relative' }}>
+        {loading && (
           <div
-            className="card"
             style={{
-              textAlign: 'center',
-              padding: '2rem',
-              gridColumn: '1 / -1',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(255,255,255,0.5)',
+              zIndex: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <p>¡Aún no hay productos en esta tienda!</p>
+            Cargando...
           </div>
-        ) : (
-          filteredProducts.map((product: any) => (
+        )}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '24px',
+            padding: '0 20px',
+            opacity: loading ? 0.5 : 1,
+          }}
+        >
+          {filteredProducts.map((product: any) => (
             <div
               key={product.id}
               className="card"
-              style={{
-                cursor: 'pointer',
-                position: 'relative',
-                padding: '1rem',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                boxSizing: 'border-box',
-              }}
+              style={{ padding: '1rem', cursor: 'pointer' }}
               onClick={() => toggleExpand(product.id)}
             >
               <ImageWithFallback
                 src={product.image_url}
                 alt={product.name}
-                style={{
-                  width: '100%',
-                  height: viewMode === 'large' ? '150px' : '90px',
-                  objectFit: 'cover',
-                  borderRadius: 'var(--radius-md)',
-                  marginBottom: '0.5rem',
-                  filter: product.qty <= 0 ? 'grayscale(1)' : 'none',
-                }}
+                style={{ width: '100%', height: '150px', objectFit: 'cover' }}
               />
-              <div style={{ opacity: product.qty <= 0 ? 0.5 : 1 }}>
-                <h3
-                  style={{
-                    margin: '0 0 0.2rem 0',
-                    fontSize: viewMode === 'large' ? '1rem' : '0.85rem',
-                  }}
-                >
-                  {product.name}
-                </h3>
-                <p
-                  style={{
-                    fontWeight: 'bold',
-                    color: 'var(--color-primary)',
-                    margin: 0,
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  ${product.price}
-                </p>
-              </div>
-
-              {product.qty > 0 && (
-                <button
-                  style={{
-                    width: '100%',
-                    padding: '0.3rem',
-                    backgroundColor: 'var(--color-primary)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 'var(--radius-md)',
-                    marginTop: '0.5rem',
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart({
-                      code: product.id,
-                      name: product.name,
-                      price: product.price,
-                      qty: product.qty,
-                    });
-                  }}
-                >
-                  {viewMode === 'large' ? 'Agregar' : '+'}
-                </button>
-              )}
-
-              {expandedProducts[product.id] && product.metadata && (
-                <div
-                  style={{
-                    marginTop: '1rem',
-                    paddingTop: '1rem',
-                    borderTop: '1px solid #eee',
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                    Detalles:
-                  </p>
-                  {Object.entries(product.metadata).map(([key, value]) => (
-                    <p key={key} style={{ margin: '0.2rem 0' }}>
-                      <strong>{key}:</strong> {String(value)}
-                    </p>
-                  ))}
-                </div>
-              )}
+              <h3>{product.name}</h3>
+              <p>${product.price}</p>
             </div>
-          ))
-        )}
+          ))}
+        </div>
       </div>
-      <CartFloatingWidget
-        phoneNumber={storeData.settings?.store_info?.whatsapp || ''}
-      />
     </main>
   );
 }
