@@ -66,18 +66,64 @@ export const StoreSettingsPanel = () => {
     }
   };
 
+  const processImage = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200;
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Error al procesar la imagen'));
+          },
+          'image/jpeg',
+          0.8
+        );
+      };
+      img.onerror = reject;
+    });
+  };
+
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'logo' | 'banner'
   ) => {
     if (e.target.files && e.target.files[0]) {
-      const url = await uploadToCloudinary(e.target.files[0]);
-      if (url) {
-        const assetKey = type === 'logo' ? 'logo_url' : 'banner_url';
-        setSettings((prev) => ({
-          ...prev,
-          assets: { ...prev.assets, [assetKey]: url },
-        }));
+      try {
+        const processedBlob = await processImage(e.target.files[0]);
+        const processedFile = new File([processedBlob], 'image.jpg', {
+          type: 'image/jpeg',
+        });
+
+        const url = await uploadToCloudinary(processedFile);
+        if (url) {
+          const assetKey = type === 'logo' ? 'logo_url' : 'banner_url';
+          setSettings((prev) => ({
+            ...prev,
+            assets: { ...prev.assets, [assetKey]: url },
+          }));
+        }
+      } catch (err) {
+        setMessage({
+          type: 'error',
+          text: 'Error procesando o subiendo imagen',
+        });
       }
     }
   };
@@ -195,6 +241,22 @@ export const StoreSettingsPanel = () => {
           </div>
         </div>
       </div>
+
+      {/* Hidden inputs para carga de imágenes */}
+      <input
+        type="file"
+        ref={logoInputRef}
+        onChange={(e) => handleFileChange(e, 'logo')}
+        style={{ display: 'none' }}
+        accept="image/*"
+      />
+      <input
+        type="file"
+        ref={bannerInputRef}
+        onChange={(e) => handleFileChange(e, 'banner')}
+        style={{ display: 'none' }}
+        accept="image/*"
+      />
 
       {/* Formulario con Grid Adaptativo */}
       <div
