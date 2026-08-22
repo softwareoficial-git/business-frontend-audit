@@ -86,48 +86,92 @@ export default function PublicStorePage({
   return (
     <main
       style={{
-        padding: '1rem',
+        padding: '0',
         fontFamily: 'var(--font-family)',
         maxWidth: '1000px',
         margin: '0 auto',
       }}
     >
-      // Banner y Perfil
       <div
         style={{
-          height: '200px',
+          height: '250px',
           background: '#ddd',
-          borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
           position: 'relative',
+          marginBottom: '60px',
         }}
       >
         <ImageWithFallback
-          src={storeData.settings?.assets?.banner_url}
+          src={storeData.settings?.assets?.banner_url || '/default-banner.png'}
           alt="Banner"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        <div style={{ position: 'absolute', bottom: '-40px', left: '2rem' }}>
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-40px',
+            left: '2rem',
+            zIndex: 1,
+          }}
+        >
           <ImageWithFallback
-            src={storeData.settings?.assets?.logo_url}
+            src={storeData.settings?.assets?.logo_url || '/default-logo.png'}
             alt="Logo"
             style={{
-              width: '80px',
-              height: '80px',
+              width: '120px',
+              height: '120px',
               borderRadius: '50%',
-              border: '4px solid var(--color-surface)',
+              border: '6px solid var(--color-surface)',
               background: 'var(--color-surface)',
             }}
           />
         </div>
       </div>
-      <div style={{ padding: '3rem 1rem 1rem' }}>
-        <h1 style={{ margin: '0' }}>
+
+      <div style={{ padding: '0 2rem 2rem' }}>
+        <h1 style={{ margin: '0 0 0.5rem 0' }}>
           {storeData.settings?.store_info?.name || storeData.tenantName}
         </h1>
         {storeData.settings?.store_info?.description && (
-          <p>{storeData.settings.store_info.description}</p>
+          <p
+            style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}
+          >
+            {storeData.settings.store_info.description}
+          </p>
         )}
+
+        {/* Sección de Contacto */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '1.5rem',
+            flexWrap: 'wrap',
+            marginBottom: '2rem',
+          }}
+        >
+          {storeData.settings?.store_info?.whatsapp && (
+            <a
+              href={`https://wa.me/${storeData.settings.store_info.whatsapp.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                textDecoration: 'none',
+                color: '#25D366',
+              }}
+            >
+              <span>💬</span> {storeData.settings.store_info.whatsapp}
+            </a>
+          )}
+          {storeData.settings?.store_info?.address && (
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <span>📍</span> {storeData.settings.store_info.address}
+            </div>
+          )}
+        </div>
       </div>
       {/* Buscador */}
       <div style={{ padding: '1rem' }}>
