@@ -65,7 +65,7 @@ export const CartFloatingWidget = ({
 
     const formatItem = (item: any) => {
       const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
-      const titleLine = `${item.name} (x${item.qty})`;
+      const titleLine = `(x${item.qty}) ${item.name}`;
 
       // Si el título + precio + espacio mínimo supera el ancho, forzar salto
       if (titleLine.length + priceStr.length + 2 > MAX_WIDTH) {
@@ -79,7 +79,6 @@ export const CartFloatingWidget = ({
         return `${titleLine}${padding}${priceStr}`;
       }
     };
-
     const ticket = items.map(formatItem).join('%0a');
     const totalLabel = 'Total:';
     const totalVal = `$${total.toFixed(2)}`;
@@ -196,6 +195,9 @@ export const CartFloatingWidget = ({
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
           >
+            <p style={{ fontWeight: 'bold', margin: '0 0 0.5rem' }}>
+              Resumen del pedido:
+            </p>
             <div
               style={{
                 backgroundColor: '#DCF8C6',
@@ -257,7 +259,7 @@ export const CartFloatingWidget = ({
                 borderRadius: 'var(--radius-md)',
               }}
             >
-              Volver
+              Volver al carrito
             </button>
           </div>
         )}
