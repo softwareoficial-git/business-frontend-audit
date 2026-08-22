@@ -83,8 +83,11 @@ export const CartFloatingWidget = ({
         borderTop: '1px solid var(--color-border)',
         boxShadow: '0 -4px 12px rgba(0,0,0,0.15)',
         zIndex: 1000,
-        transition: 'height 0.3s ease',
-        height: isExpanded ? '80vh' : '60px',
+        transition: 'transform 0.3s ease-out',
+        transform: isExpanded
+          ? 'translateY(0)'
+          : 'translateY(calc(100% - 60px))',
+        height: '80vh',
         borderTopLeftRadius: '15px',
         borderTopRightRadius: '15px',
         padding: '0 1rem',
@@ -100,6 +103,7 @@ export const CartFloatingWidget = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           cursor: 'pointer',
+          flexShrink: 0,
         }}
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -111,124 +115,122 @@ export const CartFloatingWidget = ({
       </div>
 
       {/* Contenido expandido */}
-      {isExpanded && (
-        <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
-          {view === 'cart' ? (
-            <>
-              {items.map((item) => (
-                <div
-                  key={item.code}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0.75rem 0',
-                    borderBottom: '1px solid var(--color-border)',
-                  }}
-                >
-                  <span>
-                    {item.name} x {item.qty}
-                  </span>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => updateQuantity(item.code, -1)}
-                      style={{
-                        width: '30px',
-                        height: '30px',
-                        borderRadius: '50%',
-                        border: '1px solid var(--color-border)',
-                      }}
-                    >
-                      -
-                    </button>
-                    <button
-                      onClick={() => updateQuantity(item.code, 1)}
-                      style={{
-                        width: '30px',
-                        height: '30px',
-                        borderRadius: '50%',
-                        border: '1px solid var(--color-border)',
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button
-                onClick={() => setView('checkout')}
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
+        {view === 'cart' ? (
+          <>
+            {items.map((item) => (
+              <div
+                key={item.code}
                 style={{
-                  width: '100%',
-                  marginTop: '1rem',
-                  padding: '1rem',
-                  backgroundColor: 'var(--color-primary)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 'var(--radius-md)',
-                  fontWeight: 'bold',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.75rem 0',
+                  borderBottom: '1px solid var(--color-border)',
                 }}
               >
-                Ir a Finalizar ($ {total.toFixed(2)})
-              </button>
-            </>
-          ) : (
-            <div
+                <span>
+                  {item.name} x {item.qty}
+                </span>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => updateQuantity(item.code, -1)}
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '50%',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={() => updateQuantity(item.code, 1)}
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '50%',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button
+              onClick={() => setView('checkout')}
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
+                width: '100%',
                 marginTop: '1rem',
+                padding: '1rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 'bold',
               }}
             >
-              <select
-                value={paymentMethod || ''}
-                onChange={(e) => setPaymentMethod(e.target.value as any)}
-                style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)' }}
-              >
-                <option value="">Seleccionar Pago</option>
-                <option value="efectivo">Efectivo</option>
-                <option value="transferencia">Transferencia</option>
-              </select>
-              <select
-                value={shippingOption || ''}
-                onChange={(e) => setShippingOption(e.target.value as any)}
-                style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)' }}
-              >
-                <option value="">Seleccionar Envío</option>
-                <option value="retiro">Retiro en local</option>
-                <option value="envio">Envío</option>
-              </select>
-              <a
-                href={generateWhatsAppLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  textAlign: 'center',
-                  padding: '0.8rem',
-                  backgroundColor: '#25D366',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 'bold',
-                }}
-              >
-                Enviar por WhatsApp
-              </a>
-              <button
-                onClick={() => setView('cart')}
-                style={{
-                  background: 'none',
-                  border: '1px solid var(--color-border)',
-                  padding: '0.8rem',
-                  borderRadius: 'var(--radius-md)',
-                }}
-              >
-                Volver al carrito
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+              Ir a Finalizar ($ {total.toFixed(2)})
+            </button>
+          </>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              marginTop: '1rem',
+            }}
+          >
+            <select
+              value={paymentMethod || ''}
+              onChange={(e) => setPaymentMethod(e.target.value as any)}
+              style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)' }}
+            >
+              <option value="">Seleccionar Pago</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+            </select>
+            <select
+              value={shippingOption || ''}
+              onChange={(e) => setShippingOption(e.target.value as any)}
+              style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)' }}
+            >
+              <option value="">Seleccionar Envío</option>
+              <option value="retiro">Retiro en local</option>
+              <option value="envio">Envío</option>
+            </select>
+            <a
+              href={generateWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textAlign: 'center',
+                padding: '0.8rem',
+                backgroundColor: '#25D366',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+              }}
+            >
+              Enviar por WhatsApp
+            </a>
+            <button
+              onClick={() => setView('cart')}
+              style={{
+                background: 'none',
+                border: '1px solid var(--color-border)',
+                padding: '0.8rem',
+                borderRadius: 'var(--radius-md)',
+              }}
+            >
+              Volver al carrito
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
