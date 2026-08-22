@@ -250,12 +250,13 @@ function PublicStoreContent({
           display: 'grid',
           gridTemplateColumns:
             viewMode === 'large'
-              ? 'repeat(auto-fit, minmax(180px, 1fr))'
-              : 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '16px',
-          padding: '0 10px',
+              ? 'repeat(auto-fit, minmax(200px, 1fr))'
+              : 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: '24px',
+          padding: '0 20px',
           maxWidth: '1200px',
           margin: '0 auto',
+          marginBottom: '80px',
         }}
       >
         {filteredProducts.length === 0 ? (
@@ -277,13 +278,11 @@ function PublicStoreContent({
               style={{
                 cursor: 'pointer',
                 position: 'relative',
-                padding: '0.5rem',
+                padding: '1rem',
                 display: 'flex',
                 flexDirection: 'column',
-                minWidth: '80px',
-                maxWidth: '250px',
-                margin: '0 auto',
                 width: '100%',
+                boxSizing: 'border-box',
               }}
               onClick={() => toggleExpand(product.id)}
             >
