@@ -15,6 +15,7 @@ function PublicStoreContent({
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
   const [expandedProducts, setExpandedProducts] = useState<
     Record<string, boolean>
   >({});
@@ -183,20 +184,34 @@ function PublicStoreContent({
           )}
         </div>
       </div>
-      {/* Buscador */}
-      <div style={{ padding: '1rem' }}>
+      {/* Buscador y Selector de Vista */}
+      <div style={{ padding: '1rem', display: 'flex', gap: '10px' }}>
         <input
           type="text"
           placeholder="Buscar productos..."
           className="card"
           style={{
-            width: '100%',
+            flex: 1,
             padding: '0.8rem',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-md)',
           }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <button
+          onClick={() =>
+            setViewMode((prev) => (prev === 'grid' ? 'compact' : 'grid'))
+          }
+          style={{
+            padding: '0.8rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--color-background)',
+            cursor: 'pointer',
+          }}
+        >
+          {viewMode === 'grid' ? 'Compacto' : 'Grid'}
+        </button>
       </div>
       {/* Productos */}
       <div className="stock-grid">
