@@ -61,27 +61,31 @@ export const CartFloatingWidget = ({
 
   const generateWhatsAppLink = () => {
     const phone = phoneNumber.replace(/[^0-9]/g, '');
+    const MAX_WIDTH = 35;
 
-    // Función para formatear cada línea del producto
     const formatItem = (item: any) => {
-      const title =
-        item.name.length > 35 ? item.name.substring(0, 32) + '...' : item.name;
-      const subtotal = (item.price * item.qty).toFixed(2);
-      const line = `${title} (x${item.qty})`;
-      const priceStr = `$${subtotal}`;
+      const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
+      const titleLine = `${item.name} (x${item.qty})`;
 
-      // Intentar alinear el precio. Si el título es muy largo, poner precio debajo.
-      if (line.length + priceStr.length + 2 > 35) {
-        return `${line}%0a${' '.repeat(35 - priceStr.length)}${priceStr}`;
+      // Si el título + precio + espacio mínimo supera el ancho, forzar salto
+      if (titleLine.length + priceStr.length + 2 > MAX_WIDTH) {
+        // Título en una línea, precio alineado a la derecha abajo
+        return `${titleLine}%0a${' '.repeat(MAX_WIDTH - priceStr.length)}${priceStr}`;
       } else {
-        return `${line}${' '.repeat(35 - line.length - priceStr.length)}${priceStr}`;
+        // Título y precio en la misma línea
+        const padding = ' '.repeat(
+          MAX_WIDTH - titleLine.length - priceStr.length
+        );
+        return `${titleLine}${padding}${priceStr}`;
       }
     };
 
     const ticket = items.map(formatItem).join('%0a');
-    const totalLine = `Total:${' '.repeat(35 - 6 - total.toFixed(2).length - 1)}$${total.toFixed(2)}`;
+    const totalLabel = 'Total:';
+    const totalVal = `$${total.toFixed(2)}`;
+    const totalLine = `${totalLabel}${' '.repeat(MAX_WIDTH - totalLabel.length - totalVal.length)}${totalVal}`;
 
-    const message = `*Nuevo Pedido*%0a%0a\`\`\`${ticket}%0a${'-'.repeat(35)}%0a${totalLine}\`\`\`%0a%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
+    const message = `*Nuevo Pedido*%0a%0a\`\`\`${ticket}%0a${'-'.repeat(MAX_WIDTH)}%0a${totalLine}\`\`\`%0a%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
     return `https://wa.me/${phone}?text=${message}`;
   };
 
