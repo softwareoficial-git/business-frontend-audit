@@ -15,7 +15,7 @@ function PublicStoreContent({
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
+  const [viewMode, setViewMode] = useState<'grid-2' | 'grid-4'>('grid-2');
   const [expandedProducts, setExpandedProducts] = useState<
     Record<string, boolean>
   >({});
@@ -200,21 +200,59 @@ function PublicStoreContent({
         />
         <button
           onClick={() =>
-            setViewMode((prev) => (prev === 'grid' ? 'compact' : 'grid'))
+            setViewMode((prev) => (prev === 'grid-2' ? 'grid-4' : 'grid-2'))
           }
           style={{
-            padding: '0.8rem',
+            padding: '0.5rem',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--color-border)',
             backgroundColor: 'var(--color-background)',
             cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '40px',
+            height: '40px',
           }}
         >
-          {viewMode === 'grid' ? 'Compacto' : 'Grid'}
+          {viewMode === 'grid-2' ? (
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+          ) : (
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <rect x="3" y="3" width="18" height="18" />
+            </svg>
+          )}
         </button>
       </div>
       {/* Productos */}
-      <div className="stock-grid">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns:
+            viewMode === 'grid-2' ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+          gap: '10px',
+          padding: '0 10px',
+        }}
+      >
         {filteredProducts.length === 0 ? (
           <div
             className="card"
