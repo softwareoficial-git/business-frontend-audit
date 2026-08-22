@@ -64,16 +64,16 @@ export const CartFloatingWidget = ({
 
     const formatItem = (item: any) => {
       const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
-      const titleLine = `(x${item.qty}) ${item.name}`;
+      const category = item.category ? item.category.split('/').pop() : '';
+      const leftLine = `(x${item.qty}) ${category}`.substring(
+        0,
+        MAX_WIDTH - priceStr.length
+      );
+      const padding = ' '.repeat(
+        Math.max(0, MAX_WIDTH - leftLine.length - priceStr.length)
+      );
 
-      if (titleLine.length + priceStr.length + 2 > MAX_WIDTH) {
-        return `${titleLine}%0a${' '.repeat(MAX_WIDTH - priceStr.length)}${priceStr}`;
-      } else {
-        const padding = ' '.repeat(
-          MAX_WIDTH - titleLine.length - priceStr.length
-        );
-        return `${titleLine}${padding}${priceStr}`;
-      }
+      return `${item.name}%0a${leftLine}${padding}${priceStr}`;
     };
     const ticket = items.map(formatItem).join('%0a');
     const totalLabel = 'Total:';
