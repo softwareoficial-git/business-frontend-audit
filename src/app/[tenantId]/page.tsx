@@ -101,9 +101,10 @@ function PublicStoreContent({
 
         if (!storeData) {
           setStoreData({
+            success: true, // Asegurar que la validación pase
             settings: details.settings,
             store_info: details.store_info,
-            tenantName: details.tenantName,
+            tenantName: details.tenantName || productsResponse.tenantName,
           });
         }
         setLoading(false);
