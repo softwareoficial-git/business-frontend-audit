@@ -21,16 +21,10 @@ export default function PublicStorePage({
 
     const baseUrl =
       'https://business-logic-v2-production.up.railway.app/api/public/store';
-    const isId = /^\d+$/.test(tenantId);
 
-    // Simplificación: usaremos tenantId numérico para las peticiones si es posible,
-    // o el slug. Por ahora ajustemos la lógica base de URL si viene un nombre.
-    const detailsUrl = isId
-      ? `${baseUrl}/${tenantId}/details`
-      : `${baseUrl}/name/${tenantId}/details`;
-    const productsUrl = isId
-      ? `${baseUrl}/${tenantId}/products`
-      : `${baseUrl}/name/${tenantId}/products`;
+    // Forzar el uso de slugs siempre, tratando al tenantId como un slug
+    const detailsUrl = `${baseUrl}/name/${tenantId}/details`;
+    const productsUrl = `${baseUrl}/name/${tenantId}/products`;
 
     Promise.all([
       fetch(detailsUrl).then((res) => res.json()),
