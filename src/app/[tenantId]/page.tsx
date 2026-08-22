@@ -447,6 +447,47 @@ function PublicStoreContent({
               />
               <h3>{product.name}</h3>
               <p>${product.price}</p>
+
+              {/* Etiquetas en tarjeta */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '4px',
+                  marginTop: '6px',
+                }}
+              >
+                {product.category && (
+                  <span
+                    style={{
+                      fontSize: '0.65rem',
+                      padding: '2px 5px',
+                      borderRadius: '4px',
+                      background: 'var(--color-background-muted)',
+                    }}
+                  >
+                    {product.category.split('/').pop()}
+                  </span>
+                )}
+                {product.metadata &&
+                  Object.values(product.metadata)
+                    .flat()
+                    .slice(0, 3)
+                    .map((v: any, i: number) => (
+                      <span
+                        key={i}
+                        style={{
+                          fontSize: '0.65rem',
+                          padding: '2px 5px',
+                          borderRadius: '4px',
+                          background: 'var(--color-primary-light)',
+                        }}
+                      >
+                        {String(v).split(',')[0]}
+                      </span>
+                    ))}
+              </div>
+
               {product.qty > 0 && (
                 <button
                   style={{
@@ -471,6 +512,31 @@ function PublicStoreContent({
                 >
                   Agregar
                 </button>
+              )}
+
+              {expandedProducts[product.id] && (
+                <div
+                  style={{
+                    marginTop: '1rem',
+                    paddingTop: '1rem',
+                    borderTop: '1px solid #eee',
+                    fontSize: '0.85rem',
+                    textAlign: 'left',
+                  }}
+                >
+                  <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                    Detalles completos:
+                  </p>
+                  <p style={{ margin: '0.2rem 0' }}>
+                    <strong>Categoría:</strong> {product.category}
+                  </p>
+                  {product.metadata &&
+                    Object.entries(product.metadata).map(([key, value]) => (
+                      <p key={key} style={{ margin: '0.2rem 0' }}>
+                        <strong>{key}:</strong> {String(value)}
+                      </p>
+                    ))}
+                </div>
               )}
             </div>
           ))}
