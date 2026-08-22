@@ -61,7 +61,7 @@ export const CartFloatingWidget = ({
 
   const generateWhatsAppLink = () => {
     const phone = phoneNumber.replace(/[^0-9]/g, '');
-    const MAX_WIDTH = 35;
+    const MAX_WIDTH = 30;
 
     const formatItem = (item: any) => {
       const priceStr = `$${(item.price * item.qty).toFixed(2)}`;
