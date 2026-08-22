@@ -12,6 +12,13 @@ export default function PublicStorePage({
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedProducts, setExpandedProducts] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleExpand = (productId: string) => {
+    setExpandedProducts((prev) => ({ ...prev, [productId]: !prev[productId] }));
+  };
 
   useEffect(() => {
     params.then((p) => setTenantId(p.tenantId));
@@ -145,7 +152,7 @@ export default function PublicStorePage({
         >
           {storeData.settings?.store_info?.whatsapp && (
             <a
-              href={`https://wa.me/${storeData.settings.store_info.whatsapp.replace(/\D/g, '')}`}
+              href={`https://wa.me/${storeData.settings.store_info.whatsapp.replace(/[^0-9]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -163,6 +170,7 @@ export default function PublicStorePage({
               {storeData.settings.store_info.whatsapp}
             </a>
           )}
+
           {storeData.settings?.store_info?.address && (
             <div
               style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
@@ -202,7 +210,12 @@ export default function PublicStorePage({
           </div>
         ) : (
           filteredProducts.map((product: any) => (
-            <div key={product.id} className="card masonry-item">
+            <div
+              key={product.id}
+              className="card masonry-item"
+              style={{ cursor: 'pointer' }}
+              onClick={() => toggleExpand(product.id)}
+            >
               <ImageWithFallback
                 src={product.image_url}
                 alt={product.name}
@@ -223,6 +236,26 @@ export default function PublicStorePage({
               >
                 Stock: {product.qty}
               </p>
+
+              {expandedProducts[product.id] && product.metadata && (
+                <div
+                  style={{
+                    marginTop: '1rem',
+                    paddingTop: '1rem',
+                    borderTop: '1px solid #eee',
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                    Detalles:
+                  </p>
+                  {Object.entries(product.metadata).map(([key, value]) => (
+                    <p key={key} style={{ margin: '0.2rem 0' }}>
+                      <strong>{key}:</strong> {String(value)}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
           ))
         )}

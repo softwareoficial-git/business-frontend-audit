@@ -279,7 +279,7 @@ export const StoreSettingsPanel = () => {
                   },
                 })
               }
-              placeholder="WhatsApp: +549..."
+              placeholder="WhatsApp: +5491123456789 (con código de país)"
             />
             <input
               style={{
