@@ -28,6 +28,28 @@ function PublicStoreContent({
 
   const [products, setProducts] = useState<any[]>([]);
 
+  // Metadata global para sugerencias de búsqueda (sin restricciones)
+  const globalMetadataTags = useMemo(() => {
+    if (!products) return {};
+    const tags: Record<string, Set<string>> = {};
+    products.forEach((p: any) => {
+      if (p.metadata) {
+        Object.entries(p.metadata).forEach(([key, value]) => {
+          const rawValues = String(value)
+            .split(',')
+            .map((v) => v.trim());
+          if (!tags[key]) tags[key] = new Set();
+          rawValues.forEach((v) => {
+            if (v) tags[key].add(v);
+          });
+        });
+      }
+    });
+    return Object.fromEntries(
+      Object.entries(tags).map(([k, v]) => [k, Array.from(v)])
+    );
+  }, [products]);
+
   const toggleFilter = (filter: {
     key: 'category' | 'metadata';
     value: string;
@@ -172,21 +194,17 @@ function PublicStoreContent({
 
   const filteredProducts = useMemo(() => {
     if (!products) return [];
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase().trim();
     if (!term) return products;
 
+    const tokens = term.split(/\s+/).filter((t) => t.length > 0);
+
     return products.filter((p: any) => {
-      const inName = p.name?.toLowerCase().includes(term);
-      const inCategory = p.category?.toLowerCase().includes(term);
+      const searchableText =
+        `${p.name || ''} ${p.category || ''} ${Object.values(p.metadata || {}).join(' ')}`.toLowerCase();
 
-      // Búsqueda robusta en metadatos (llaves y valores)
-      const inMetadata = Object.entries(p.metadata || {}).some(
-        ([k, v]) =>
-          k.toLowerCase().includes(term) ||
-          String(v).toLowerCase().includes(term)
-      );
-
-      return inName || inCategory || inMetadata;
+      // Match si CUALQUIERA de las palabras del buscador está presente en el texto buscable
+      return tokens.some((token) => searchableText.includes(token));
     });
   }, [products, searchTerm]);
 
@@ -287,7 +305,10 @@ function PublicStoreContent({
               paddingBottom: '0.5rem',
             }}
           >
-            {availableFilters.categories
+            {/* Categorías sugeridas */}
+            {Array.from(
+              new Set(products.map((p) => p.category).filter(Boolean))
+            )
               .filter((c) => c.toLowerCase().includes(searchTerm.toLowerCase()))
               .map((c) => (
                 <button
@@ -307,30 +328,30 @@ function PublicStoreContent({
                   {c.split('/').pop()}
                 </button>
               ))}
-            {Object.entries(availableFilters.metadataTags).flatMap(
-              ([k, vals]) =>
-                vals
-                  .filter((v) =>
-                    v.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((v) => (
-                    <button
-                      key={`${k}:${v}`}
-                      onClick={() => {
-                        toggleFilter({ key: 'metadata', value: `${k}:${v}` });
-                        setSearchTerm('');
-                      }}
-                      style={{
-                        padding: '0.3rem 0.6rem',
-                        borderRadius: '15px',
-                        background: 'var(--color-secondary)',
-                        color: 'white',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {v}
-                    </button>
-                  ))
+            {/* Metadatos sugeridos */}
+            {Object.entries(globalMetadataTags).flatMap(([k, vals]) =>
+              vals
+                .filter((v: string) =>
+                  v.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((v: string) => (
+                  <button
+                    key={`${k}:${v}`}
+                    onClick={() => {
+                      toggleFilter({ key: 'metadata', value: `${k}:${v}` });
+                      setSearchTerm('');
+                    }}
+                    style={{
+                      padding: '0.3rem 0.6rem',
+                      borderRadius: '15px',
+                      background: 'var(--color-secondary)',
+                      color: 'white',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {v}
+                  </button>
+                ))
             )}
           </div>
         )}
