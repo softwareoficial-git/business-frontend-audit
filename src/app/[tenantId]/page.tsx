@@ -19,20 +19,32 @@ export default function PublicStorePage({
   useEffect(() => {
     if (!tenantId) return;
 
+    const baseUrl =
+      'https://business-logic-v2-production.up.railway.app/api/public/store';
     const isId = /^\d+$/.test(tenantId);
-    const url = isId
-      ? `https://business-logic-v2-production.up.railway.app/api/public/store/${tenantId}/products`
-      : `https://business-logic-v2-production.up.railway.app/api/public/store/name/${tenantId}/products`;
 
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error('Tienda no encontrada');
-        return res.json();
-      })
-      .then((data) => {
-        console.log('API Response Data:', data);
-        console.log('Full Settings:', JSON.stringify(data.settings));
-        setStoreData(data);
+    // Simplificación: usaremos tenantId numérico para las peticiones si es posible,
+    // o el slug. Por ahora ajustemos la lógica base de URL si viene un nombre.
+    const detailsUrl = isId
+      ? `${baseUrl}/${tenantId}/details`
+      : `${baseUrl}/name/${tenantId}/details`;
+    const productsUrl = isId
+      ? `${baseUrl}/${tenantId}/products`
+      : `${baseUrl}/name/${tenantId}/products`;
+
+    Promise.all([
+      fetch(detailsUrl).then((res) => res.json()),
+      fetch(productsUrl).then((res) => res.json()),
+    ])
+      .then(([details, products]) => {
+        console.log('Details:', details);
+        console.log('Products:', products);
+
+        setStoreData({
+          ...products,
+          settings: details.settings,
+          store_info: details.store_info,
+        });
         setLoading(false);
       })
       .catch((err) => {
