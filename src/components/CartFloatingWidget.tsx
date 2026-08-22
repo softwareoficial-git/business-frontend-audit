@@ -61,10 +61,27 @@ export const CartFloatingWidget = ({
 
   const generateWhatsAppLink = () => {
     const phone = phoneNumber.replace(/[^0-9]/g, '');
-    const ticket = items
-      .map((i) => `* ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}`)
-      .join('%0a');
-    const message = `*Nuevo Pedido*%0a%0a${ticket}%0a%0aTotal: $${total.toFixed(2)}%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
+
+    // Función para formatear cada línea del producto
+    const formatItem = (item: any) => {
+      const title =
+        item.name.length > 35 ? item.name.substring(0, 32) + '...' : item.name;
+      const subtotal = (item.price * item.qty).toFixed(2);
+      const line = `${title} (x${item.qty})`;
+      const priceStr = `$${subtotal}`;
+
+      // Intentar alinear el precio. Si el título es muy largo, poner precio debajo.
+      if (line.length + priceStr.length + 2 > 35) {
+        return `${line}%0a${' '.repeat(35 - priceStr.length)}${priceStr}`;
+      } else {
+        return `${line}${' '.repeat(35 - line.length - priceStr.length)}${priceStr}`;
+      }
+    };
+
+    const ticket = items.map(formatItem).join('%0a');
+    const totalLine = `Total:${' '.repeat(35 - 6 - total.toFixed(2).length - 1)}$${total.toFixed(2)}`;
+
+    const message = `*Nuevo Pedido*%0a%0a\`\`\`${ticket}%0a${'-'.repeat(35)}%0a${totalLine}\`\`\`%0a%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
     return `https://wa.me/${phone}?text=${message}`;
   };
 
