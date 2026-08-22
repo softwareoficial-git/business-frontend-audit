@@ -72,22 +72,20 @@ export const CartFloatingWidget = ({
         title = title.substring(0, MAX_WIDTH - 3) + '...';
       }
 
-      // Formatear categoría
-      const category = item.category ? item.category.split('/').pop() : '';
-      let leftLine = `(x${item.qty}) ${category}`;
-
-      // Si la línea de categoría + precio supera el ancho, truncar categoría
-      if (leftLine.length + priceStr.length + 1 > MAX_WIDTH) {
-        const allowedLen = MAX_WIDTH - priceStr.length - 1;
-        leftLine = leftLine.substring(0, Math.max(0, allowedLen - 3)) + '...';
-      }
-
+      const category = item.category
+        ? item.category.split('/').pop()
+        : 'Sin cat';
+      const leftLine = `(x${item.qty}) ${category}`.substring(
+        0,
+        MAX_WIDTH - priceStr.length
+      );
       const padding = ' '.repeat(
         Math.max(0, MAX_WIDTH - leftLine.length - priceStr.length)
       );
 
       return `${title}%0a${leftLine}${padding}${priceStr}`;
     };
+
     const ticket = items.map(formatItem).join('%0a');
     const totalLabel = 'Total:';
     const totalVal = `$${total.toFixed(2)}`;
