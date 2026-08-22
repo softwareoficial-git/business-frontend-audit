@@ -24,14 +24,21 @@ function PublicStoreContent({
     Record<string, boolean>
   >({});
 
-  // Extraer categorías y etiquetas de metadata únicas
+  // Lista de productos filtrados por la API
+  const [products, setProducts] = useState<any[]>([]);
+
+  // Extraer categorías y etiquetas de metadata únicas (necesario para la UI)
   const availableFilters = useMemo(() => {
-    if (!storeData?.data) return { categories: [], metadataTags: {} as Record<string, Set<string>> };
-    
+    if (!products)
+      return {
+        categories: [],
+        metadataTags: {} as Record<string, Set<string>>,
+      };
+
     const categories = new Set<string>();
     const metadataTags: Record<string, Set<string>> = {};
 
-    storeData.data.forEach((p: any) => {
+    products.forEach((p: any) => {
       if (p.category) categories.add(p.category);
       if (p.metadata) {
         Object.entries(p.metadata).forEach(([key, value]) => {
@@ -47,7 +54,7 @@ function PublicStoreContent({
         Object.entries(metadataTags).map(([k, v]) => [k, Array.from(v)])
       ),
     };
-  }, [storeData]);
+  }, [products]);
 
   const toggleExpand = (productId: string) => {
     setExpandedProducts((prev) => ({ ...prev, [productId]: !prev[productId] }));
@@ -57,70 +64,73 @@ function PublicStoreContent({
     params.then((p) => setTenantId(p.tenantId));
   }, [params]);
 
+  // Efecto para cargar productos cuando cambia el filtro o el tenant
   useEffect(() => {
     if (!tenantId) return;
 
+    setLoading(true);
     const baseUrl =
       'https://business-logic-v2-production.up.railway.app/api/public/store';
 
-    // Forzar el uso de slugs siempre, tratando al tenantId como un slug
+    // Construir la URL con filtros si existen
+    let productsUrl = `${baseUrl}/name/${tenantId}/products`;
+    const queryParams = new URLSearchParams();
+
+    if (activeFilter) {
+      if (activeFilter.key === 'category') {
+        queryParams.append('category', activeFilter.value);
+      } else if (activeFilter.key === 'metadata') {
+        const [metaKey, metaValue] = activeFilter.value.split(':');
+        queryParams.append(`metadata.${metaKey}`, metaValue);
+      }
+    }
+
+    if (queryParams.toString()) {
+      productsUrl += `?${queryParams.toString()}`;
+    }
+
     const detailsUrl = `${baseUrl}/name/${tenantId}/details`;
-    const productsUrl = `${baseUrl}/name/${tenantId}/products`;
 
     Promise.all([
       fetch(detailsUrl).then((res) => res.json()),
       fetch(productsUrl).then((res) => res.json()),
     ])
-      .then(([details, products]) => {
-        console.log('Details:', details);
-        console.log('Products:', products);
+      .then(([details, productsResponse]) => {
+        // Asumimos que la API devuelve los productos en 'data'
+        setProducts(productsResponse.data || []);
 
-        setStoreData({
-          ...products,
-          settings: details.settings,
-          store_info: details.store_info,
-        });
+        if (!storeData) {
+          setStoreData({
+            settings: details.settings,
+            store_info: details.store_info,
+            tenantName: details.tenantName,
+          });
+        }
         setLoading(false);
       })
       .catch((err) => {
         console.error('Error cargando la tienda:', err);
         setLoading(false);
       });
-  }, [tenantId]);
+  }, [tenantId, activeFilter]);
 
-  // Lógica de búsqueda y filtrado mejorada
+  // Lógica de búsqueda (ahora solo sobre los productos ya filtrados por la API)
   const filteredProducts = useMemo(() => {
-    if (!storeData?.data) return [];
-    
-    return storeData.data.filter((p: any) => {
-      // 1. Filtrado por término de búsqueda (búsqueda general)
-      const term = searchTerm.toLowerCase();
-      let matchesSearch = true;
-      if (term) {
-        const inName = p.name?.toLowerCase().includes(term);
-        const inCategory = p.category?.toLowerCase().includes(term);
-        const metaValues = Object.values(p.metadata || {})
-          .join(' ')
-          .toLowerCase();
-        const inMetadata = metaValues.includes(term);
-        matchesSearch = inName || inCategory || inMetadata;
-      }
+    if (!products) return [];
+    const term = searchTerm.toLowerCase();
+    if (!term) return products;
 
-      // 2. Filtrado por categoría o etiqueta de metadata activa
-      let matchesFilter = true;
-      if (activeFilter) {
-        if (activeFilter.key === 'category') {
-          matchesFilter = p.category === activeFilter.value;
-        } else if (activeFilter.key === 'metadata') {
-          // El activeFilter.value debería contener la estructura "key:value"
-          const [metaKey, metaValue] = activeFilter.value.split(':');
-          matchesFilter = p.metadata?.[metaKey] === metaValue;
-        }
-      }
+    return products.filter((p: any) => {
+      const inName = p.name?.toLowerCase().includes(term);
+      const inCategory = p.category?.toLowerCase().includes(term);
+      const metaValues = Object.values(p.metadata || {})
+        .join(' ')
+        .toLowerCase();
+      const inMetadata = metaValues.includes(term);
 
-      return matchesSearch && matchesFilter;
+      return inName || inCategory || inMetadata;
     });
-  }, [storeData, searchTerm, activeFilter]);
+  }, [products, searchTerm]);
 
   if (loading)
     return (
@@ -231,7 +241,14 @@ function PublicStoreContent({
         </div>
       </div>
       {/* Buscador y Selector de Vista */}
-      <div style={{ padding: '1rem', display: 'flex', gap: '10px', flexDirection: 'column' }}>
+      <div
+        style={{
+          padding: '1rem',
+          display: 'flex',
+          gap: '10px',
+          flexDirection: 'column',
+        }}
+      >
         <div style={{ display: 'flex', gap: '10px' }}>
           <input
             type="text"
@@ -320,29 +337,37 @@ function PublicStoreContent({
                 padding: '0.3rem 0.6rem',
                 borderRadius: '10px',
                 border: '1px solid var(--color-border)',
-                background: activeFilter?.value === cat ? 'var(--color-primary-light)' : 'var(--color-background)',
+                background:
+                  activeFilter?.value === cat
+                    ? 'var(--color-primary-light)'
+                    : 'var(--color-background)',
                 cursor: 'pointer',
                 fontSize: '0.8rem',
               }}
             >
-              {cat}
+              {cat.split('/').pop()}
             </button>
           ))}
-          {Object.entries(availableFilters.metadataTags).map(([k, values]) => 
+          {Object.entries(availableFilters.metadataTags).map(([k, values]) =>
             values.map((v) => (
               <button
                 key={`${k}:${v}`}
-                onClick={() => setActiveFilter({ key: 'metadata', value: `${k}:${v}` })}
+                onClick={() =>
+                  setActiveFilter({ key: 'metadata', value: `${k}:${v}` })
+                }
                 style={{
                   padding: '0.3rem 0.6rem',
                   borderRadius: '10px',
                   border: '1px solid var(--color-border)',
-                  background: activeFilter?.value === `${k}:${v}` ? 'var(--color-primary-light)' : 'var(--color-background)',
+                  background:
+                    activeFilter?.value === `${k}:${v}`
+                      ? 'var(--color-primary-light)'
+                      : 'var(--color-background)',
                   cursor: 'pointer',
                   fontSize: '0.8rem',
                 }}
               >
-                {k}: {v}
+                {v}
               </button>
             ))
           )}
