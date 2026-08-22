@@ -243,12 +243,15 @@ function PublicStoreContent({
           )}
         </button>
       </div>
+
       {/* Productos */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns:
-            viewMode === 'grid-2' ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            viewMode === 'grid-2'
+              ? 'repeat(auto-fill, minmax(150px, 1fr))'
+              : 'repeat(auto-fill, minmax(100px, 1fr))',
           gap: '10px',
           padding: '0 10px',
         }}
@@ -268,8 +271,18 @@ function PublicStoreContent({
           filteredProducts.map((product: any) => (
             <div
               key={product.id}
-              className="card masonry-item"
-              style={{ cursor: 'pointer', position: 'relative' }}
+              className="card"
+              style={{
+                cursor: 'pointer',
+                position: 'relative',
+                padding: '0.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: '80px',
+                maxWidth: '250px',
+                margin: '0 auto',
+                width: '100%',
+              }}
               onClick={() => toggleExpand(product.id)}
             >
               <ImageWithFallback
