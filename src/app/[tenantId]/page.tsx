@@ -2,12 +2,14 @@
 import { useEffect, useState, useMemo } from 'react';
 import { ImageWithFallback } from '../../components/ImageWithFallback';
 import Icon from '../../components/Icon';
+import { CartProvider } from '../../lib/CartContext';
 
-export default function PublicStorePage({
+function PublicStoreContent({
   params,
 }: {
   params: Promise<{ tenantId: string }>;
 }) {
+  const { addToCart } = useCart();
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -213,7 +215,7 @@ export default function PublicStorePage({
             <div
               key={product.id}
               className="card masonry-item"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', position: 'relative' }}
               onClick={() => toggleExpand(product.id)}
             >
               <ImageWithFallback
@@ -225,17 +227,41 @@ export default function PublicStorePage({
                   objectFit: 'cover',
                   borderRadius: 'var(--radius-md)',
                   marginBottom: '1rem',
+                  filter: product.qty <= 0 ? 'grayscale(1)' : 'none',
                 }}
               />
-              <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
-              <p style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>
-                ${product.price}
-              </p>
-              <p
-                style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
-              >
-                Stock: {product.qty}
-              </p>
+              <div style={{ opacity: product.qty <= 0 ? 0.5 : 1 }}>
+                <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
+                <p style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                  ${product.price}
+                </p>
+                <p
+                  style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
+                >
+                  Stock: {product.qty}
+                </p>
+              </div>
+
+              {product.qty > 0 && (
+                <button
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md)',
+                    marginTop: '0.5rem',
+                    cursor: 'pointer'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart({ code: product.id, name: product.name, price: product.price, qty: product.qty });
+                  }}
+                >
+                  Agregar
+                </button>
+              )}
 
               {expandedProducts[product.id] && product.metadata && (
                 <div
@@ -260,6 +286,20 @@ export default function PublicStorePage({
           ))
         )}
       </div>
+      <CartFloatingWidget phoneNumber={storeData.settings?.store_info?.whatsapp || ''} />
     </main>
   );
 }
+
+export default function PublicStorePage({
+  params,
+}: {
+  params: Promise<{ tenantId: string }>;
+}) {
+  return (
+    <CartProvider>
+      <PublicStoreContent params={params} />
+    </CartProvider>
+  );
+}
+
