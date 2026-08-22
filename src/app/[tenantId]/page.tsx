@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
 import { ImageWithFallback } from '../../components/ImageWithFallback';
+import Icon from '../../components/Icon';
 
 export default function PublicStorePage({
   params,
@@ -155,7 +156,11 @@ export default function PublicStorePage({
                 color: '#25D366',
               }}
             >
-              <span>💬</span> {storeData.settings.store_info.whatsapp}
+              <Icon
+                name="whatsapp"
+                style={{ width: '20px', height: '20px', color: '#25D366' }}
+              />
+              {storeData.settings.store_info.whatsapp}
             </a>
           )}
           {storeData.settings?.store_info?.address && (
