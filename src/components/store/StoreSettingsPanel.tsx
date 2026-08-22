@@ -206,45 +206,108 @@ export const StoreSettingsPanel = () => {
       />
 
       {/* Formulario */}
-      <div style={{ marginTop: '3rem' }}>
-        <input
-          style={{
-            width: '100%',
-            padding: '1rem',
-            marginBottom: '1rem',
-            borderRadius: '10px',
-            border: '1px solid #ccc',
-          }}
-          value={settings.store_info.name}
-          onChange={(e) =>
-            setSettings({
-              ...settings,
-              store_info: { ...settings.store_info, name: e.target.value },
-            })
-          }
-          placeholder="Nombre de la tienda"
-        />
-        <textarea
-          style={{
-            width: '100%',
-            padding: '1rem',
-            marginBottom: '1rem',
-            borderRadius: '10px',
-            border: '1px solid #ccc',
-          }}
-          value={settings.store_info.description}
-          onChange={(e) =>
-            setSettings({
-              ...settings,
-              store_info: {
-                ...settings.store_info,
-                description: e.target.value,
-              },
-            })
-          }
-          placeholder="Descripción"
-        />
-        <button className="btn-primary" onClick={handleSave} disabled={saving}>
+      <div
+        style={{
+          marginTop: '3rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+        }}
+      >
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Información Básica</h3>
+          <input
+            style={{
+              width: '100%',
+              padding: '0.8rem',
+              marginBottom: '1rem',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+            }}
+            value={settings.store_info.name}
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                store_info: { ...settings.store_info, name: e.target.value },
+              })
+            }
+            placeholder="Nombre de la tienda"
+          />
+          <textarea
+            style={{
+              width: '100%',
+              padding: '0.8rem',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+            }}
+            value={settings.store_info.description}
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                store_info: {
+                  ...settings.store_info,
+                  description: e.target.value,
+                },
+              })
+            }
+            placeholder="Descripción corta de la tienda"
+          />
+        </div>
+
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Contacto y Redes</h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1rem',
+            }}
+          >
+            <input
+              style={{
+                padding: '0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+              }}
+              value={settings.store_info.whatsapp || ''}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  store_info: {
+                    ...settings.store_info,
+                    whatsapp: e.target.value,
+                  },
+                })
+              }
+              placeholder="WhatsApp: +549..."
+            />
+            <input
+              style={{
+                padding: '0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+              }}
+              value={settings.store_info.address || ''}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  store_info: {
+                    ...settings.store_info,
+                    address: e.target.value,
+                  },
+                })
+              }
+              placeholder="Dirección física"
+            />
+          </div>
+        </div>
+
+        <button
+          className="btn-primary"
+          style={{ padding: '1rem', cursor: 'pointer' }}
+          onClick={handleSave}
+          disabled={saving}
+        >
           {saving ? 'Guardando...' : 'Guardar Cambios'}
         </button>
       </div>
