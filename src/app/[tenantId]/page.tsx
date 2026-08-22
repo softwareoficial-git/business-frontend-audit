@@ -15,10 +15,39 @@ function PublicStoreContent({
   const [storeData, setStoreData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState<{
+    key: 'category' | 'metadata';
+    value: string;
+  } | null>(null);
   const [viewMode, setViewMode] = useState<'large' | 'compact'>('large');
   const [expandedProducts, setExpandedProducts] = useState<
     Record<string, boolean>
   >({});
+
+  // Extraer categorías y etiquetas de metadata únicas
+  const availableFilters = useMemo(() => {
+    if (!storeData?.data) return { categories: [], metadataTags: {} as Record<string, Set<string>> };
+    
+    const categories = new Set<string>();
+    const metadataTags: Record<string, Set<string>> = {};
+
+    storeData.data.forEach((p: any) => {
+      if (p.category) categories.add(p.category);
+      if (p.metadata) {
+        Object.entries(p.metadata).forEach(([key, value]) => {
+          if (!metadataTags[key]) metadataTags[key] = new Set();
+          metadataTags[key].add(String(value));
+        });
+      }
+    });
+
+    return {
+      categories: Array.from(categories),
+      metadataTags: Object.fromEntries(
+        Object.entries(metadataTags).map(([k, v]) => [k, Array.from(v)])
+      ),
+    };
+  }, [storeData]);
 
   const toggleExpand = (productId: string) => {
     setExpandedProducts((prev) => ({ ...prev, [productId]: !prev[productId] }));
@@ -59,22 +88,39 @@ function PublicStoreContent({
       });
   }, [tenantId]);
 
-  // Lógica de búsqueda mejorada
+  // Lógica de búsqueda y filtrado mejorada
   const filteredProducts = useMemo(() => {
     if (!storeData?.data) return [];
-    const term = searchTerm.toLowerCase();
-
+    
     return storeData.data.filter((p: any) => {
-      const inName = p.name?.toLowerCase().includes(term);
-      const inCategory = p.category?.toLowerCase().includes(term);
-      const metaValues = Object.values(p.metadata || {})
-        .join(' ')
-        .toLowerCase();
-      const inMetadata = metaValues.includes(term);
+      // 1. Filtrado por término de búsqueda (búsqueda general)
+      const term = searchTerm.toLowerCase();
+      let matchesSearch = true;
+      if (term) {
+        const inName = p.name?.toLowerCase().includes(term);
+        const inCategory = p.category?.toLowerCase().includes(term);
+        const metaValues = Object.values(p.metadata || {})
+          .join(' ')
+          .toLowerCase();
+        const inMetadata = metaValues.includes(term);
+        matchesSearch = inName || inCategory || inMetadata;
+      }
 
-      return inName || inCategory || inMetadata;
+      // 2. Filtrado por categoría o etiqueta de metadata activa
+      let matchesFilter = true;
+      if (activeFilter) {
+        if (activeFilter.key === 'category') {
+          matchesFilter = p.category === activeFilter.value;
+        } else if (activeFilter.key === 'metadata') {
+          // El activeFilter.value debería contener la estructura "key:value"
+          const [metaKey, metaValue] = activeFilter.value.split(':');
+          matchesFilter = p.metadata?.[metaKey] === metaValue;
+        }
+      }
+
+      return matchesSearch && matchesFilter;
     });
-  }, [storeData, searchTerm]);
+  }, [storeData, searchTerm, activeFilter]);
 
   if (loading)
     return (
@@ -185,63 +231,122 @@ function PublicStoreContent({
         </div>
       </div>
       {/* Buscador y Selector de Vista */}
-      <div style={{ padding: '1rem', display: 'flex', gap: '10px' }}>
-        <input
-          type="text"
-          placeholder="Buscar productos..."
-          className="card"
-          style={{
-            flex: 1,
-            padding: '0.8rem',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)',
-          }}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button
-          onClick={() =>
-            setViewMode((prev) => (prev === 'large' ? 'compact' : 'large'))
-          }
-          style={{
-            padding: '0.5rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-            backgroundColor: 'var(--color-background)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '40px',
-            height: '40px',
-          }}
-        >
-          {viewMode === 'large' ? (
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+      <div style={{ padding: '1rem', display: 'flex', gap: '10px', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <input
+            type="text"
+            placeholder="Buscar productos..."
+            className="card"
+            style={{
+              flex: 1,
+              padding: '0.8rem',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+            }}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setActiveFilter(null); // Reset filtro si busca
+            }}
+          />
+          <button
+            onClick={() =>
+              setViewMode((prev) => (prev === 'large' ? 'compact' : 'large'))
+            }
+            style={{
+              padding: '0.5rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--color-background)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+            }}
+          >
+            {viewMode === 'large' ? (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+              </svg>
+            ) : (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="18" height="18" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Botones de Filtros */}
+        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+          {activeFilter && (
+            <button
+              onClick={() => setActiveFilter(null)}
+              style={{
+                padding: '0.3rem 0.6rem',
+                borderRadius: '10px',
+                border: '1px solid var(--color-primary)',
+                background: 'var(--color-primary)',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+              }}
             >
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
-            </svg>
-          ) : (
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect x="3" y="3" width="18" height="18" />
-            </svg>
+              {activeFilter.value.split(':').pop()} ✕
+            </button>
           )}
-        </button>
+          {availableFilters.categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveFilter({ key: 'category', value: cat })}
+              style={{
+                padding: '0.3rem 0.6rem',
+                borderRadius: '10px',
+                border: '1px solid var(--color-border)',
+                background: activeFilter?.value === cat ? 'var(--color-primary-light)' : 'var(--color-background)',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+          {Object.entries(availableFilters.metadataTags).map(([k, values]) => 
+            values.map((v) => (
+              <button
+                key={`${k}:${v}`}
+                onClick={() => setActiveFilter({ key: 'metadata', value: `${k}:${v}` })}
+                style={{
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '10px',
+                  border: '1px solid var(--color-border)',
+                  background: activeFilter?.value === `${k}:${v}` ? 'var(--color-primary-light)' : 'var(--color-background)',
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                }}
+              >
+                {k}: {v}
+              </button>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Productos */}
