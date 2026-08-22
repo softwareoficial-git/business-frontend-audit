@@ -130,7 +130,7 @@ export const CartFloatingWidget = ({
     const totalVal = `$${total.toFixed(2)}`;
     const totalLine = `${totalLabel}${' '.repeat(MAX_WIDTH - totalLabel.length - totalVal.length)}${totalVal}`;
 
-    const message = `*Nuevo Pedido*%0a%0a\`\`\`${ticket}%0a${'-'.repeat(MAX_WIDTH)}%0a${totalLine}\`\`\`%0a%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
+    const message = `*Nuevo Pedido*%0a%0a${ticket}%0a${'-'.repeat(MAX_WIDTH)}%0a${totalLine}%0a%0aPago: ${paymentMethod || 'No especificado'}%0aEnvío: ${shippingOption === 'envio' ? 'Sí' : 'No'}`;
     return `https://wa.me/${phone}?text=${message}`;
   };
 
