@@ -507,6 +507,7 @@ function PublicStoreContent({
                       name: product.name,
                       price: product.price,
                       qty: product.qty,
+                      category: product.category,
                     });
                   }}
                 >

@@ -14,6 +14,7 @@ type CartItem = {
   price: number;
   qty: number; // Cantidad seleccionada
   stock: number; // Stock disponible
+  category?: string;
 };
 
 type CartContextType = {
@@ -70,6 +71,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           price: Number(product.price),
           qty: 1,
           stock: product.qty,
+          category: product.category,
         },
       ];
     });
