@@ -125,8 +125,18 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
                   </p>
                   <ul className="ticket-items">
                     {items.map((p: any, i: number) => {
+                      const codeToFind =
+                        p.product_code || p.code || p.producto_code;
                       const prod = products.find(
-                        (product) => product.code === (p.product_code || p.code)
+                        (product) => String(product.code) === String(codeToFind)
+                      );
+                      console.log(
+                        'DEBUG: item item:',
+                        p,
+                        'codeToFind:',
+                        codeToFind,
+                        'prod found:',
+                        prod
                       );
                       const productName =
                         p.name ||
