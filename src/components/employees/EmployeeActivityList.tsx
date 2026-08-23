@@ -125,6 +125,7 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
                   </p>
                   <ul className="ticket-items">
                     {items.map((p: any, i: number) => {
+                      console.log('DEBUG: item details:', p);
                       // Usamos p.name directamente porque ahora se persiste en el backend
                       const productName = p.name || p.producto || 'Producto';
 
