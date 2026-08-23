@@ -1,13 +1,41 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getSalesHistory } from '../../lib/api';
+import { getSalesHistory, apiClient } from '../../lib/api';
 import './EmployeeActivityList.css';
 
 export default function EmployeeActivityList({ userId }: { userId?: string }) {
   const [tickets, setTickets] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'staff.list', params: {} }),
+      });
+      const result = await response.json();
+      setEmployees(result.data?.usuarios || result.data || []);
+    } catch (e) {
+      console.error('Error cargando empleados:', e);
+    }
+  };
+
+  const fetchStock = async () => {
+    try {
+      const response = await apiClient('/execute', {
+        method: 'POST',
+        body: JSON.stringify({ cmd: 'stock.list', params: {} }),
+      });
+      const result = await response.json();
+      setProducts(result.data || []);
+    } catch (e) {
+      console.error('Error cargando productos:', e);
+    }
+  };
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
@@ -32,6 +60,8 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
 
   useEffect(() => {
     fetchHistory();
+    fetchEmployees();
+    fetchStock();
   }, [fetchHistory]);
 
   const filteredTickets = userId
@@ -51,8 +81,16 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
         filteredTickets.map((ticket: any) => {
           const items =
             ticket.items || (ticket.ticket ? ticket.ticket.items : []);
+
+          const emp = employees.find(
+            (e) => String(e.id) === String(ticket.empleado)
+          );
           const empleado =
-            ticket.role === 'DUEÑO' ? 'Dueño' : `Emp. (${ticket.empleado})`;
+            ticket.role === 'DUEÑO'
+              ? 'Dueño'
+              : emp
+                ? emp.name || emp.username
+                : `Emp. (${ticket.empleado})`;
 
           return (
             <div key={ticket.id} className="ticket-card">
@@ -86,17 +124,26 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
                     {new Date(ticket.createdAt).toLocaleString()}
                   </p>
                   <ul className="ticket-items">
-                    {items.map((p: any, i: number) => (
-                      <li key={i} className="ticket-item">
-                        <span>
-                          {p.name || p.producto || 'Producto'} x{' '}
-                          {p.qty || p.cantidad || 0}
-                        </span>
-                        <span>
-                          ${Number(p.price || p.monto || 0).toFixed(2)}
-                        </span>
-                      </li>
-                    ))}
+                    {items.map((p: any, i: number) => {
+                      const prod = products.find(
+                        (product) => product.code === (p.product_code || p.code)
+                      );
+                      const productName =
+                        p.name ||
+                        p.producto ||
+                        (prod ? prod.name : null) ||
+                        'Producto';
+                      return (
+                        <li key={i} className="ticket-item">
+                          <span>
+                            {productName} x {p.qty || p.cantidad || 0}
+                          </span>
+                          <span>
+                            ${Number(p.price || p.monto || 0).toFixed(2)}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
