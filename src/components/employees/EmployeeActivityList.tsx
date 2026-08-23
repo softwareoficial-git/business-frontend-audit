@@ -31,6 +31,7 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
         body: JSON.stringify({ cmd: 'stock.list', params: {} }),
       });
       const result = await response.json();
+      console.log('DEBUG: stock.list result:', result);
       setProducts(result.data || []);
     } catch (e) {
       console.error('Error cargando productos:', e);
