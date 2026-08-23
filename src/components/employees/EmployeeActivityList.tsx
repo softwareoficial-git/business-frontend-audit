@@ -125,17 +125,8 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
                   </p>
                   <ul className="ticket-items">
                     {items.map((p: any, i: number) => {
-                      const codeToFind =
-                        p.product_code || p.code || p.producto_code;
-                      const prod = products.find(
-                        (product) => String(product.code) === String(codeToFind)
-                      );
-
-                      // Si no está en stock, intentamos nombre, si no, mostramos código como fallback
-                      const productName =
-                        p.name ||
-                        p.producto ||
-                        (prod ? prod.name : `Producto (${codeToFind || '?'})`);
+                      // Usamos p.name directamente porque ahora se persiste en el backend
+                      const productName = p.name || p.producto || 'Producto';
 
                       return (
                         <li key={i} className="ticket-item">
