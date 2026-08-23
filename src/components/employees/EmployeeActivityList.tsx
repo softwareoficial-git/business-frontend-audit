@@ -31,7 +31,6 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
         body: JSON.stringify({ cmd: 'stock.list', params: {} }),
       });
       const result = await response.json();
-      console.log('DEBUG: stock.list result:', result);
       setProducts(result.data || []);
     } catch (e) {
       console.error('Error cargando productos:', e);
@@ -131,19 +130,13 @@ export default function EmployeeActivityList({ userId }: { userId?: string }) {
                       const prod = products.find(
                         (product) => String(product.code) === String(codeToFind)
                       );
-                      console.log(
-                        'DEBUG: item item:',
-                        p,
-                        'codeToFind:',
-                        codeToFind,
-                        'prod found:',
-                        prod
-                      );
+
+                      // Si no está en stock, intentamos nombre, si no, mostramos código como fallback
                       const productName =
                         p.name ||
                         p.producto ||
-                        (prod ? prod.name : null) ||
-                        'Producto';
+                        (prod ? prod.name : `Producto (${codeToFind || '?'})`);
+
                       return (
                         <li key={i} className="ticket-item">
                           <span>
