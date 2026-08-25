@@ -433,10 +433,11 @@ function PublicStoreContent({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
             gap: '24px',
             padding: '0 20px',
             opacity: loading ? 0.5 : 1,
+            alignItems: 'start',
           }}
         >
           {filteredProducts.map((product: any, index: number) => (
