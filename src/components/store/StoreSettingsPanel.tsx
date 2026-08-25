@@ -8,7 +8,10 @@ export const StoreSettingsPanel = () => {
   const [settings, setSettings] = useState({
     store_info: { name: '', whatsapp: '', address: '', description: '' },
     assets: { logo_url: '', banner_url: '' },
+    tenantId: '',
   });
+
+  // ...
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{
@@ -33,8 +36,10 @@ export const StoreSettingsPanel = () => {
       const result = await response.json();
       if (result.success && result.data) {
         setSettings((prev) => ({
+          ...prev,
           store_info: { ...prev.store_info, ...result.data.store_info },
           assets: { ...prev.assets, ...result.data.assets },
+          tenantId: result.data.tenantId || prev.tenantId,
         }));
       }
     } catch (e) {
@@ -278,12 +283,12 @@ export const StoreSettingsPanel = () => {
                 backgroundColor: '#f9f9f9',
                 fontSize: '0.9rem',
               }}
-              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/\s+/g, '')}`}
+              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.tenantId}`}
             />
             <button
               className="btn-secondary"
               onClick={() => {
-                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/\s+/g, '')}`;
+                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.tenantId}`;
                 navigator.clipboard.writeText(url);
                 setMessage({
                   type: 'success',
