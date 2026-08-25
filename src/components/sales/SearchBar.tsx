@@ -59,6 +59,7 @@ export default function SearchBar({
             color: '#a0a0a0',
             font: 'inherit',
             lineHeight: 'inherit', // Heredar
+            paddingLeft: '1px', // Añadir 1px de separación a la derecha
           }}
         >
           {displayPrediction}

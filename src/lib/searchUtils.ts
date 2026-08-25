@@ -1,39 +1,69 @@
 export const searchProducts = (products: any[], query: string) => {
   if (!query) return products;
-  const q = query.toLowerCase();
+
+  const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const technicalKeys = [
+    'images',
+    'imagen',
+    'img',
+    'image',
+    'is_offer',
+    'discount_percent',
+    'discountpercent',
+  ];
 
   return [...products]
+    .filter((p) => {
+      // Unir todos los campos buscables en una sola cadena
+      const searchableText = [
+        p.name || '',
+        p.category || '',
+        p.metadata
+          ? Object.entries(p.metadata)
+              .filter(
+                ([key]) => !technicalKeys.includes(key.toLowerCase().trim())
+              )
+              .map(([_, val]) => String(val))
+              .join(' ')
+          : '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      // Verificar que TODAS las palabras de búsqueda estén presentes
+      return queryWords.every((word) => searchableText.includes(word));
+    })
     .sort((a, b) => {
+      // Lógica de scoring para ordenar resultados
       const getScore = (p: any) => {
-        if (p.name?.toLowerCase().startsWith(q)) return 4;
-        if (p.name?.toLowerCase().includes(q)) return 3;
-        if (p.category?.toLowerCase().includes(q)) return 2;
-        if (
-          p.metadata &&
-          Object.values(p.metadata).some((val) =>
-            String(val).toLowerCase().includes(q)
+        const text = [p.name, p.category].join(' ').toLowerCase();
+        let score = 0;
+
+        // Si el nombre completo coincide, puntaje alto
+        if (text.includes(query.toLowerCase())) score += 10;
+
+        // Puntos extra si todas las palabras aparecen
+        queryWords.forEach((word) => {
+          if (text.includes(word)) score += 2;
+          if (
+            p.metadata &&
+            Object.values(p.metadata).some((val) =>
+              String(val).toLowerCase().includes(word)
+            )
           )
-        )
-          return 1;
-        return 0;
+            score += 1;
+        });
+
+        return score;
       };
       return getScore(b) - getScore(a);
-    })
-    .filter((p) => {
-      return (
-        p.name?.toLowerCase().includes(q) ||
-        p.category?.toLowerCase().includes(q) ||
-        (p.metadata &&
-          Object.values(p.metadata).some((val) =>
-            String(val).toLowerCase().includes(q)
-          ))
-      );
     });
 };
 
 export const getPrediction = (products: any[], query: string) => {
   if (!query) return '';
   const q = query.toLowerCase();
+  // Buscar coincidencia empezando por la palabra completa actual
   const match = products.find((p) => p.name?.toLowerCase().startsWith(q));
   return match ? match.name : '';
 };
