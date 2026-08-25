@@ -278,12 +278,12 @@ export const StoreSettingsPanel = () => {
                 backgroundColor: '#f9f9f9',
                 fontSize: '0.9rem',
               }}
-              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/\s+/g, '')}`}
             />
             <button
               className="btn-secondary"
               onClick={() => {
-                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/\s+/g, '')}`;
                 navigator.clipboard.writeText(url);
                 setMessage({
                   type: 'success',

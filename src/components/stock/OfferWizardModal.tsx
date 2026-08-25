@@ -241,10 +241,11 @@ export default function OfferWizardModal({
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: 'var(--color-surface)',
-          padding: '2rem',
+          padding: '1.5rem',
           borderRadius: 'var(--radius-lg)',
-          width: '100%',
-          maxWidth: '800px',
+          width: 'auto',
+          minWidth: '350px',
+          maxWidth: '95%',
           maxHeight: '90vh',
           overflowY: 'auto',
           border: '1px solid var(--color-border)',
