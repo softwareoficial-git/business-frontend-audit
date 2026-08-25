@@ -442,18 +442,16 @@ function PublicStoreContent({
           {filteredProducts.map((product: any, index: number) => (
             <React.Fragment key={product.id}>
               {index > 0 && index % 5 === 0 && offers.length > 0 && (
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <RotatingOfferCard
-                    offers={offers}
-                    toggleExpand={toggleExpand}
-                    expandedId={
-                      Object.keys(expandedProducts).find(
-                        (k) => expandedProducts[k]
-                      ) || null
-                    }
-                    addToCart={addToCart}
-                  />
-                </div>
+                <RotatingOfferCard
+                  offers={offers}
+                  toggleExpand={toggleExpand}
+                  expandedId={
+                    Object.keys(expandedProducts).find(
+                      (k) => expandedProducts[k]
+                    ) || null
+                  }
+                  addToCart={addToCart}
+                />
               )}
               <ProductCard
                 key={product.id}
