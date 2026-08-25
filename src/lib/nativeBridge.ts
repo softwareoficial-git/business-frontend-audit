@@ -16,14 +16,22 @@ export const nativeBridge = {
     // Detectar si estamos en un entorno con inappwebview
     if ((window as any).flutter_inappwebview) {
       try {
-        return await (window as any).flutter_inappwebview.callHandler(command, params);
+        return await (window as any).flutter_inappwebview.callHandler(
+          command,
+          params
+        );
       } catch (error) {
-        console.error(`NativeBridge: Error al ejecutar comando ${command}`, error);
+        console.error(
+          `NativeBridge: Error al ejecutar comando ${command}`,
+          error
+        );
         return null;
       }
     }
-    
-    console.warn(`NativeBridge: El entorno no es nativo (App no detectada). Comando: ${command}`);
+
+    console.warn(
+      `NativeBridge: El entorno no es nativo (App no detectada). Comando: ${command}`
+    );
     return null;
-  }
+  },
 };

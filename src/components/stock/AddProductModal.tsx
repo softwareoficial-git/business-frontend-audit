@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useLoading } from '../loading/LoadingProvider';
 import { auditLog } from '../../lib/auditLogger';
 import { apiClient } from '../../lib/api';
+import { ImageUploader } from './ImageUploader'; // Import the new component
 
 export default function AddProductModal({
   onClose,
@@ -22,6 +23,7 @@ export default function AddProductModal({
     price: productToEdit?.price || '',
     qty: productToEdit?.qty || '',
     category: productToEdit?.category || '',
+    images: productToEdit?.images || [], // Añadir estado para imágenes
   });
 
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -667,6 +669,14 @@ export default function AddProductModal({
         >
           {renderMetadataFields()}
         </div>
+
+        <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+          Imágenes del producto
+        </label>
+        <ImageUploader
+          existingImages={product.images}
+          onImagesUploaded={(urls) => setProduct({ ...product, images: urls })}
+        />
 
         <button
           type="button"
