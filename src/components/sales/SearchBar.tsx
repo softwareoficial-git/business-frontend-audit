@@ -29,19 +29,21 @@ export default function SearchBar({
       <div
         style={{
           position: 'absolute',
-          top: '0.9rem',
-          left: '1.35rem',
+          top: '0',
+          left: '0',
           pointerEvents: 'none',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
-          width: 'calc(100% - 2.7rem)',
+          width: '100%',
+          padding: '0.9rem 1.35rem', // Mismo padding que el input
+          boxSizing: 'border-box',
+          fontSize: '0.9rem', // Mismo font-size que el input
         }}
       >
         <span
           style={{
             color: 'transparent',
             font: 'inherit',
-            fontSize: '0.9rem',
           }}
         >
           {term}
@@ -50,7 +52,6 @@ export default function SearchBar({
           style={{
             color: '#a0a0a0',
             font: 'inherit',
-            fontSize: '0.9rem',
           }}
         >
           {displayPrediction}
