@@ -30,6 +30,19 @@ function PublicStoreContent({
 
   const [products, setProducts] = useState<any[]>([]);
 
+  const isTechnicalKey = (key: string, value: string) => {
+    const lowerKey = key.toLowerCase();
+    const valStr = String(value).toLowerCase();
+    return (
+      lowerKey.includes('image') ||
+      lowerKey.includes('offer') ||
+      lowerKey.includes('discount') ||
+      valStr.includes('http') ||
+      valStr.startsWith('[') ||
+      valStr.trim() === ''
+    );
+  };
+
   const offers = useMemo(() => {
     return products.filter((p: any) => p.metadata?.is_offer === 'true');
   }, [products]);
@@ -41,6 +54,7 @@ function PublicStoreContent({
     products.forEach((p: any) => {
       if (p.metadata) {
         Object.entries(p.metadata).forEach(([key, value]) => {
+          if (isTechnicalKey(key, String(value))) return;
           const rawValues = String(value)
             .split(',')
             .map((v) => v.trim());
@@ -108,6 +122,8 @@ function PublicStoreContent({
       filteredByCat.forEach((p: any) => {
         if (p.metadata) {
           Object.entries(p.metadata).forEach(([key, value]) => {
+            if (isTechnicalKey(key, String(value))) return;
+
             // Separar valores complejos por coma
             const rawValues = String(value)
               .split(',')
