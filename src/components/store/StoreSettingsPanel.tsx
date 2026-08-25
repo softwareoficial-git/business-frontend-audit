@@ -276,9 +276,23 @@ export const StoreSettingsPanel = () => {
                 borderRadius: '8px',
                 border: '1px solid #ccc',
                 backgroundColor: '#f9f9f9',
+                fontSize: '0.9rem',
               }}
-              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.replace(/\s+/g, '-').toLowerCase()}`}
+              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
             />
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+                navigator.clipboard.writeText(url);
+                setMessage({
+                  type: 'success',
+                  text: 'Enlace copiado al portapapeles',
+                });
+              }}
+            >
+              Copiar
+            </button>
           </div>
         </div>
 

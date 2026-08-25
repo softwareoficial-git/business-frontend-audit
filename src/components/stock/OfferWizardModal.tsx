@@ -252,15 +252,33 @@ export default function OfferWizardModal({
         }}
       >
         {step === 1 && (
-          <div>
-            <h2>Paso 1: Seleccionar Productos</h2>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              width: '100%',
+              maxWidth: '300px',
+              margin: '0 auto',
+            }}
+          >
+            <h2>Seleccionar Productos</h2>
             <button
               onClick={() => setIsNewProductModalOpen(true)}
               className="btn-secondary"
             >
               + Crear Producto Nuevo
             </button>
-            <div style={{ marginTop: '1rem' }}>
+            <div
+              style={{
+                marginTop: '1rem',
+                maxHeight: '300px',
+                overflowY: 'auto',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.5rem',
+              }}
+            >
               {products.map((p) => {
                 const isSelected = selectedProducts.find(
                   (s) => s.code === p.code
@@ -270,12 +288,8 @@ export default function OfferWizardModal({
                     key={p.code}
                     onClick={() => toggleProduct(p)}
                     style={{
-                      padding: '0.8rem',
-                      border: isSelected
-                        ? '2px solid var(--color-primary)'
-                        : '1px solid var(--color-border)',
-                      borderRadius: 'var(--radius-sm)',
-                      marginBottom: '0.5rem',
+                      padding: '0.6rem',
+                      borderBottom: '1px solid #eee',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -283,6 +297,7 @@ export default function OfferWizardModal({
                         ? 'var(--color-primary-light)'
                         : 'transparent',
                       cursor: 'pointer',
+                      fontSize: '0.9rem',
                     }}
                   >
                     {p.name}
