@@ -42,7 +42,7 @@ export default function SearchBar({
           display: 'flex',
           alignItems: 'center', // Alineación vertical
           lineHeight: '1', // Forzar altura de línea neutra
-          marginTop: '5px', // Ajuste fino: bajado 4px más
+          marginTop: '2px', // Ajuste fino: subido 3px desde el anterior
         }}
       >
         <span
