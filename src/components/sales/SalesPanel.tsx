@@ -401,16 +401,16 @@ export default function SalesPanel() {
                 {p.name} {stock <= 0 ? '(Agotado)' : ''}
               </span>
 
-              {/* Metadata Preview Filtrado */}
+              {/* Metadata Preview Filtrado - Formato Lista */}
               {p.metadata && Object.keys(p.metadata).length > 0 && (
                 <div
                   style={{
                     fontSize: '0.65rem',
                     color: '#888',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
                     marginTop: '2px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1px',
                   }}
                 >
                   {Object.entries(p.metadata)
@@ -426,8 +426,18 @@ export default function SalesPanel() {
                         ].includes(key.toLowerCase())
                     )
                     .slice(0, 3)
-                    .map(([key, val]) => `${key}: ${val}`)
-                    .join(' | ')}
+                    .map(([key, val]) => (
+                      <div
+                        key={key}
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {key}: {String(val)}
+                      </div>
+                    ))}
                 </div>
               )}
 
