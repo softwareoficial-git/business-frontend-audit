@@ -331,9 +331,14 @@ export default function SalesPanel() {
                         {Object.entries(p.metadata)
                           .filter(
                             ([key]) =>
-                              !['imagen', 'img', 'image', 'images'].includes(
-                                key.toLowerCase()
-                              )
+                              ![
+                                'imagen',
+                                'img',
+                                'image',
+                                'images',
+                                'is_offer',
+                                'discount_percent',
+                              ].includes(key.toLowerCase())
                           )
                           .slice(0, 2)
                           .map(([key, val]) => `${key}: ${val}`)
@@ -411,9 +416,14 @@ export default function SalesPanel() {
                   {Object.entries(p.metadata)
                     .filter(
                       ([key]) =>
-                        !['imagen', 'img', 'image', 'images'].includes(
-                          key.toLowerCase()
-                        )
+                        ![
+                          'imagen',
+                          'img',
+                          'image',
+                          'images',
+                          'is_offer',
+                          'discount_percent',
+                        ].includes(key.toLowerCase())
                     )
                     .slice(0, 1)
                     .map(([key, val]) => `${key}: ${val}`)
