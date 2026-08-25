@@ -20,12 +20,37 @@ export default function OfferWizardModal({
   );
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
   const { startLoading, stopLoading } = useLoading();
+  const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
 
   const [offerConfigs, setOfferConfigs] = useState<
     Record<string, { discountPercent: string }>
   >({});
 
+  // Efecto para la rotación automática en el Paso 3
+  React.useEffect(() => {
+    if (step === 3 && selectedProducts.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentOfferIndex((prev) => (prev + 1) % selectedProducts.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [step, selectedProducts.length]);
+
   const toggleProduct = (product: any) => {
+    let metadataObj = {};
+    if (typeof product.metadata === 'string') {
+      try {
+        metadataObj = JSON.parse(product.metadata);
+      } catch (e) {
+        console.error(e);
+      }
+    } else if (
+      typeof product.metadata === 'object' &&
+      product.metadata !== null
+    ) {
+      metadataObj = product.metadata;
+    }
+
     setSelectedProducts((prev) => {
       const exists = prev.find((p) => p.code === product.code);
       if (exists) {
@@ -43,7 +68,7 @@ export default function OfferWizardModal({
           {
             ...product,
             metadata: {
-              ...product.metadata,
+              ...metadataObj,
               is_offer: 'true',
               discount_percent: newConfig.discountPercent,
             },
@@ -62,18 +87,29 @@ export default function OfferWizardModal({
 
     // Actualizar producto para preview
     setSelectedProducts((prev) =>
-      prev.map((p) =>
-        p.code === activeProductCode
+      prev.map((p) => {
+        let metadataObj = {};
+        if (typeof p.metadata === 'string') {
+          try {
+            metadataObj = JSON.parse(p.metadata);
+          } catch (e) {
+            console.error(e);
+          }
+        } else if (typeof p.metadata === 'object' && p.metadata !== null) {
+          metadataObj = p.metadata;
+        }
+
+        return p.code === activeProductCode
           ? {
               ...p,
               metadata: {
-                ...p.metadata,
+                ...metadataObj,
                 is_offer: 'true',
                 discount_percent: discount,
               },
             }
-          : p
-      )
+          : p;
+      })
     );
   };
 
@@ -155,34 +191,35 @@ export default function OfferWizardModal({
               + Crear Producto Nuevo
             </button>
             <div style={{ marginTop: '1rem' }}>
-              {products.map((p) => (
-                <div
-                  key={p.code}
-                  onClick={() => toggleProduct(p)}
-                  style={{
-                    padding: '0.8rem',
-                    border: selectedProducts.find((s) => s.code === p.code)
-                      ? '2px solid var(--color-primary)'
-                      : '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-sm)',
-                    marginBottom: '0.5rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    backgroundColor: selectedProducts.find(
-                      (s) => s.code === p.code
-                    )
-                      ? 'var(--color-primary-light)'
-                      : 'transparent',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {p.name}
-                  {selectedProducts.find((s) => s.code === p.code) && (
-                    <span>✓</span>
-                  )}
-                </div>
-              ))}
+              {products.map((p) => {
+                const isSelected = selectedProducts.find(
+                  (s) => s.code === p.code
+                );
+                return (
+                  <div
+                    key={p.code}
+                    onClick={() => toggleProduct(p)}
+                    style={{
+                      padding: '0.8rem',
+                      border: isSelected
+                        ? '2px solid var(--color-primary)'
+                        : '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-sm)',
+                      marginBottom: '0.5rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      backgroundColor: isSelected
+                        ? 'var(--color-primary-light)'
+                        : 'transparent',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {p.name}
+                    {isSelected && <span>✓</span>}
+                  </div>
+                );
+              })}
             </div>
             <button
               onClick={() => setStep(2)}
@@ -271,18 +308,32 @@ export default function OfferWizardModal({
         {step === 3 && (
           <div>
             <h2>Paso 3: Previsualización</h2>
-            <div style={{ marginTop: '1rem' }}>
-              {selectedProducts.map((p) => (
+            <div
+              style={{
+                marginTop: '1rem',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '300px',
+              }}
+            >
+              {selectedProducts.map((p, index) => (
                 <div
                   key={p.code}
                   style={{
-                    padding: '0.5rem',
-                    border: '1px solid #eee',
-                    marginBottom: '0.5rem',
+                    transition: 'opacity 0.5s ease-in-out',
+                    opacity: currentOfferIndex === index ? 1 : 0,
+                    position:
+                      currentOfferIndex === index ? 'relative' : 'absolute',
+                    width: '250px',
                   }}
                 >
-                  <strong>{p.name}</strong> - Descuento:{' '}
-                  {offerConfigs[p.code]?.discountPercent}%
+                  <ProductCard
+                    product={p}
+                    toggleExpand={() => {}}
+                    expanded={false}
+                    addToCart={() => {}}
+                  />
                 </div>
               ))}
             </div>
