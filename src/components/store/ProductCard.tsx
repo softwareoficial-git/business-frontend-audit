@@ -163,10 +163,22 @@ export function ProductCard({
           </span>
         )}
         {product.metadata &&
-          Object.values(product.metadata)
-            .flat()
+          Object.entries(product.metadata)
+            .filter(([key, value]) => {
+              const lowerKey = key.toLowerCase();
+              const valStr = String(value);
+              // Filtro agresivo: excluir campos técnicos, URLs y JSONs de imágenes
+              return (
+                !lowerKey.includes('image') &&
+                !lowerKey.includes('offer') &&
+                !lowerKey.includes('discount') &&
+                !valStr.toLowerCase().includes('http') &&
+                !valStr.startsWith('[') &&
+                valStr.trim() !== ''
+              );
+            })
             .slice(0, 3)
-            .map((v: any, i: number) => (
+            .map(([key, value], i: number) => (
               <span
                 key={i}
                 style={{
@@ -176,7 +188,7 @@ export function ProductCard({
                   background: 'var(--color-primary-light)',
                 }}
               >
-                {String(v).split(',')[0]}
+                {String(value).split(',')[0]}
               </span>
             ))}
       </div>

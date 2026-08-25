@@ -84,6 +84,7 @@ export default function OfferWizardModal({
           ...prev,
           {
             ...product,
+            images: product.images, // Asegurar que preservamos la raíz de imágenes
             metadata: {
               ...metadataObj,
               is_offer: 'true',
