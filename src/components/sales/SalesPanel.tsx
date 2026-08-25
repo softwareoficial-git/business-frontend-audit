@@ -340,7 +340,7 @@ export default function SalesPanel() {
                                 'discount_percent',
                               ].includes(key.toLowerCase())
                           )
-                          .slice(0, 2)
+                          .slice(0, 3)
                           .map(([key, val]) => `${key}: ${val}`)
                           .join(' | ')}
                       </div>
@@ -425,7 +425,7 @@ export default function SalesPanel() {
                           'discount_percent',
                         ].includes(key.toLowerCase())
                     )
-                    .slice(0, 1)
+                    .slice(0, 3)
                     .map(([key, val]) => `${key}: ${val}`)
                     .join(' | ')}
                 </div>
