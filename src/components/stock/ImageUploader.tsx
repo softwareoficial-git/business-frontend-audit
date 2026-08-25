@@ -130,6 +130,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
+          className="btn-primary"
+          style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
         >
           {uploading ? 'Subiendo...' : '+ Agregar Fotos'}
         </button>

@@ -519,6 +519,24 @@ export default function AddProductModal({
         {/* Espaciado superior para compensar el título absoluto */}
         <div style={{ marginTop: '1rem' }}></div>
 
+        <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+          Imágenes del producto
+        </label>
+        <div
+          style={{
+            padding: '0.5rem',
+            border: '1px dashed var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          <ImageUploader
+            existingImages={product.images}
+            onImagesUploaded={(urls) =>
+              setProduct({ ...product, images: urls })
+            }
+          />
+        </div>
+
         {/* Código con generador */}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <input
@@ -684,14 +702,6 @@ export default function AddProductModal({
         >
           {renderMetadataFields()}
         </div>
-
-        <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-          Imágenes del producto
-        </label>
-        <ImageUploader
-          existingImages={product.images}
-          onImagesUploaded={(urls) => setProduct({ ...product, images: urls })}
-        />
 
         <button
           type="button"

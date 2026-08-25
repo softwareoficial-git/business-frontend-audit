@@ -201,7 +201,8 @@ function ProductCard({
               if (key === 'images') return null;
               return (
                 <p key={key} style={{ margin: '0.2rem 0' }}>
-                  <strong>{key}:</strong> {String(value)}
+                  <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{' '}
+                  {String(value)}
                 </p>
               );
             })}
