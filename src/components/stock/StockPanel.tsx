@@ -5,6 +5,7 @@ import { apiClient } from '../../lib/api';
 import { LocalStorageSync } from '../../lib/localStorageSync'; // Importar servicio
 import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
+import AddOfferModal from './AddOfferModal';
 import { useLoading } from '../loading/LoadingProvider';
 import SearchBar from '../sales/SearchBar';
 import { useTour } from '../tour/TourProvider';
@@ -18,6 +19,7 @@ export default function StockPanel() {
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [scannedCode, setScannedCode] = useState<any | null>(null);
   const { startLoading, stopLoading } = useLoading();
   const { triggerEvent } = useTour();
@@ -196,6 +198,53 @@ export default function StockPanel() {
       >
         +
       </button>
+
+      {/* Botón de Ofertas */}
+      <button
+        onClick={() => setIsOfferModalOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: '145px',
+          right: '1.5rem',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--color-secondary)',
+          color: 'white',
+          border: 'none',
+          fontSize: '1.2rem',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          zIndex: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      </button>
+
+      {isOfferModalOpen && (
+        <AddOfferModal
+          onClose={() => setIsOfferModalOpen(false)}
+          products={products}
+          onSave={() => {
+            fetchStock();
+            setIsOfferModalOpen(false);
+          }}
+        />
+      )}
 
       {isModalOpen && (
         <AddProductModal
