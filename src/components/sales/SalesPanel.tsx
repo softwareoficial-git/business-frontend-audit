@@ -200,7 +200,13 @@ export default function SalesPanel() {
         const matchesMetadata =
           p.metadata && typeof p.metadata === 'object'
             ? Object.entries(p.metadata).some(([key, val]) => {
-                const ignoredKeys = ['imagen', 'oferta', 'img', 'image'];
+                const ignoredKeys = [
+                  'imagen',
+                  'oferta',
+                  'img',
+                  'image',
+                  'images',
+                ];
                 if (ignoredKeys.includes(key.toLowerCase())) return false;
                 return String(val).toLowerCase().includes(term);
               })
@@ -325,9 +331,13 @@ export default function SalesPanel() {
                         {Object.entries(p.metadata)
                           .filter(
                             ([key]) =>
-                              !['imagen', 'oferta', 'img', 'image'].includes(
-                                key.toLowerCase()
-                              )
+                              ![
+                                'imagen',
+                                'oferta',
+                                'img',
+                                'image',
+                                'images',
+                              ].includes(key.toLowerCase())
                           )
                           .slice(0, 2)
                           .map(([key, val]) => `${key}: ${val}`)
@@ -405,9 +415,13 @@ export default function SalesPanel() {
                   {Object.entries(p.metadata)
                     .filter(
                       ([key]) =>
-                        !['imagen', 'oferta', 'img', 'image'].includes(
-                          key.toLowerCase()
-                        )
+                        ![
+                          'imagen',
+                          'oferta',
+                          'img',
+                          'image',
+                          'images',
+                        ].includes(key.toLowerCase())
                     )
                     .slice(0, 1)
                     .map(([key, val]) => `${key}: ${val}`)
