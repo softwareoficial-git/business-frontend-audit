@@ -119,14 +119,30 @@ export default function StockCard({
             })}
             {/* Metadatos como sub-detalles */}
             {product.metadata &&
-              Object.entries(product.metadata).map(([key, value]) => (
-                <div
-                  key={key}
-                  style={{ marginBottom: '0.1rem', color: '#999' }}
-                >
-                  {key}: {String(value)}
-                </div>
-              ))}
+              Object.entries(product.metadata).map(([key, value]) => {
+                const lowerKey = key.toLowerCase();
+                const valStr = String(value).toLowerCase();
+
+                // Filtro agresivo: excluir campos técnicos, URLs y JSONs de imágenes
+                if (
+                  lowerKey.includes('image') ||
+                  lowerKey.includes('offer') ||
+                  lowerKey.includes('discount') ||
+                  valStr.includes('http') ||
+                  valStr.startsWith('[') ||
+                  valStr.trim() === ''
+                )
+                  return null;
+
+                return (
+                  <div
+                    key={key}
+                    style={{ marginBottom: '0.1rem', color: '#999' }}
+                  >
+                    {key}: {String(value)}
+                  </div>
+                );
+              })}
 
             <div
               style={{
