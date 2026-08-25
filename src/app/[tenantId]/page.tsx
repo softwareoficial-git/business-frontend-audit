@@ -261,7 +261,10 @@ export function ProductCard({
               if (
                 key === 'images' ||
                 key === 'is_offer' ||
-                key === 'discount_percent'
+                key === 'discount_percent' ||
+                value === '' ||
+                value === null ||
+                value === undefined
               )
                 return null;
               return (
