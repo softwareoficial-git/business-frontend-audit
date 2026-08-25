@@ -158,10 +158,23 @@ export default function AddProductModal({
         'category',
         'metadata',
       ];
+      const technicalKeys = [
+        'images',
+        'imagen',
+        'img',
+        'image',
+        'is_offer',
+        'discount_percent',
+        'discountpercent',
+      ];
 
       // 1. Campos aplanados (en la raíz)
       const rootMetadata = Object.entries(productToEdit)
-        .filter(([key]) => !baseFields.includes(key))
+        .filter(
+          ([key]) =>
+            !baseFields.includes(key) &&
+            !technicalKeys.includes(key.toLowerCase().trim())
+        )
         .map(([key, value]) => ({
           key,
           value:
@@ -171,13 +184,17 @@ export default function AddProductModal({
       // 2. Campos anidados (en productToEdit.metadata)
       const nestedMetadata =
         productToEdit.metadata && typeof productToEdit.metadata === 'object'
-          ? Object.entries(productToEdit.metadata).map(([key, value]) => ({
-              key,
-              value:
-                typeof value === 'object'
-                  ? JSON.stringify(value)
-                  : String(value),
-            }))
+          ? Object.entries(productToEdit.metadata)
+              .filter(
+                ([key]) => !technicalKeys.includes(key.toLowerCase().trim())
+              )
+              .map(([key, value]) => ({
+                key,
+                value:
+                  typeof value === 'object'
+                    ? JSON.stringify(value)
+                    : String(value),
+              }))
           : [];
 
       // Combinar ambos, evitando duplicados
@@ -197,13 +214,16 @@ export default function AddProductModal({
 
   // Renderizado de metadatos genéricos
   const renderMetadataFields = () => {
-    // Filtrar metadatos técnicos antes de renderizar
     const technicalKeys = [
       'images',
+      'imagen',
+      'img',
+      'image',
       'is_offer',
       'discount_percent',
       'discountpercent',
     ];
+    // Filtrar metadatos técnicos antes de renderizar
     const filteredMetadata = metadata.filter(
       (m) => !technicalKeys.includes(m.key.trim().toLowerCase())
     );
