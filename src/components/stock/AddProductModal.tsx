@@ -17,13 +17,25 @@ export default function AddProductModal({
   productToEdit?: any;
   products: any[]; // Definir tipo
 }) {
-  const [product, setProduct] = useState({
-    code: productToEdit?.code || '',
-    name: productToEdit?.name || '',
-    price: productToEdit?.price || '',
-    qty: productToEdit?.qty || '',
-    category: productToEdit?.category || '',
-    images: productToEdit?.images || [], // Añadir estado para imágenes
+  const [product, setProduct] = useState(() => {
+    let images = productToEdit?.images || [];
+    // Intentar recuperar imágenes de metadata si no están en la raíz
+    if (images.length === 0 && productToEdit?.metadata?.images) {
+      try {
+        images = JSON.parse(productToEdit.metadata.images);
+      } catch (e) {
+        console.error('Error parsing images metadata', e);
+      }
+    }
+
+    return {
+      code: productToEdit?.code || '',
+      name: productToEdit?.name || '',
+      price: productToEdit?.price || '',
+      qty: productToEdit?.qty || '',
+      category: productToEdit?.category || '',
+      images: images,
+    };
   });
 
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -430,6 +442,9 @@ export default function AddProductModal({
       },
       {} as Record<string, string>
     );
+
+    // Añadir imágenes a metadatos
+    metaObj.images = JSON.stringify(product.images);
 
     const productPayload = {
       ...product,

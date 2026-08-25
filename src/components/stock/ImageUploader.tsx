@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 const CLOUD_NAME = 'bvhc9tnp';
 const UPLOAD_PRESET = 'navegador';
@@ -13,6 +13,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   existingImages = [],
 }) => {
   const [images, setImages] = useState<string[]>(existingImages);
+
+  // Sincronizar si cambian las imágenes existentes (importante para edición)
+  useEffect(() => {
+    setImages(existingImages);
+  }, [existingImages]);
+
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,22 +87,47 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setUploading(false);
   };
 
+  const removeImage = (index: number) => {
+    const updatedImages = images.filter((_, i) => i !== index);
+    setImages(updatedImages);
+    onImagesUploaded(updatedImages);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
         {images.map((url, i) => (
-          <img
-            key={i}
-            src={url}
-            style={{
-              width: '80px',
-              height: '80px',
-              objectFit: 'cover',
-              borderRadius: '8px',
-            }}
-          />
+          <div key={i} style={{ position: 'relative' }}>
+            <img
+              src={url}
+              style={{
+                width: '80px',
+                height: '80px',
+                objectFit: 'cover',
+                borderRadius: '8px',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => removeImage(i)}
+              style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                borderRadius: '50%',
+                border: 'none',
+                background: 'red',
+                color: 'white',
+                cursor: 'pointer',
+                padding: '2px 6px',
+              }}
+            >
+              ×
+            </button>
+          </div>
         ))}
         <button
+          type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
         >
