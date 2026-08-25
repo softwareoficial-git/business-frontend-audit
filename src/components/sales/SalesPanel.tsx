@@ -196,12 +196,14 @@ export default function SalesPanel() {
           name.toLowerCase().includes(term) ||
           code.toLowerCase().includes(term);
 
-        // Buscar también en los valores de los metadatos
+        // Buscar también en los valores de los metadatos (ignorando campos técnicos)
         const matchesMetadata =
           p.metadata && typeof p.metadata === 'object'
-            ? Object.values(p.metadata).some((val) =>
-                String(val).toLowerCase().includes(term)
-              )
+            ? Object.entries(p.metadata).some(([key, val]) => {
+                const ignoredKeys = ['imagen', 'oferta', 'img', 'image'];
+                if (ignoredKeys.includes(key.toLowerCase())) return false;
+                return String(val).toLowerCase().includes(term);
+              })
             : false;
 
         return (
@@ -307,16 +309,26 @@ export default function SalesPanel() {
                         ${p.price}
                       </span>
                     </div>
-                    {/* Metadata Preview */}
+                    {/* Metadata Preview Filtrado */}
                     {p.metadata && Object.keys(p.metadata).length > 0 && (
                       <div
                         style={{
                           fontSize: '0.75rem',
                           color: '#666',
                           marginTop: '2px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          width: '100%',
                         }}
                       >
                         {Object.entries(p.metadata)
+                          .filter(
+                            ([key]) =>
+                              !['imagen', 'oferta', 'img', 'image'].includes(
+                                key.toLowerCase()
+                              )
+                          )
                           .slice(0, 2)
                           .map(([key, val]) => `${key}: ${val}`)
                           .join(' | ')}
@@ -348,21 +360,22 @@ export default function SalesPanel() {
               onClick={() => handleAddToCart(p, 1)}
               style={{
                 padding: '0.4rem 0.6rem',
-                borderRadius: '16px', // Borde redondeado suave
+                borderRadius: '16px',
                 border: '1px solid var(--color-border)',
                 background: 'var(--color-surface)',
                 color: 'var(--color-text)',
                 cursor: stock <= 0 ? 'not-allowed' : 'pointer',
                 display: 'flex',
-                flexDirection: 'column', // Vertical para nombre y info
-                justifyContent: 'center',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 textAlign: 'left',
                 boxShadow: 'var(--shadow-soft)',
                 fontSize: '0.75rem',
-                height: '60px', // Doble de altura aprox
-                margin: '0.2rem 0',
-                minWidth: '15ch', // Ancho mínimo consistente de 15 caracteres
+                height: '85px', // Altura fija
+                width: '100%',
+                boxSizing: 'border-box',
                 opacity: stock <= 0 ? 0.5 : 1,
+                overflow: 'hidden',
               }}
             >
               <span
@@ -371,12 +384,13 @@ export default function SalesPanel() {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  display: 'block',
                 }}
               >
                 {p.name} {stock <= 0 ? '(Agotado)' : ''}
               </span>
 
-              {/* Metadata Preview */}
+              {/* Metadata Preview Filtrado */}
               {p.metadata && Object.keys(p.metadata).length > 0 && (
                 <div
                   style={{
@@ -389,6 +403,12 @@ export default function SalesPanel() {
                   }}
                 >
                   {Object.entries(p.metadata)
+                    .filter(
+                      ([key]) =>
+                        !['imagen', 'oferta', 'img', 'image'].includes(
+                          key.toLowerCase()
+                        )
+                    )
                     .slice(0, 1)
                     .map(([key, val]) => `${key}: ${val}`)
                     .join(' | ')}
@@ -399,14 +419,24 @@ export default function SalesPanel() {
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  marginTop: '0.2rem',
+                  alignItems: 'center',
+                  marginTop: 'auto',
                 }}
               >
-                <span style={{ color: 'var(--color-secondary)' }}>
+                <span
+                  style={{
+                    color: 'var(--color-secondary)',
+                    fontSize: '0.7rem',
+                  }}
+                >
                   {p.unit || 'u'}
                 </span>
                 <span
-                  style={{ fontWeight: 800, color: 'var(--color-primary)' }}
+                  style={{
+                    fontWeight: 800,
+                    color: 'var(--color-primary)',
+                    fontSize: '0.85rem',
+                  }}
                 >
                   ${Number(p.price).toFixed(0)}
                 </span>
