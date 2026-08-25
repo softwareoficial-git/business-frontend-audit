@@ -5,6 +5,212 @@ import Icon from '../../components/Icon';
 import { CartProvider, useCart } from '../../lib/CartContext';
 import { CartFloatingWidget } from '../../components/CartFloatingWidget';
 
+function ProductCard({
+  product,
+  toggleExpand,
+  expanded,
+  addToCart,
+}: {
+  product: any;
+  toggleExpand: (id: string) => void;
+  expanded: boolean;
+  addToCart: any;
+}) {
+  let images = [];
+  try {
+    if (product.metadata && product.metadata.images) {
+      images = JSON.parse(product.metadata.images);
+    }
+  } catch (e) {
+    console.error('Error parsing images', e);
+  }
+
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImgIndex((prev) => (prev + 1) % (images.length || 1));
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImgIndex(
+      (prev) => (prev - 1 + (images.length || 1)) % (images.length || 1)
+    );
+  };
+
+  return (
+    <div
+      className="card"
+      style={{ padding: '1rem', cursor: 'pointer' }}
+      onClick={() => toggleExpand(product.id)}
+    >
+      <div style={{ position: 'relative', width: '100%', height: '150px' }}>
+        <ImageWithFallback
+          src={images[currentImgIndex] || '/placeholder-product.png'}
+          alt={product.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              style={{
+                position: 'absolute',
+                left: '5px',
+                top: '50%',
+                background: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                padding: '5px 10px',
+              }}
+            >
+              &lt;
+            </button>
+            <button
+              onClick={nextImage}
+              style={{
+                position: 'absolute',
+                right: '5px',
+                top: '50%',
+                background: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                padding: '5px 10px',
+              }}
+            >
+              &gt;
+            </button>
+          </>
+        )}
+      </div>
+      <h3>{product.name}</h3>
+      <p>${product.price}</p>
+
+      {/* Etiquetas en tarjeta */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '4px',
+          marginTop: '6px',
+        }}
+      >
+        {product.category && (
+          <span
+            style={{
+              fontSize: '0.65rem',
+              padding: '2px 5px',
+              borderRadius: '4px',
+              background: 'var(--color-background-muted)',
+            }}
+          >
+            {product.category.split('/').pop()}
+          </span>
+        )}
+        {product.metadata &&
+          Object.values(product.metadata)
+            .flat()
+            .slice(0, 3)
+            .map((v: any, i: number) => (
+              <span
+                key={i}
+                style={{
+                  fontSize: '0.65rem',
+                  padding: '2px 5px',
+                  borderRadius: '4px',
+                  background: 'var(--color-primary-light)',
+                }}
+              >
+                {String(v).split(',')[0]}
+              </span>
+            ))}
+      </div>
+
+      {product.qty > 0 && (
+        <button
+          style={{
+            width: '100%',
+            padding: '0.3rem',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            marginTop: '0.5rem',
+            cursor: 'pointer',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            addToCart({
+              code: product.id,
+              name: product.name,
+              price: product.price,
+              qty: product.qty,
+              category: product.category,
+              metadata: product.metadata,
+            });
+          }}
+        >
+          Agregar
+        </button>
+      )}
+
+      {expanded && (
+        <div
+          style={{
+            marginTop: '1rem',
+            paddingTop: '1rem',
+            borderTop: '1px solid #eee',
+            fontSize: '0.85rem',
+            textAlign: 'left',
+          }}
+        >
+          {images.length > 1 && (
+            <div
+              style={{
+                display: 'flex',
+                gap: '5px',
+                marginBottom: '10px',
+                overflowX: 'auto',
+              }}
+            >
+              {images.map((img: string, idx: number) => (
+                <img
+                  key={idx}
+                  src={img}
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+            Detalles completos:
+          </p>
+          <p style={{ margin: '0.2rem 0' }}>
+            <strong>Categoría:</strong> {product.category}
+          </p>
+          {product.metadata &&
+            Object.entries(product.metadata).map(([key, value]) => {
+              if (key === 'images') return null;
+              return (
+                <p key={key} style={{ margin: '0.2rem 0' }}>
+                  <strong>{key}:</strong> {String(value)}
+                </p>
+              );
+            })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PublicStoreContent({
   params,
 }: {
@@ -21,7 +227,6 @@ function PublicStoreContent({
       value: string;
     }[]
   >([]);
-  const [viewMode, setViewMode] = useState<'large' | 'compact'>('large');
   const [expandedProducts, setExpandedProducts] = useState<
     Record<string, boolean>
   >({});
@@ -433,155 +638,15 @@ function PublicStoreContent({
             opacity: loading ? 0.5 : 1,
           }}
         >
-          {filteredProducts.map((product: any) => {
-            // Extraer imágenes de metadata
-            let images = [];
-            try {
-              if (product.metadata && product.metadata.images) {
-                images = JSON.parse(product.metadata.images);
-              }
-            } catch (e) {
-              console.error('Error parsing images', e);
-            }
-            const displayImage =
-              images.length > 0 ? images[0] : product.image_url;
-
-            return (
-              <div
-                key={product.id}
-                className="card"
-                style={{ padding: '1rem', cursor: 'pointer' }}
-                onClick={() => toggleExpand(product.id)}
-              >
-                <ImageWithFallback
-                  src={displayImage}
-                  alt={product.name}
-                  style={{ width: '100%', height: '150px', objectFit: 'cover' }}
-                />
-                <h3>{product.name}</h3>
-                <p>${product.price}</p>
-
-                {/* Etiquetas en tarjeta */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '4px',
-                    marginTop: '6px',
-                  }}
-                >
-                  {product.category && (
-                    <span
-                      style={{
-                        fontSize: '0.65rem',
-                        padding: '2px 5px',
-                        borderRadius: '4px',
-                        background: 'var(--color-background-muted)',
-                      }}
-                    >
-                      {product.category.split('/').pop()}
-                    </span>
-                  )}
-                  {product.metadata &&
-                    Object.values(product.metadata)
-                      .flat()
-                      .slice(0, 3)
-                      .map((v: any, i: number) => (
-                        <span
-                          key={i}
-                          style={{
-                            fontSize: '0.65rem',
-                            padding: '2px 5px',
-                            borderRadius: '4px',
-                            background: 'var(--color-primary-light)',
-                          }}
-                        >
-                          {String(v).split(',')[0]}
-                        </span>
-                      ))}
-                </div>
-
-                {product.qty > 0 && (
-                  <button
-                    style={{
-                      width: '100%',
-                      padding: '0.3rem',
-                      backgroundColor: 'var(--color-primary)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 'var(--radius-md)',
-                      marginTop: '0.5rem',
-                      cursor: 'pointer',
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart({
-                        code: product.id,
-                        name: product.name,
-                        price: product.price,
-                        qty: product.qty,
-                        category: product.category,
-                        metadata: product.metadata,
-                      });
-                    }}
-                  >
-                    Agregar
-                  </button>
-                )}
-
-                {expandedProducts[product.id] && (
-                  <div
-                    style={{
-                      marginTop: '1rem',
-                      paddingTop: '1rem',
-                      borderTop: '1px solid #eee',
-                      fontSize: '0.85rem',
-                      textAlign: 'left',
-                    }}
-                  >
-                    {images.length > 1 && (
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '5px',
-                          marginBottom: '10px',
-                          overflowX: 'auto',
-                        }}
-                      >
-                        {images.map((img: string, idx: number) => (
-                          <img
-                            key={idx}
-                            src={img}
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              objectFit: 'cover',
-                              borderRadius: '4px',
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                      Detalles completos:
-                    </p>
-                    <p style={{ margin: '0.2rem 0' }}>
-                      <strong>Categoría:</strong> {product.category}
-                    </p>
-                    {product.metadata &&
-                      Object.entries(product.metadata).map(([key, value]) => {
-                        if (key === 'images') return null;
-                        return (
-                          <p key={key} style={{ margin: '0.2rem 0' }}>
-                            <strong>{key}:</strong> {String(value)}
-                          </p>
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {filteredProducts.map((product: any) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              toggleExpand={toggleExpand}
+              expanded={!!expandedProducts[product.id]}
+              addToCart={addToCart}
+            />
+          ))}
         </div>
       </div>
       <CartFloatingWidget
