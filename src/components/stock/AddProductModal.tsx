@@ -633,9 +633,8 @@ export default function AddProductModal({
         {/* Agrupación de precio y cantidad */}
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
             gap: '0.5rem',
             width: '100%',
             boxSizing: 'border-box',
@@ -650,7 +649,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 100px', // Reducido de 150px a 100px
+              width: '100%',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
@@ -666,7 +665,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 100px', // Reducido de 150px a 100px
+              width: '100%',
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
