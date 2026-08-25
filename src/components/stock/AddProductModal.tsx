@@ -650,7 +650,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 150px',
+              flex: '1 1 100px', // Reducido de 150px a 100px
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
@@ -666,7 +666,7 @@ export default function AddProductModal({
             }}
             required
             style={{
-              flex: '1 1 150px',
+              flex: '1 1 100px', // Reducido de 150px a 100px
               padding: '0.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--color-border)',
