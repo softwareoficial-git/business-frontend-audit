@@ -261,7 +261,7 @@ export default function OfferWizardModal({
                     <ProductCard
                       product={activeProduct}
                       toggleExpand={() => {}}
-                      expanded={true}
+                      expanded={false}
                       addToCart={() => {}}
                       editable={true}
                       onDiscountChange={(val) => updateDiscount(val)}
