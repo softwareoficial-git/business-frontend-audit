@@ -35,9 +35,12 @@ export default function SearchBar({
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           width: '100%',
-          padding: '0.9rem 1.35rem', // Mismo padding que el input
+          height: '100%',
+          padding: '0.9rem 1.35rem',
           boxSizing: 'border-box',
-          fontSize: '0.9rem', // Mismo font-size que el input
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center', // Alineación vertical
         }}
       >
         <span
