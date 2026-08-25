@@ -9,6 +9,7 @@ export const StoreSettingsPanel = () => {
     store_info: { name: '', whatsapp: '', address: '', description: '' },
     assets: { logo_url: '', banner_url: '' },
     tenantId: '',
+    tenantName: '',
   });
 
   // ...
@@ -40,6 +41,7 @@ export const StoreSettingsPanel = () => {
           store_info: { ...prev.store_info, ...result.data.store_info },
           assets: { ...prev.assets, ...result.data.assets },
           tenantId: result.data.tenantId || prev.tenantId,
+          tenantName: result.data.tenantName || prev.tenantName,
         }));
       }
     } catch (e) {
@@ -283,12 +285,12 @@ export const StoreSettingsPanel = () => {
                 backgroundColor: '#f9f9f9',
                 fontSize: '0.9rem',
               }}
-              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name}`}
+              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.tenantName || settings.store_info.name}`}
             />
             <button
               className="btn-secondary"
               onClick={() => {
-                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name}`;
+                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.tenantName || settings.store_info.name}`;
                 navigator.clipboard.writeText(url);
                 setMessage({
                   type: 'success',
