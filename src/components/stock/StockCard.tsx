@@ -121,17 +121,16 @@ export default function StockCard({
             {product.metadata &&
               Object.entries(product.metadata).map(([key, value]) => {
                 const lowerKey = key.toLowerCase();
-                const valStr = String(value).toLowerCase();
+                const technicalKeys = [
+                  'images',
+                  'is_offer',
+                  'discount_percent',
+                  'discountpercent',
+                ];
 
-                // Filtro agresivo: excluir campos técnicos, URLs y JSONs de imágenes
-                if (
-                  lowerKey.includes('image') ||
-                  lowerKey.includes('offer') ||
-                  lowerKey.includes('discount') ||
-                  valStr.includes('http') ||
-                  valStr.startsWith('[') ||
-                  valStr.trim() === ''
-                )
+                // Deny list estricta
+                if (technicalKeys.includes(lowerKey)) return null;
+                if (value === '' || value === null || value === undefined)
                   return null;
 
                 return (

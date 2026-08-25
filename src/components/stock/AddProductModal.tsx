@@ -186,7 +186,18 @@ export default function AddProductModal({
 
   // Renderizado de metadatos genéricos
   const renderMetadataFields = () => {
-    return metadata.map((m, i) => {
+    // Filtrar metadatos técnicos antes de renderizar
+    const technicalKeys = [
+      'images',
+      'is_offer',
+      'discount_percent',
+      'discountpercent',
+    ];
+    const filteredMetadata = metadata.filter(
+      (m) => !technicalKeys.includes(m.key.trim().toLowerCase())
+    );
+
+    return filteredMetadata.map((m, i) => {
       // Normalizar la clave para la búsqueda en el registro
       const normalizedKey = m.key.trim().toLowerCase();
       // Buscar en el registro normalizando también las claves del registro

@@ -263,16 +263,18 @@ export function ProductCard({
           {product.metadata &&
             Object.entries(product.metadata).map(([key, value]) => {
               const lowerKey = key.toLowerCase();
-              // Deny list: campos técnicos de manejo de imágenes, ofertas o vacíos
-              if (
-                lowerKey.includes('image') ||
-                lowerKey.includes('offer') ||
-                lowerKey.includes('discount') ||
-                value === '' ||
-                value === null ||
-                value === undefined
-              )
+              const technicalKeys = [
+                'images',
+                'is_offer',
+                'discount_percent',
+                'discountpercent',
+              ];
+
+              // Deny list estricta
+              if (technicalKeys.includes(lowerKey)) return null;
+              if (value === '' || value === null || value === undefined)
                 return null;
+
               return (
                 <p key={key} style={{ margin: '0.2rem 0' }}>
                   <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{' '}
