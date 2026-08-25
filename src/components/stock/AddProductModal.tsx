@@ -561,9 +561,6 @@ export default function AddProductModal({
         {/* Espaciado superior para compensar el título absoluto */}
         <div style={{ marginTop: '1rem' }}></div>
 
-        <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-          Imágenes del producto
-        </label>
         <div
           style={{
             padding: '0.5rem',
