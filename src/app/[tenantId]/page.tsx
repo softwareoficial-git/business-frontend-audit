@@ -10,11 +10,15 @@ export function ProductCard({
   toggleExpand,
   expanded,
   addToCart,
+  editable = false,
+  onDiscountChange,
 }: {
   product: any;
   toggleExpand: (id: string) => void;
   expanded: boolean;
   addToCart: any;
+  editable?: boolean;
+  onDiscountChange?: (discount: string) => void;
 }) {
   let images = [];
   try {
@@ -64,7 +68,23 @@ export function ProductCard({
             marginBottom: '8px',
           }}
         >
-          OFERTA: {product.metadata.discount_percent}% OFF
+          {editable ? (
+            <input
+              type="number"
+              value={product.metadata.discount_percent || '10'}
+              onChange={(e) => onDiscountChange?.(e.target.value)}
+              style={{
+                width: '40px',
+                background: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontWeight: 'bold',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            `OFERTA: ${product.metadata.discount_percent}% OFF`
+          )}
         </div>
       )}
       <div style={{ position: 'relative', width: '100%', height: '150px' }}>

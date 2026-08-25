@@ -243,12 +243,14 @@ export default function OfferWizardModal({
                         boxSizing: 'border-box',
                       }}
                     />
-                    <div style={{ maxWidth: '250px' }}>
+                    <div style={{ maxWidth: '250px', margin: '0 auto' }}>
                       <ProductCard
                         product={activeProduct}
                         toggleExpand={() => {}}
                         expanded={true}
                         addToCart={() => {}}
+                        editable={true}
+                        onDiscountChange={(val) => updateDiscount(val)}
                       />
                     </div>
                   </div>
