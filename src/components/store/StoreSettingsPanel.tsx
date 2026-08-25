@@ -283,12 +283,12 @@ export const StoreSettingsPanel = () => {
                 backgroundColor: '#f9f9f9',
                 fontSize: '0.9rem',
               }}
-              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.tenantId}`}
+              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name}`}
             />
             <button
               className="btn-secondary"
               onClick={() => {
-                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.tenantId}`;
+                const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name}`;
                 navigator.clipboard.writeText(url);
                 setMessage({
                   type: 'success',
