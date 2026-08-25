@@ -292,12 +292,34 @@ function PublicStoreContent({
           {storeData.settings?.store_info?.name || storeData.tenantName}
         </h1>
         {storeData.settings?.store_info?.description && (
-          <p
-            style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}
-          >
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
             {storeData.settings.store_info.description}
           </p>
         )}
+        <div
+          style={{
+            display: 'flex',
+            gap: '15px',
+            color: 'var(--color-text-muted)',
+            fontSize: '0.9rem',
+          }}
+        >
+          {storeData.settings?.store_info?.address && (
+            <p style={{ margin: 0 }}>
+              📍 {storeData.settings.store_info.address}
+            </p>
+          )}
+          {storeData.settings?.store_info?.whatsapp && (
+            <a
+              href={`https://wa.me/${storeData.settings.store_info.whatsapp.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
+            >
+              💬 WhatsApp
+            </a>
+          )}
+        </div>
       </div>
 
       <div

@@ -263,6 +263,26 @@ export const StoreSettingsPanel = () => {
         style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}
       >
         <div className="card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Compartir Tienda</h3>
+          <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+            Tu enlace público:
+          </p>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              readOnly
+              style={{
+                width: '100%',
+                padding: '0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                backgroundColor: '#f9f9f9',
+              }}
+              value={`${typeof window !== 'undefined' ? window.location.origin : ''}/${settings.store_info.name.replace(/\s+/g, '-').toLowerCase()}`}
+            />
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Información Básica</h3>
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
