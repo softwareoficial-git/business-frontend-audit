@@ -259,10 +259,10 @@ export default function AddProductModal({
             style={{
               display: 'flex',
               flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
+              gap: '0.3rem', // Reducido para mayor compacidad
               width: '100%',
               position: 'relative',
+              marginBottom: '0.2rem',
             }}
           >
             <input
@@ -281,15 +281,16 @@ export default function AddProductModal({
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'key' })}
               style={{
-                flex: '1 1 150px',
-                padding: '0.5rem',
+                flex: '1', // Igualdad de tamaño
+                padding: '0.3rem', // Más compacto
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
                 boxSizing: 'border-box',
+                fontSize: '0.8rem',
               }}
             />
             <input
-              placeholder="Añadir valor (enter)..."
+              placeholder="Valor..."
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -315,11 +316,12 @@ export default function AddProductModal({
               }}
               onFocus={() => setActiveSuggestField({ index: i, type: 'value' })}
               style={{
-                flex: '1 1 150px',
-                padding: '0.5rem',
+                flex: '1', // Igualdad de tamaño
+                padding: '0.3rem', // Más compacto
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--color-border)',
                 boxSizing: 'border-box',
+                fontSize: '0.8rem',
               }}
             />
           </div>
