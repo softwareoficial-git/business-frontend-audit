@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import AddProductModal from './AddProductModal'; // Reutilizamos para crear nuevos
+import { useLoading } from '../loading/LoadingProvider';
+import { apiClient } from '../../lib/api';
 
 export default function OfferWizardModal({
   onClose,
@@ -13,13 +15,67 @@ export default function OfferWizardModal({
   const [step, setStep] = useState(1);
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const { startLoading, stopLoading } = useLoading();
+
+  const [offerConfigs, setOfferConfigs] = useState<
+    Record<string, { discountPercent: string }>
+  >({});
 
   const toggleProduct = (product: any) => {
-    setSelectedProducts((prev) =>
-      prev.find((p) => p.code === product.code)
-        ? prev.filter((p) => p.code !== product.code)
-        : [...prev, product]
-    );
+    setSelectedProducts((prev) => {
+      const exists = prev.find((p) => p.code === product.code);
+      if (exists) {
+        const newConfigs = { ...offerConfigs };
+        delete newConfigs[product.code];
+        setOfferConfigs(newConfigs);
+        return prev.filter((p) => p.code !== product.code);
+      } else {
+        setOfferConfigs((prev) => ({
+          ...prev,
+          [product.code]: { discountPercent: '10' },
+        }));
+        return [...prev, product];
+      }
+    });
+  };
+
+  const updateDiscount = (code: string, discount: string) => {
+    setOfferConfigs((prev) => ({
+      ...prev,
+      [code]: { ...prev[code], discountPercent: discount },
+    }));
+  };
+
+  const handleSaveAllOffers = async () => {
+    startLoading();
+    try {
+      for (const product of selectedProducts) {
+        const config = offerConfigs[product.code];
+        const newMetadata = {
+          ...(product.metadata || {}),
+          is_offer: 'true',
+          discount_percent: config.discountPercent,
+        };
+
+        await apiClient('/execute', {
+          method: 'POST',
+          body: JSON.stringify({
+            cmd: 'stock.update',
+            params: {
+              code: product.code,
+              ...product,
+              metadata: newMetadata,
+            },
+          }),
+        });
+      }
+      onSave();
+      onClose();
+    } catch (error) {
+      console.error('Error saving offers', error);
+    } finally {
+      stopLoading();
+    }
   };
 
   return (
@@ -90,8 +146,30 @@ export default function OfferWizardModal({
         {step === 2 && (
           <div>
             <h2>Paso 2: Configurar Ofertas</h2>
-            {/* Aquí vendrá el editor en tiempo real */}
-            <p>Configurando {selectedProducts.length} productos...</p>
+            <div style={{ marginTop: '1rem' }}>
+              {selectedProducts.map((p) => (
+                <div
+                  key={p.code}
+                  style={{
+                    padding: '0.5rem',
+                    border: '1px solid #eee',
+                    marginBottom: '0.5rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span>{p.name}</span>
+                  <input
+                    type="number"
+                    value={offerConfigs[p.code]?.discountPercent || ''}
+                    onChange={(e) => updateDiscount(p.code, e.target.value)}
+                    placeholder="% Desc"
+                    style={{ width: '80px', padding: '0.3rem' }}
+                  />
+                </div>
+              ))}
+            </div>
             <button onClick={() => setStep(1)} className="btn-secondary">
               Atrás
             </button>
@@ -104,11 +182,25 @@ export default function OfferWizardModal({
         {step === 3 && (
           <div>
             <h2>Paso 3: Previsualización</h2>
-            {/* Aquí vendrá el simulador de tarjeta final */}
+            <div style={{ marginTop: '1rem' }}>
+              {selectedProducts.map((p) => (
+                <div
+                  key={p.code}
+                  style={{
+                    padding: '0.5rem',
+                    border: '1px solid #eee',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  <strong>{p.name}</strong> - Descuento:{' '}
+                  {offerConfigs[p.code]?.discountPercent}%
+                </div>
+              ))}
+            </div>
             <button onClick={() => setStep(2)} className="btn-secondary">
               Atrás
             </button>
-            <button onClick={onSave} className="btn-primary">
+            <button onClick={handleSaveAllOffers} className="btn-primary">
               Finalizar y Guardar
             </button>
           </div>
