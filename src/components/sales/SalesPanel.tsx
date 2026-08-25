@@ -331,13 +331,9 @@ export default function SalesPanel() {
                         {Object.entries(p.metadata)
                           .filter(
                             ([key]) =>
-                              ![
-                                'imagen',
-                                'oferta',
-                                'img',
-                                'image',
-                                'images',
-                              ].includes(key.toLowerCase())
+                              !['imagen', 'img', 'image', 'images'].includes(
+                                key.toLowerCase()
+                              )
                           )
                           .slice(0, 2)
                           .map(([key, val]) => `${key}: ${val}`)
@@ -381,8 +377,8 @@ export default function SalesPanel() {
                 textAlign: 'left',
                 boxShadow: 'var(--shadow-soft)',
                 fontSize: '0.75rem',
-                height: '85px', // Altura fija
-                width: '100%',
+                height: '100px', // Altura fija
+                width: '120px', // Ancho fijo
                 boxSizing: 'border-box',
                 opacity: stock <= 0 ? 0.5 : 1,
                 overflow: 'hidden',
@@ -415,13 +411,9 @@ export default function SalesPanel() {
                   {Object.entries(p.metadata)
                     .filter(
                       ([key]) =>
-                        ![
-                          'imagen',
-                          'oferta',
-                          'img',
-                          'image',
-                          'images',
-                        ].includes(key.toLowerCase())
+                        !['imagen', 'img', 'image', 'images'].includes(
+                          key.toLowerCase()
+                        )
                     )
                     .slice(0, 1)
                     .map(([key, val]) => `${key}: ${val}`)

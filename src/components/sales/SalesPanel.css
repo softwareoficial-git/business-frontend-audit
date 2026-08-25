@@ -97,10 +97,11 @@
     overflow-y: auto;
     overflow-x: hidden;
     display: grid;
-    /* Fuerza un ancho fijo de 140px por columna sin permitir que crezcan de forma adaptativa */
-    grid-template-columns: repeat(auto-fill, 140px);
+    /* Ancho fijo de 120px (cuadrado base + 20% aprox) */
+    grid-template-columns: repeat(auto-fill, 120px);
     justify-content: center;
-    grid-auto-rows: 85px;
+    /* Altura fija de 100px */
+    grid-auto-rows: 100px;
     align-content: start;
     padding: 0;
     padding-bottom: 50px;
