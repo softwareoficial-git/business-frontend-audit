@@ -5,7 +5,7 @@ import { apiClient } from '../../lib/api';
 import { LocalStorageSync } from '../../lib/localStorageSync'; // Importar servicio
 import StockCard from './StockCard';
 import AddProductModal from './AddProductModal';
-import AddOfferModal from './AddOfferModal';
+import OfferWizardModal from './OfferWizardModal';
 import { useLoading } from '../loading/LoadingProvider';
 import SearchBar from '../sales/SearchBar';
 import { useTour } from '../tour/TourProvider';
@@ -236,7 +236,7 @@ export default function StockPanel() {
       </button>
 
       {isOfferModalOpen && (
-        <AddOfferModal
+        <OfferWizardModal
           onClose={() => setIsOfferModalOpen(false)}
           products={products}
           onSave={() => {
