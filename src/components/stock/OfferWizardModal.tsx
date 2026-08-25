@@ -14,9 +14,16 @@ export default function OfferWizardModal({
   onSave: () => void;
 }) {
   const [step, setStep] = useState(1);
-  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<any[]>(() =>
+    products.filter((p) => p.metadata?.is_offer === 'true')
+  );
+  const [initialOffers] = useState<any[]>(() =>
+    products.filter((p) => p.metadata?.is_offer === 'true')
+  );
   const [activeProductCode, setActiveProductCode] = useState<string | null>(
-    null
+    products.filter((p) => p.metadata?.is_offer === 'true').length > 0
+      ? products.filter((p) => p.metadata?.is_offer === 'true')[0].code
+      : null
   );
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
   const { startLoading, stopLoading } = useLoading();
@@ -24,7 +31,17 @@ export default function OfferWizardModal({
 
   const [offerConfigs, setOfferConfigs] = useState<
     Record<string, { discountPercent: string }>
-  >({});
+  >(() => {
+    const configs: Record<string, { discountPercent: string }> = {};
+    products
+      .filter((p) => p.metadata?.is_offer === 'true')
+      .forEach((p) => {
+        configs[p.code] = {
+          discountPercent: p.metadata?.discount_percent || '10',
+        };
+      });
+    return configs;
+  });
 
   // Efecto para la rotación automática en el Paso 3
   React.useEffect(() => {
@@ -116,10 +133,26 @@ export default function OfferWizardModal({
   const handleSaveAllOffers = async () => {
     startLoading();
     try {
+      // 1. Procesar productos seleccionados (añadir/editar ofertas)
       for (const product of selectedProducts) {
         const config = offerConfigs[product.code];
+
+        let metadataObj = {};
+        if (typeof product.metadata === 'string') {
+          try {
+            metadataObj = JSON.parse(product.metadata);
+          } catch (e) {
+            console.error(e);
+          }
+        } else if (
+          typeof product.metadata === 'object' &&
+          product.metadata !== null
+        ) {
+          metadataObj = product.metadata;
+        }
+
         const newMetadata = {
-          ...(product.metadata || {}),
+          ...metadataObj,
           is_offer: 'true',
           discount_percent: config.discountPercent,
         };
@@ -135,6 +168,42 @@ export default function OfferWizardModal({
             },
           }),
         });
+      }
+
+      // 2. Procesar productos que eran ofertas y fueron desmarcados (eliminar ofertas)
+      for (const initialProduct of initialOffers) {
+        if (!selectedProducts.find((p) => p.code === initialProduct.code)) {
+          let metadataObj = {};
+          if (typeof initialProduct.metadata === 'string') {
+            try {
+              metadataObj = JSON.parse(initialProduct.metadata);
+            } catch (e) {
+              console.error(e);
+            }
+          } else if (
+            typeof initialProduct.metadata === 'object' &&
+            initialProduct.metadata !== null
+          ) {
+            metadataObj = initialProduct.metadata;
+          }
+
+          const newMetadata = {
+            ...metadataObj,
+            is_offer: 'false',
+            discount_percent: '0',
+          };
+          await apiClient('/execute', {
+            method: 'POST',
+            body: JSON.stringify({
+              cmd: 'stock.update',
+              params: {
+                code: initialProduct.code,
+                ...initialProduct,
+                metadata: newMetadata,
+              },
+            }),
+          });
+        }
       }
       onSave();
       onClose();

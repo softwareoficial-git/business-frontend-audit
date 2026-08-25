@@ -251,10 +251,11 @@ export function ProductCard({
           {product.metadata &&
             Object.entries(product.metadata).map(([key, value]) => {
               const lowerKey = key.toLowerCase();
+              // Deny list: campos técnicos de manejo de imágenes, ofertas o vacíos
               if (
-                lowerKey === 'images' ||
-                lowerKey === 'is_offer' ||
-                lowerKey === 'discount_percent' ||
+                lowerKey.includes('image') ||
+                lowerKey.includes('offer') ||
+                lowerKey.includes('discount') ||
                 value === '' ||
                 value === null ||
                 value === undefined
