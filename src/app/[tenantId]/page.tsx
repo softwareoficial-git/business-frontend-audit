@@ -5,7 +5,7 @@ import Icon from '../../components/Icon';
 import { CartProvider, useCart } from '../../lib/CartContext';
 import { CartFloatingWidget } from '../../components/CartFloatingWidget';
 
-function ProductCard({
+export function ProductCard({
   product,
   toggleExpand,
   expanded,
@@ -42,9 +42,31 @@ function ProductCard({
   return (
     <div
       className="card"
-      style={{ padding: '1rem', cursor: 'pointer' }}
+      style={{
+        padding: '1rem',
+        cursor: 'pointer',
+        border:
+          product.metadata?.is_offer === 'true'
+            ? '2px solid var(--color-secondary)'
+            : '1px solid var(--color-border)',
+      }}
       onClick={() => toggleExpand(product.id)}
     >
+      {product.metadata?.is_offer === 'true' && (
+        <div
+          style={{
+            background: 'var(--color-secondary)',
+            color: 'white',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontSize: '0.7rem',
+            fontWeight: 'bold',
+            marginBottom: '8px',
+          }}
+        >
+          OFERTA: {product.metadata.discount_percent}% OFF
+        </div>
+      )}
       <div style={{ position: 'relative', width: '100%', height: '150px' }}>
         <ImageWithFallback
           src={images[currentImgIndex] || '/placeholder-product.png'}
@@ -198,7 +220,12 @@ function ProductCard({
           </p>
           {product.metadata &&
             Object.entries(product.metadata).map(([key, value]) => {
-              if (key === 'images') return null;
+              if (
+                key === 'images' ||
+                key === 'is_offer' ||
+                key === 'discount_percent'
+              )
+                return null;
               return (
                 <p key={key} style={{ margin: '0.2rem 0' }}>
                   <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{' '}
