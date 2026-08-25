@@ -22,11 +22,8 @@ export function ProductCard({
 }) {
   let images = [];
   try {
-    console.log('DEBUG: ProductCard product object:', product);
-    console.log('DEBUG: ProductCard metadata:', product.metadata);
     // 1. Intentar desde metadata
     if (product.metadata && product.metadata.images) {
-      console.log('DEBUG: Found images in metadata:', product.metadata.images);
       if (typeof product.metadata.images === 'string') {
         images = JSON.parse(product.metadata.images);
       } else if (Array.isArray(product.metadata.images)) {
@@ -35,14 +32,12 @@ export function ProductCard({
     }
     // 2. Si no hay, intentar desde la raíz del producto
     if (images.length === 0 && product.images) {
-      console.log('DEBUG: Found images in product root:', product.images);
       if (typeof product.images === 'string') {
         images = JSON.parse(product.images);
       } else if (Array.isArray(product.images)) {
         images = product.images;
       }
     }
-    console.log('DEBUG: Final images array:', images);
   } catch (e) {
     console.error('Error parsing images', e);
   }
