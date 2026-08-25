@@ -41,12 +41,14 @@ export default function SearchBar({
           fontSize: '0.9rem',
           display: 'flex',
           alignItems: 'center', // Alineación vertical
+          lineHeight: '1', // Forzar altura de línea neutra
         }}
       >
         <span
           style={{
             color: 'transparent',
             font: 'inherit',
+            lineHeight: 'inherit', // Heredar
           }}
         >
           {term}
@@ -55,6 +57,7 @@ export default function SearchBar({
           style={{
             color: '#a0a0a0',
             font: 'inherit',
+            lineHeight: 'inherit', // Heredar
           }}
         >
           {displayPrediction}
