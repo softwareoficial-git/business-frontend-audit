@@ -4,6 +4,7 @@ import './SalesPanel.css';
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../lib/api';
 import { LocalStorageSync } from '../../lib/localStorageSync'; // Importar servicio
+import { searchProducts } from '../../lib/searchUtils';
 import SearchBar from './SearchBar';
 import CartList from './CartList';
 import CategoryGrid from './CategoryGrid';
@@ -184,40 +185,7 @@ export default function SalesPanel() {
   };
 
   const filteredProducts = searchTerm
-    ? products.filter((p) => {
-        if (!p) return false; // Defensive check
-        const term = searchTerm.toLowerCase();
-
-        const name = p.name || '';
-        const category = p.category || '';
-        const code = p.code || '';
-
-        const matchesNameOrCode =
-          name.toLowerCase().includes(term) ||
-          code.toLowerCase().includes(term);
-
-        // Buscar también en los valores de los metadatos (ignorando campos técnicos)
-        const matchesMetadata =
-          p.metadata && typeof p.metadata === 'object'
-            ? Object.entries(p.metadata).some(([key, val]) => {
-                const ignoredKeys = [
-                  'imagen',
-                  'oferta',
-                  'img',
-                  'image',
-                  'images',
-                ];
-                if (ignoredKeys.includes(key.toLowerCase())) return false;
-                return String(val).toLowerCase().includes(term);
-              })
-            : false;
-
-        return (
-          matchesNameOrCode ||
-          category.toLowerCase().includes(term) ||
-          matchesMetadata
-        );
-      })
+    ? searchProducts(products, searchTerm)
     : [];
 
   const currentProducts = selectedCategoryId
