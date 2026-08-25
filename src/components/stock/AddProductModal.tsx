@@ -65,6 +65,17 @@ export default function AddProductModal({
       if (p.metadata && typeof p.metadata === 'object') {
         Object.entries(p.metadata as Record<string, any>).forEach(
           ([key, val]) => {
+            // Filtrar claves técnicas internas
+            const technicalKeys = [
+              'images',
+              'is_offer',
+              'discount_percent',
+              'imagen',
+              'img',
+              'image',
+            ];
+            if (technicalKeys.includes(key.toLowerCase().trim())) return;
+
             if (!acc[key]) acc[key] = new Set();
             if (val) {
               const values = Array.isArray(val)
