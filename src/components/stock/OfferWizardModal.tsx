@@ -160,10 +160,15 @@ export default function OfferWizardModal({
                   key={p.code}
                   onClick={() => toggleProduct(p)}
                   style={{
-                    padding: '0.5rem',
-                    border: '1px solid var(--color-border)',
+                    padding: '0.8rem',
+                    border: selectedProducts.find((s) => s.code === p.code)
+                      ? '2px solid var(--color-primary)'
+                      : '1px solid var(--color-border)',
                     borderRadius: 'var(--radius-sm)',
                     marginBottom: '0.5rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     backgroundColor: selectedProducts.find(
                       (s) => s.code === p.code
                     )
@@ -173,6 +178,9 @@ export default function OfferWizardModal({
                   }}
                 >
                   {p.name}
+                  {selectedProducts.find((s) => s.code === p.code) && (
+                    <span>✓</span>
+                  )}
                 </div>
               ))}
             </div>
