@@ -22,8 +22,21 @@ export function ProductCard({
 }) {
   let images = [];
   try {
+    // 1. Intentar desde metadata
     if (product.metadata && product.metadata.images) {
-      images = JSON.parse(product.metadata.images);
+      if (typeof product.metadata.images === 'string') {
+        images = JSON.parse(product.metadata.images);
+      } else if (Array.isArray(product.metadata.images)) {
+        images = product.metadata.images;
+      }
+    }
+    // 2. Si no hay, intentar desde la raíz del producto
+    if (images.length === 0 && product.images) {
+      if (typeof product.images === 'string') {
+        images = JSON.parse(product.images);
+      } else if (Array.isArray(product.images)) {
+        images = product.images;
+      }
     }
   } catch (e) {
     console.error('Error parsing images', e);

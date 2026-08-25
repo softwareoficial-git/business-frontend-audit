@@ -257,39 +257,15 @@ export default function OfferWizardModal({
               </div>
               <div style={{ flex: 2 }}>
                 {activeProduct ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem',
-                    }}
-                  >
-                    <label>Descuento (%)</label>
-                    <input
-                      type="number"
-                      value={
-                        offerConfigs[activeProduct.code]?.discountPercent || ''
-                      }
-                      onChange={(e) => updateDiscount(e.target.value)}
-                      placeholder="% Descuento"
-                      style={{
-                        padding: '0.5rem',
-                        borderRadius: 'var(--radius-sm)',
-                        border: '1px solid var(--color-border)',
-                        width: '100%',
-                        boxSizing: 'border-box',
-                      }}
+                  <div style={{ maxWidth: '250px', margin: '0 auto' }}>
+                    <ProductCard
+                      product={activeProduct}
+                      toggleExpand={() => {}}
+                      expanded={true}
+                      addToCart={() => {}}
+                      editable={true}
+                      onDiscountChange={(val) => updateDiscount(val)}
                     />
-                    <div style={{ maxWidth: '250px', margin: '0 auto' }}>
-                      <ProductCard
-                        product={activeProduct}
-                        toggleExpand={() => {}}
-                        expanded={true}
-                        addToCart={() => {}}
-                        editable={true}
-                        onDiscountChange={(val) => updateDiscount(val)}
-                      />
-                    </div>
                   </div>
                 ) : (
                   <p>Selecciona un producto para configurar</p>
