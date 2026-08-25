@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AddProductModal from './AddProductModal';
 import { useLoading } from '../loading/LoadingProvider';
 import { apiClient } from '../../lib/api';
-import { ProductCard } from '../../app/[tenantId]/page';
+import { ProductCard } from '../store/ProductCard';
 
 export default function OfferWizardModal({
   onClose,
