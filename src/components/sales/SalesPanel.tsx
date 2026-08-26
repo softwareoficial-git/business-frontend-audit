@@ -195,7 +195,15 @@ export default function SalesPanel() {
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   return (
-    <div className="sales-panel">
+    <div
+      className="sales-panel"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100dvh',
+        overflow: 'hidden', // Evita scroll en el padre
+      }}
+    >
       {/* Capa de enfoque cuando hay búsqueda activa */}
       {searchTerm && (
         <div
@@ -213,8 +221,21 @@ export default function SalesPanel() {
         />
       )}
 
-      {/* Buscador */}
-      <div className="search-area">
+      {/* Buscador Fijo */}
+      <div
+        className="search-area"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+          backgroundColor: 'var(--color-background)',
+          padding: 'var(--space-sm)',
+          height: '60px', // Altura fija
+          boxSizing: 'border-box',
+        }}
+      >
         <div style={{ position: 'relative' }}>
           <SearchBar onSearch={setSearchTerm} products={products} />
 
@@ -223,7 +244,7 @@ export default function SalesPanel() {
             <div
               style={{
                 position: 'absolute',
-                top: 'calc(100% + 4px)', // Justo debajo del buscador con pequeña separación
+                top: 'calc(100% + 4px)',
                 left: 0,
                 right: 0,
                 maxHeight: '40vh',
@@ -232,7 +253,7 @@ export default function SalesPanel() {
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-lg)',
                 boxShadow: 'var(--shadow-card)',
-                padding: 'var(--space-xs)', // Padding interno reducido
+                padding: 'var(--space-xs)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 'var(--space-xs)',
@@ -321,7 +342,10 @@ export default function SalesPanel() {
         </div>
       </div>
 
-      <div className="categories-area">
+      <div
+        className="categories-area"
+        style={{ marginTop: '60px' }} // Compensar buscador fijo
+      >
         <CategoryGrid
           categories={categories}
           onSelectCategory={setSelectedCategoryId}
@@ -329,7 +353,7 @@ export default function SalesPanel() {
         />
       </div>
 
-      <div className="products-area">
+      <div className="products-area" style={{ flex: 1, overflowY: 'auto' }}>
         {currentProducts.map((p: any) => {
           const stock = getProductStock(p);
           return (
