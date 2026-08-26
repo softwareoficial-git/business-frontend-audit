@@ -81,6 +81,8 @@
   .search-area {
     grid-area: search;
     padding: 0;
+    max-width: 800px; /* 2x 400px de ancho de carrito */
+    width: 100%;
   }
 
   .categories-area {
@@ -106,6 +108,7 @@
     padding: 0;
     padding-bottom: 50px;
     gap: var(--space-md);
+    margin-top: 7px; /* Ajuste solicitado */
   }
 
   .cart-budget-card {
