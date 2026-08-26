@@ -21,7 +21,6 @@ export const ProductCard = memo(
     const images = useMemo(() => {
       let imgs = [];
       try {
-        // 1. Intentar desde metadata
         if (product.metadata && product.metadata.images) {
           if (typeof product.metadata.images === 'string') {
             imgs = JSON.parse(product.metadata.images);
@@ -29,7 +28,6 @@ export const ProductCard = memo(
             imgs = product.metadata.images;
           }
         }
-        // 2. Si no hay, intentar desde la raíz del producto
         if (imgs.length === 0 && product.images) {
           if (typeof product.images === 'string') {
             imgs = JSON.parse(product.images);
@@ -67,7 +65,6 @@ export const ProductCard = memo(
             product.metadata?.is_offer === 'true'
               ? '2px solid var(--color-secondary)'
               : '1px solid var(--color-border)',
-          boxShadow: product.metadata?.is_offer === 'true' ? 'none' : 'none',
           animation:
             product.metadata?.is_offer === 'true'
               ? 'offer-glow 3s infinite alternate'
@@ -75,6 +72,7 @@ export const ProductCard = memo(
         }}
         onClick={() => toggleExpand(product.id)}
       >
+        {/* Banner Oferta */}
         {product.metadata?.is_offer === 'true' && (
           <div
             style={{
@@ -106,6 +104,8 @@ export const ProductCard = memo(
             )}
           </div>
         )}
+
+        {/* Foto */}
         <div style={{ position: 'relative', width: '100%', height: '150px' }}>
           <ImageWithFallback
             src={images[currentImgIndex] || undefined}
@@ -148,99 +148,129 @@ export const ProductCard = memo(
           )}
         </div>
 
-        {/* Nuevo Layout: Título y Precio */}
+        {/* Título debajo de la foto */}
+        <h3 style={{ margin: '10px 0 10px 0', fontSize: '1.1rem' }}>
+          {product.name}
+        </h3>
+
+        {/* Sección dividida: Detalles (izq) | Precio + Carrito (der) */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '10px',
+            alignItems: 'flex-start',
+            marginTop: '5px',
           }}
         >
-          <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{product.name}</h3>
-          <p style={{ margin: 0, fontWeight: 'bold' }}>${product.price}</p>
-        </div>
-
-        {/* Etiquetas en tarjeta */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '4px',
-            marginTop: '6px',
-            marginBottom: '10px',
-          }}
-        >
-          {product.category && (
-            <span
-              style={{
-                fontSize: '0.65rem',
-                padding: '2px 5px',
-                borderRadius: '4px',
-                background: 'var(--color-background-muted)',
-              }}
-            >
-              {product.category.split('/').pop()}
-            </span>
-          )}
-          {product.metadata &&
-            Object.entries(product.metadata)
-              .filter(([key, value]) => {
-                const lowerKey = key.toLowerCase();
-                const valStr = String(value);
-                return (
-                  !lowerKey.includes('image') &&
-                  !lowerKey.includes('offer') &&
-                  !lowerKey.includes('discount') &&
-                  !valStr.toLowerCase().includes('http') &&
-                  !valStr.startsWith('[') &&
-                  valStr.trim() !== ''
-                );
-              })
-              .slice(0, 3)
-              .map(([key, value], i: number) => (
-                <span
-                  key={i}
-                  style={{
-                    fontSize: '0.65rem',
-                    padding: '2px 5px',
-                    borderRadius: '4px',
-                    background: 'var(--color-primary-light)',
-                  }}
-                >
-                  {String(value).split(',')[0]}
-                </span>
-              ))}
-        </div>
-
-        {product.qty > 0 && (
-          <button
+          {/* Detalles (Etiquetas/Metadata) a la izquierda */}
+          <div
             style={{
-              width: '100%',
-              padding: '0.3rem',
-              backgroundColor: 'var(--color-primary)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              marginTop: '0.5rem',
-              cursor: 'pointer',
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart({
-                code: product.id,
-                name: product.name,
-                price: product.price,
-                qty: product.qty,
-                category: product.category,
-                metadata: product.metadata,
-              });
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '4px',
+              flex: 1,
+              marginRight: '15px',
             }}
           >
-            Agregar
-          </button>
-        )}
+            {product.category && (
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  padding: '2px 5px',
+                  borderRadius: '4px',
+                  background: 'var(--color-background-muted)',
+                }}
+              >
+                {product.category.split('/').pop()}
+              </span>
+            )}
+            {product.metadata &&
+              Object.entries(product.metadata)
+                .filter(([key, value]) => {
+                  const lowerKey = key.toLowerCase();
+                  const valStr = String(value);
+                  return (
+                    !lowerKey.includes('image') &&
+                    !lowerKey.includes('offer') &&
+                    !lowerKey.includes('discount') &&
+                    !valStr.toLowerCase().includes('http') &&
+                    !valStr.startsWith('[') &&
+                    valStr.trim() !== ''
+                  );
+                })
+                .slice(0, 3)
+                .map(([key, value], i: number) => (
+                  <span
+                    key={i}
+                    style={{
+                      fontSize: '0.65rem',
+                      padding: '2px 5px',
+                      borderRadius: '4px',
+                      background: 'var(--color-primary-light)',
+                    }}
+                  >
+                    {String(value).split(',')[0]}
+                  </span>
+                ))}
+          </div>
 
+          {/* Precio y Carrito a la derecha */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              gap: '5px',
+            }}
+          >
+            <p style={{ margin: 0, fontWeight: 'bold' }}>${product.price}</p>
+            {product.qty > 0 && (
+              <button
+                style={{
+                  padding: '5px',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart({
+                    code: product.id,
+                    name: product.name,
+                    price: product.price,
+                    qty: product.qty,
+                    category: product.category,
+                    metadata: product.metadata,
+                  });
+                }}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  <line x1="16" y1="2" x2="22" y2="2"></line>
+                  <line x1="19" y1="0" x2="19" y2="4"></line>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Detalles Expandidos */}
         {expanded && (
           <div
             style={{
@@ -290,7 +320,6 @@ export const ProductCard = memo(
                   'discountpercent',
                 ];
 
-                // Deny list estricta
                 if (technicalKeys.includes(lowerKey)) return null;
                 if (value === '' || value === null || value === undefined)
                   return null;
