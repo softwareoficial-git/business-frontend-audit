@@ -81,10 +81,21 @@ export const CartFloatingWidget = ({
           metadataObj = null;
         }
       }
+      const technicalKeys = [
+        'images',
+        'is_offer',
+        'discount_percent',
+        'discountpercent',
+        'offer',
+      ];
+
       if (metadataObj && typeof metadataObj === 'object') {
         const filteredMeta = Object.entries(metadataObj).filter(
-          ([_, v]) =>
-            v !== null && v !== undefined && v.toString().trim() !== ''
+          ([k, v]) =>
+            v !== null &&
+            v !== undefined &&
+            v.toString().trim() !== '' &&
+            !technicalKeys.includes(k.toLowerCase())
         );
         if (filteredMeta.length > 0) {
           metaLines = filteredMeta
