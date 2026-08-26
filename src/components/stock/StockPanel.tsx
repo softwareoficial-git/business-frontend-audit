@@ -152,14 +152,16 @@ export default function StockPanel() {
       {/* Buscador Fijo */}
       <div
         style={{
-          position: 'sticky',
+          position: 'fixed',
           top: 0,
+          left: 0,
           zIndex: 10,
           backgroundColor: 'var(--color-background)',
           borderBottom: '1px solid var(--color-border)',
           padding: 'var(--space-sm)',
           boxSizing: 'border-box',
           width: '100%',
+          height: '60px', // Altura definida para el buscador
         }}
       >
         <SearchBar onSearch={setSearchTerm} products={products} />
@@ -170,9 +172,10 @@ export default function StockPanel() {
         className="stock-grid"
         style={{
           flex: 1,
-          overflowY: 'auto', // Solo el grid scrollea
+          marginTop: '60px', // Padding para compensar el buscador fijo
+          overflowY: 'auto',
           padding: 'var(--space-sm)',
-          zIndex: 1, // Debajo del buscador
+          zIndex: 1,
         }}
       >
         {Array.isArray(filteredProducts) &&
