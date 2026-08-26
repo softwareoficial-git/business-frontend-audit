@@ -149,15 +149,6 @@ export default function AddProductModal({
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     () => {
       if (!productToEdit) return [];
-
-      const baseFields = [
-        'code',
-        'name',
-        'price',
-        'qty',
-        'category',
-        'metadata',
-      ];
       const technicalKeys = [
         'images',
         'imagen',
@@ -168,67 +159,35 @@ export default function AddProductModal({
         'discountpercent',
       ];
 
-      // 1. Campos aplanados (en la raíz)
-      const rootMetadata = Object.entries(productToEdit)
-        .filter(
-          ([key]) =>
-            !baseFields.includes(key) &&
-            !technicalKeys.includes(key.toLowerCase().trim())
-        )
+      const rawMeta = productToEdit.metadata || {};
+
+      // Solo metadatos de usuario
+      return Object.entries(rawMeta)
+        .filter(([key]) => !technicalKeys.includes(key.toLowerCase().trim()))
         .map(([key, value]) => ({
           key,
           value:
             typeof value === 'object' ? JSON.stringify(value) : String(value),
         }));
-
-      // 2. Campos anidados (en productToEdit.metadata)
-      const nestedMetadata =
-        productToEdit.metadata && typeof productToEdit.metadata === 'object'
-          ? Object.entries(productToEdit.metadata)
-              .filter(
-                ([key]) => !technicalKeys.includes(key.toLowerCase().trim())
-              )
-              .map(([key, value]) => ({
-                key,
-                value:
-                  typeof value === 'object'
-                    ? JSON.stringify(value)
-                    : String(value),
-              }))
-          : [];
-
-      // Combinar ambos, evitando duplicados
-      const allMetadata = [...rootMetadata];
-      nestedMetadata.forEach((nm) => {
-        const existingIndex = allMetadata.findIndex((rm) => rm.key === nm.key);
-        if (existingIndex > -1) {
-          allMetadata[existingIndex] = nm;
-        } else {
-          allMetadata.push(nm);
-        }
-      });
-
-      return allMetadata;
     }
   );
 
-  // Renderizado de metadatos genéricos
-  const renderMetadataFields = () => {
-    const technicalKeys = [
-      'images',
-      'imagen',
-      'img',
-      'image',
-      'is_offer',
-      'discount_percent',
-      'discountpercent',
-    ];
-    // Filtrar metadatos técnicos antes de renderizar
-    const filteredMetadata = metadata.filter(
-      (m) => !technicalKeys.includes(m.key.trim().toLowerCase())
-    );
+  const [technicalMetadata] = useState(() => {
+    if (!productToEdit || !productToEdit.metadata) return {};
+    const techKeys = ['images', 'is_offer', 'discount_percent'];
+    const techObj: Record<string, any> = {};
 
-    return filteredMetadata.map((m, i) => {
+    Object.entries(productToEdit.metadata).forEach(([key, value]) => {
+      if (techKeys.includes(key.toLowerCase().trim())) {
+        techObj[key] = value;
+      }
+    });
+    return techObj;
+  });
+
+  // Renderizado de metadatos genéricos (YA NO FILTRAMOS AQUÍ)
+  const renderMetadataFields = () => {
+    return metadata.map((m, i) => {
       // Normalizar la clave para la búsqueda en el registro
       const normalizedKey = m.key.trim().toLowerCase();
       // Buscar en el registro normalizando también las claves del registro
@@ -255,7 +214,10 @@ export default function AddProductModal({
 
       // Usamos m.key + i como key para estabilidad
       return (
-        <div key={`${m.key}-${i}`} style={{ marginTop: '0.5rem', width: '100%' }}>
+        <div
+          key={`${m.key}-${i}`}
+          style={{ marginTop: '0.5rem', width: '100%' }}
+        >
           <div
             style={{
               display: 'flex',
@@ -463,7 +425,9 @@ export default function AddProductModal({
     }
 
     startLoading();
-    const metaObj = metadata.reduce(
+
+    // 1. Construir objeto usuario (limpio)
+    const userMeta = metadata.reduce(
       (acc, curr) => {
         if (curr.key) acc[curr.key] = curr.value;
         return acc;
@@ -471,12 +435,16 @@ export default function AddProductModal({
       {} as Record<string, string>
     );
 
-    // Añadir imágenes a metadatos
-    metaObj.images = JSON.stringify(product.images);
+    // 2. Fusionar: usuario primero, técnicos al final
+    const finalMetadata = {
+      ...userMeta,
+      ...technicalMetadata, // Conserva los valores originales si no fueron tocados
+      images: JSON.stringify(product.images), // Actualiza imágenes
+    };
 
     const productPayload = {
       ...product,
-      metadata: metaObj, // Enviar como objeto anidado 'metadata'
+      metadata: finalMetadata,
       price: Number(product.price),
       qty: Number(product.qty),
     };
