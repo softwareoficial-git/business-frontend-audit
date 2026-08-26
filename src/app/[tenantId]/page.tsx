@@ -478,10 +478,11 @@ function PublicStoreContent({
             alignItems: 'start',
           }}
         >
-          {filteredProducts.map((product: any, index: number) => (
-            <React.Fragment key={product.id}>
-              {index > 0 && index % 5 === 0 && offers.length > 0 && (
+          {filteredProducts.map((product: any, index: number) => {
+            const offerCard =
+              index > 0 && index % 5 === 0 && offers.length > 0 ? (
                 <RotatingOfferCard
+                  key={`offer-${index}`}
                   offers={offers}
                   toggleExpand={toggleExpand}
                   expandedId={
@@ -491,16 +492,20 @@ function PublicStoreContent({
                   }
                   addToCart={addToCart}
                 />
-              )}
-              <ProductCard
-                key={product.id}
-                product={product}
-                toggleExpand={toggleExpand}
-                expanded={!!expandedProducts[product.id]}
-                addToCart={addToCart}
-              />
-            </React.Fragment>
-          ))}
+              ) : null;
+
+            return (
+              <React.Fragment key={product.id}>
+                {offerCard}
+                <ProductCard
+                  product={product}
+                  toggleExpand={toggleExpand}
+                  expanded={!!expandedProducts[product.id]}
+                  addToCart={addToCart}
+                />
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
       <CartFloatingWidget
