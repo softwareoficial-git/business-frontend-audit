@@ -144,8 +144,9 @@ export default function StockPanel() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
+        height: '100dvh', // Usar dvh para móviles
         paddingBottom: '80px',
+        overflow: 'hidden', // Contenedor padre no debe scrollear
       }}
     >
       {/* Buscador Fijo */}
@@ -154,9 +155,9 @@ export default function StockPanel() {
           position: 'sticky',
           top: 0,
           zIndex: 10,
-          padding: 'var(--space-sm)',
           backgroundColor: 'var(--color-background)',
           borderBottom: '1px solid var(--color-border)',
+          padding: 'var(--space-sm)',
           boxSizing: 'border-box',
           width: '100%',
         }}
@@ -164,13 +165,14 @@ export default function StockPanel() {
         <SearchBar onSearch={setSearchTerm} products={products} />
       </div>
 
-      {/* Grid de tarjetas compacto */}
+      {/* Grid de tarjetas scrolleable */}
       <div
         className="stock-grid"
         style={{
           flex: 1,
-          overflowY: 'auto',
+          overflowY: 'auto', // Solo el grid scrollea
           padding: 'var(--space-sm)',
+          zIndex: 1, // Debajo del buscador
         }}
       >
         {Array.isArray(filteredProducts) &&
