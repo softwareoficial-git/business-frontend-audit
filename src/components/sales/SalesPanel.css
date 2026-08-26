@@ -108,7 +108,7 @@
     padding: 0;
     padding-bottom: 50px;
     gap: var(--space-md);
-    margin-top: 7px; /* Ajuste solicitado */
+    margin-top: 17px; /* Ajuste final: bajado 10px adicionales */
   }
 
   .cart-budget-card {
