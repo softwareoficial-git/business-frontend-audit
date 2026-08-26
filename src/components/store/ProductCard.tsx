@@ -99,7 +99,7 @@ export function ProductCard({
       )}
       <div style={{ position: 'relative', width: '100%', height: '150px' }}>
         <ImageWithFallback
-          src={images[currentImgIndex] || '/placeholder-product.png'}
+          src={images[currentImgIndex] || undefined}
           alt={product.name}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
