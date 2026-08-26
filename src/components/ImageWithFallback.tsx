@@ -26,8 +26,11 @@ export const ImageWithFallback = ({
       src={error || !src ? fallbackSvg : src}
       alt={alt}
       onError={(e) => {
-        console.error('DEBUG ImageWithFallback Error Event:', e);
-        setError(true);
+        // Solo marcar error si la fuente original (no el placeholder) falla
+        if (src && src !== fallbackSvg) {
+          console.error('DEBUG ImageWithFallback Error Event:', e);
+          setError(true);
+        }
       }}
       style={style}
       className={className}
