@@ -227,7 +227,7 @@ export const ProductCard = memo(
             {product.qty > 0 && (
               <button
                 style={{
-                  padding: '5px',
+                  padding: '8px',
                   backgroundColor: 'var(--color-primary)',
                   color: 'white',
                   border: 'none',
@@ -250,8 +250,8 @@ export const ProductCard = memo(
                 }}
               >
                 <svg
-                  width="18"
-                  height="18"
+                  width="36"
+                  height="36"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
