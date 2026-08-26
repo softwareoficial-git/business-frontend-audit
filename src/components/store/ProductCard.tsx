@@ -67,6 +67,11 @@ export const ProductCard = memo(
             product.metadata?.is_offer === 'true'
               ? '2px solid var(--color-secondary)'
               : '1px solid var(--color-border)',
+          boxShadow: product.metadata?.is_offer === 'true' ? 'none' : 'none',
+          animation:
+            product.metadata?.is_offer === 'true'
+              ? 'offer-glow 3s infinite alternate'
+              : 'none',
         }}
         onClick={() => toggleExpand(product.id)}
       >

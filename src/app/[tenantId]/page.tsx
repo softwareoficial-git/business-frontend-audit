@@ -328,6 +328,11 @@ function PublicStoreContent({
           display: 'flex',
           gap: '10px',
           flexDirection: 'column',
+          position: 'sticky',
+          top: 0,
+          backgroundColor: 'var(--color-surface)',
+          zIndex: 5,
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
         <input
@@ -449,7 +454,7 @@ function PublicStoreContent({
         </div>
       </div>
 
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', paddingBottom: '80px' }}>
         {loading && (
           <div
             style={{
