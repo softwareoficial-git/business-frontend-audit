@@ -147,8 +147,19 @@ export const ProductCard = memo(
             </>
           )}
         </div>
-        <h3>{product.name}</h3>
-        <p>${product.price}</p>
+
+        {/* Nuevo Layout: Título y Precio */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '10px',
+          }}
+        >
+          <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{product.name}</h3>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>${product.price}</p>
+        </div>
 
         {/* Etiquetas en tarjeta */}
         <div
@@ -157,6 +168,7 @@ export const ProductCard = memo(
             flexWrap: 'wrap',
             gap: '4px',
             marginTop: '6px',
+            marginBottom: '10px',
           }}
         >
           {product.category && (
@@ -176,7 +188,6 @@ export const ProductCard = memo(
               .filter(([key, value]) => {
                 const lowerKey = key.toLowerCase();
                 const valStr = String(value);
-                // Filtro agresivo: excluir campos técnicos, URLs y JSONs de imágenes
                 return (
                   !lowerKey.includes('image') &&
                   !lowerKey.includes('offer') &&
