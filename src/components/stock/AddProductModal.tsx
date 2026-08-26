@@ -733,7 +733,7 @@ export default function AddProductModal({
         {/* Contenedor scrollable para metadatos (máx 3 visibles) */}
         <div
           style={{
-            maxHeight: '250px',
+            maxHeight: '160px',
             overflowY: 'auto',
             border: '1px solid #eee',
             padding: '0.5rem',
