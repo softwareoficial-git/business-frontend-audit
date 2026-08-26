@@ -173,9 +173,14 @@ export default function AddProductModal({
   );
 
   const [technicalMetadata] = useState(() => {
-    if (!productToEdit || !productToEdit.metadata) return {};
+    if (!productToEdit || !productToEdit.metadata)
+      return { images: '[]', is_offer: 'false', discount_percent: '0' };
     const techKeys = ['images', 'is_offer', 'discount_percent'];
-    const techObj: Record<string, any> = {};
+    const techObj: Record<string, any> = {
+      images: '[]',
+      is_offer: 'false',
+      discount_percent: '0',
+    };
 
     Object.entries(productToEdit.metadata).forEach(([key, value]) => {
       if (techKeys.includes(key.toLowerCase().trim())) {
