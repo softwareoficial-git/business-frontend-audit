@@ -17,6 +17,18 @@ export default function AddProductModal({
   productToEdit?: any;
   products: any[]; // Definir tipo
 }) {
+  const TECHNICAL_KEYS = [
+    'images',
+    'imagen',
+    'img',
+    'image',
+    'is_offer',
+    'offer',
+    'discount_percent',
+    'discount',
+    'discountpercent',
+  ];
+
   const [product, setProduct] = useState(() => {
     let images = productToEdit?.images || [];
     // Intentar recuperar imágenes de metadata si no están en la raíz
@@ -65,16 +77,8 @@ export default function AddProductModal({
       if (p.metadata && typeof p.metadata === 'object') {
         Object.entries(p.metadata as Record<string, any>).forEach(
           ([key, val]) => {
-            // Filtrar claves técnicas internas
-            const technicalKeys = [
-              'images',
-              'is_offer',
-              'discount_percent',
-              'imagen',
-              'img',
-              'image',
-            ];
-            if (technicalKeys.includes(key.toLowerCase().trim())) return;
+            // Filtrar claves técnicas internas usando la lista centralizada
+            if (TECHNICAL_KEYS.includes(key.toLowerCase().trim())) return;
 
             if (!acc[key]) acc[key] = new Set();
             if (val) {
@@ -106,6 +110,9 @@ export default function AddProductModal({
     catProducts.forEach((p) => {
       if (p.metadata && typeof p.metadata === 'object') {
         Object.entries(p.metadata).forEach(([key, val]) => {
+          // Filtrar claves técnicas
+          if (TECHNICAL_KEYS.includes(key.toLowerCase().trim())) return;
+
           if (!keyStats[key]) {
             keyStats[key] = new Set();
           }
@@ -149,21 +156,12 @@ export default function AddProductModal({
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>(
     () => {
       if (!productToEdit) return [];
-      const technicalKeys = [
-        'images',
-        'imagen',
-        'img',
-        'image',
-        'is_offer',
-        'discount_percent',
-        'discountpercent',
-      ];
 
       const rawMeta = productToEdit.metadata || {};
 
-      // Solo metadatos de usuario
+      // Solo metadatos de usuario (limpios usando la lista centralizada)
       return Object.entries(rawMeta)
-        .filter(([key]) => !technicalKeys.includes(key.toLowerCase().trim()))
+        .filter(([key]) => !TECHNICAL_KEYS.includes(key.toLowerCase().trim()))
         .map(([key, value]) => ({
           key,
           value:
@@ -175,7 +173,6 @@ export default function AddProductModal({
   const [technicalMetadata] = useState(() => {
     if (!productToEdit || !productToEdit.metadata)
       return { images: '[]', is_offer: 'false', discount_percent: '0' };
-    const techKeys = ['images', 'is_offer', 'discount_percent'];
     const techObj: Record<string, any> = {
       images: '[]',
       is_offer: 'false',
@@ -183,7 +180,7 @@ export default function AddProductModal({
     };
 
     Object.entries(productToEdit.metadata).forEach(([key, value]) => {
-      if (techKeys.includes(key.toLowerCase().trim())) {
+      if (TECHNICAL_KEYS.includes(key.toLowerCase().trim())) {
         techObj[key] = value;
       }
     });
