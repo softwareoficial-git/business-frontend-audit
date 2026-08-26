@@ -165,7 +165,14 @@ export default function StockPanel() {
       </div>
 
       {/* Grid de tarjetas compacto */}
-      <div className="stock-grid">
+      <div
+        className="stock-grid"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-sm)',
+        }}
+      >
         {Array.isArray(filteredProducts) &&
           filteredProducts.map((p: any, index: number) => (
             <StockCard
