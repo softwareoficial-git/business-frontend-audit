@@ -253,15 +253,15 @@ export default function AddProductModal({
         handleMetadataChange(i, 'value', newVals.join(', '));
       };
 
+      // Usamos m.key + i como key para estabilidad
       return (
-        <div key={i} style={{ marginTop: '0.5rem', width: '100%' }}>
+        <div key={`${m.key}-${i}`} style={{ marginTop: '0.5rem', width: '100%' }}>
           <div
             style={{
               display: 'flex',
               flexDirection: 'row',
               gap: '0.3rem', // Reducido para mayor compacidad
               width: '100%',
-              position: 'relative',
               marginBottom: '0.2rem',
             }}
           >
