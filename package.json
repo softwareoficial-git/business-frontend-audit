@@ -2,7 +2,7 @@
   "name": "software-oficial-crm",
   "version": "1.0.1",
   "scripts": {
-    "dev": "next dev -p 5000",
+    "dev": "next dev -p 8085",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

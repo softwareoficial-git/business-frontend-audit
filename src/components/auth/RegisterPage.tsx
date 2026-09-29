@@ -60,8 +60,9 @@ export default function RegisterPage({
       }
       setStoreNameCheckMessage('Verificando disponibilidad...');
       try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4005';
         const response = await fetch(
-          `https://business-logic-v2-production.up.railway.app/api/public/store/check-name/${slug}`
+          `${apiBase}/api/public/store/check-name/${slug}`
         );
         const data = await response.json();
         setIsStoreNameAvailable(data.isAvailable);

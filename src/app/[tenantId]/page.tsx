@@ -166,8 +166,8 @@ function PublicStoreContent({
     if (!tenantId) return;
 
     setLoading(true);
-    const baseUrl =
-      'https://business-logic-v2-production.up.railway.app/api/public/store';
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4005';
+    const baseUrl = `${apiBase}/api/public/store`;
 
     let productsUrl = `${baseUrl}/name/${tenantId}/products`;
     const queryParams = new URLSearchParams();
