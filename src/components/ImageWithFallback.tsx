@@ -29,7 +29,7 @@ export const ImageWithFallback = memo(
         onError={(e) => {
           // Solo marcar error si la fuente original (no el placeholder) falla
           if (src && src !== fallbackSvg) {
-            console.error('DEBUG ImageWithFallback Error Event:', e);
+            console.debug('DEBUG ImageWithFallback Error Event:', e);
             setError(true);
           }
         }}
